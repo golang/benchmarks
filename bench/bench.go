@@ -8,6 +8,7 @@ import (
 	"code.google.com/p/go.benchmarks/driver"
 
 	_ "code.google.com/p/go.benchmarks/build"
+	_ "code.google.com/p/go.benchmarks/http"
 	_ "code.google.com/p/go.benchmarks/json"
 )
 
