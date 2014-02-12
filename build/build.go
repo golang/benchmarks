@@ -5,13 +5,9 @@
 package build
 
 import (
-	"bytes"
 	"log"
 	"os"
 	"os/exec"
-	"path/filepath"
-	"runtime"
-	"time"
 
 	"code.google.com/p/go.benchmarks/driver"
 )
@@ -32,7 +28,7 @@ func benchmark() driver.Result {
 		}
 		log.Printf("Run %v: %+v\n", i, res)
 	}
-	perf1, perf2 := driver.RunUnderProfiler("go", "install", "-a", "-p", os.Getenv("GOMAXPROCS"), "cmd/go")
+	perf1, perf2 := driver.RunUnderProfiler("go", "build", "-o", "goperf", "-a", "-p", os.Getenv("GOMAXPROCS"), "cmd/go")
 	if perf1 != "" {
 		res.Files["processes"] = perf1
 	}
@@ -44,28 +40,15 @@ func benchmark() driver.Result {
 
 func benchmarkOnce() driver.Result {
 	// run 'go build -a'
-	t0 := time.Now()
-	cmd := exec.Command("go", "install", "-a", "-p", os.Getenv("GOMAXPROCS"), "cmd/go")
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-	if err := cmd.Start(); err != nil {
-		log.Fatalf("Failed to start 'go install -a cmd/go': %v", err)
-	}
-	ss := driver.InitSysStats(1, cmd)
-	if err := cmd.Wait(); err != nil {
-		log.Fatalf("Failed to run 'go install -a cmd/go': %v\n%v", err, stderr.String())
-	}
 	res := driver.MakeResult()
-	res.RunTime = uint64(time.Since(t0))
-	res.Metrics["build-time"] = res.RunTime
-	ss.Collect(&res, "build-")
+	cmd := exec.Command("go", "build", "-o", "gobuild", "-a", "-p", os.Getenv("GOMAXPROCS"), "cmd/go")
+	out, err := driver.RunAndCollectSysStats(cmd, &res, 1, "build-")
+	if err != nil {
+		log.Fatalf("Failed to run 'go build -a cmd/go': %v\n%v", err, out)
+	}
 
 	// go command binary size
-	gobin := filepath.Join(os.Getenv("GOROOT"), "bin", "go")
-	if runtime.GOOS == "windows" {
-		gobin += ".exe"
-	}
-	gof, err := os.Open(gobin)
+	gof, err := os.Open("gobuild")
 	if err != nil {
 		log.Fatalf("Failed to open $GOROOT/bin/go: %v\n", err)
 	}
@@ -75,7 +58,7 @@ func benchmarkOnce() driver.Result {
 	}
 	res.Metrics["binary-size"] = uint64(st.Size())
 
-	sizef := driver.Size(gobin)
+	sizef := driver.Size("gobuild")
 	if sizef != "" {
 		res.Files["sections"] = sizef
 	}

@@ -15,7 +15,7 @@ func Size(file string) string {
 	return ""
 }
 
-func getVMPeak(pid int) uint64 {
+func getVMPeak() uint64 {
 	return 0
 }
 
