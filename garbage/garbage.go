@@ -26,8 +26,7 @@ func init() {
 type ParsedPackage map[string]*ast.Package
 
 var (
-	parsed   []ParsedPackage
-	manualGC bool
+	parsed []ParsedPackage
 )
 
 func benchmark() driver.Result {
@@ -42,11 +41,6 @@ func benchmark() driver.Result {
 			}
 		}
 		fmt.Printf("consumption=%vKB npkg=%d\n", mem>>10, npkg)
-		// Disable GC, we will trigger GC manually at predictable points.
-		// This helps to avoid a situation when one run triggers 3 GCs,
-		// and then a subsequent run triggers 4 GCs, which causes
-		// significant fluctuations in results.
-		manualGC = driver.SetGCPercent(10000)
 	}
 	return driver.Benchmark(benchmarkN)
 }
@@ -72,10 +66,6 @@ func benchmarkN(N uint64) {
 				// the other part represents "old" generation.
 				parsed[pos%(len(parsed)/2)] = p
 				pos++
-				// This condition is roughy equal to GCGC=100, but is more stable.
-				if manualGC && (pos%len(parsed)) == 0 {
-					runtime.GC()
-				}
 				mu.Unlock()
 				<-gate
 			}
