@@ -105,7 +105,7 @@ func packageMemConsumption() int {
 // parsePackage parses and returns net/http package.
 func parsePackage() ParsedPackage {
 	pkgname := "http"
-	dirpath := runtime.GOROOT() + "/src/net/http"
+	dirpath := runtime.GOROOT() + "/src/pkg/net/http"
 	// filter function to select the desired .go files
 	filter := func(d os.FileInfo) bool {
 		if isPkgFile(d) {
