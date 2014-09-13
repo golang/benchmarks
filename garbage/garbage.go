@@ -11,6 +11,7 @@ import (
 	"go/token"
 	"os"
 	"path"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
@@ -105,7 +106,12 @@ func packageMemConsumption() int {
 // parsePackage parses and returns net/http package.
 func parsePackage() ParsedPackage {
 	pkgname := "http"
-	dirpath := runtime.GOROOT() + "/src/pkg/net/http"
+	dirpath := filepath.Join(runtime.GOROOT(), "/src/pkg/net/", pkgname)
+	if !exists(dirpath) {
+		// As of 8th Sept 2014 the "pkg" prefix was removed from the std lib
+		// http://golang.org/s/go14nopkg
+		dirpath = filepath.Join(runtime.GOROOT(), "/src/net/", pkgname)
+	}
 	// filter function to select the desired .go files
 	filter := func(d os.FileInfo) bool {
 		if isPkgFile(d) {
@@ -147,4 +153,9 @@ func pkgName(filename string) string {
 		return ""
 	}
 	return file.Name.Name
+}
+
+func exists(path string) bool {
+	_, err := os.Stat(path)
+	return !os.IsNotExist(err)
 }
