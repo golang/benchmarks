@@ -94,9 +94,12 @@ func initJob() {
 	// Read Job notifications about new "child" processes and collect them in childProcesses.
 	go func() {
 		var code, key uint32
-		var o *syscall.Overlapped
+		// o is declared as uintptr because GetQueuedCompletionStatus
+		// stores process id into it.  If we declare it as *overlapped,
+		// runtime stack copier will crash due to bogus pointer value.
+		var o uintptr
 		for {
-			err := syscall.GetQueuedCompletionStatus(iocp, &code, &key, &o, syscall.INFINITE)
+			err := syscall.GetQueuedCompletionStatus(iocp, &code, &key, (**syscall.Overlapped)(unsafe.Pointer(&o)), syscall.INFINITE)
 			if err != nil {
 				log.Printf("GetQueuedCompletionStatus failed: %v", err)
 				return
@@ -105,7 +108,7 @@ func initJob() {
 				panic("Invalid GetQueuedCompletionStatus key parameter")
 			}
 			if code == JOB_OBJECT_MSG_NEW_PROCESS {
-				pid := int(uintptr(unsafe.Pointer(o)))
+				pid := int(o)
 				if pid == syscall.Getpid() {
 					continue
 				}
