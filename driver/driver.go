@@ -329,8 +329,10 @@ func (p latencyData) Less(i, j int) bool { return p[i] < p[j] }
 func (p latencyData) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 
 func latencyInit(N uint64) {
-	N = min(N, 1e6) // bound the amount of memory consumed
-	latency.data = make(latencyData, N)
+	// Use fixed size slice to:
+	// - bound the amount of memory consumed
+	// - eliminate variance in runs that use different number of iterations
+	latency.data = make(latencyData, 1e6)
 	latency.idx = 0
 }
 
