@@ -17,7 +17,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"code.google.com/p/go.benchmarks/driver"
+	"golang.org/x/benchmarks/driver"
 )
 
 func init() {

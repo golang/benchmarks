@@ -15,7 +15,7 @@ import (
 	"io"
 	"io/ioutil"
 
-	"code.google.com/p/go.benchmarks/driver"
+	"golang.org/x/benchmarks/driver"
 )
 
 func init() {

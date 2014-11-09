@@ -9,7 +9,7 @@ import (
 	"os"
 	"os/exec"
 
-	"code.google.com/p/go.benchmarks/driver"
+	"golang.org/x/benchmarks/driver"
 )
 
 func init() {

@@ -5,12 +5,12 @@
 package main
 
 import (
-	"code.google.com/p/go.benchmarks/driver"
+	"golang.org/x/benchmarks/driver"
 
-	_ "code.google.com/p/go.benchmarks/build"
-	_ "code.google.com/p/go.benchmarks/garbage"
-	_ "code.google.com/p/go.benchmarks/http"
-	_ "code.google.com/p/go.benchmarks/json"
+	_ "golang.org/x/benchmarks/build"
+	_ "golang.org/x/benchmarks/garbage"
+	_ "golang.org/x/benchmarks/http"
+	_ "golang.org/x/benchmarks/json"
 )
 
 func main() {
