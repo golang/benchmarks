@@ -11,7 +11,7 @@
 // func(N uint64), similar to standard testing benchmarks. The rest is handled
 // by the driver.
 
-package driver
+package driver // import "golang.org/x/benchmarks/driver"
 
 import (
 	"bytes"
