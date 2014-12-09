@@ -190,7 +190,7 @@ func Benchmark(f func(uint64)) Result {
 		res.Files["cpuprof"] = cpuprof
 	}
 
-	memprof := processProfile("--lines", "--show_bytes", "--alloc_space", "--base", res.Files["memprof0"], os.Args[0], res.Files["memprof"])
+	memprof := processProfile("--lines", "--unit=byte", "--alloc_space", "--base", res.Files["memprof0"], os.Args[0], res.Files["memprof"])
 	delete(res.Files, "memprof")
 	delete(res.Files, "memprof0")
 	if memprof != "" {
