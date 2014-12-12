@@ -2,15 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// This file contains common benchmarking logic shared between benchmarks.
+// Driver contains common benchmarking logic shared between benchmarks.
 // It defines the main function which calls one of the benchmarks registered
 // with Register function.
 // When a benchmark is invoked it has 2 choices:
-// 1. Do whatever it wants, fill and return Result object.
-// 2. Call Benchmark helper function and provide benchmarking function
-// func(N uint64), similar to standard testing benchmarks. The rest is handled
-// by the driver.
-
+//  1. Do whatever it wants, fill and return Result object.
+//  2. Call Benchmark helper function and provide benchmarking function
+//  func(N uint64), similar to standard testing benchmarks. The rest is handled
+//  by the driver.
 package driver // import "golang.org/x/benchmarks/driver"
 
 import (

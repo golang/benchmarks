@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// Build is a benchmark that examines compiler and linker performance.
+// It executes 'go build -a cmd/go'.
 package build // import "golang.org/x/benchmarks/build"
 
 import (
