@@ -22,7 +22,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"runtime/pprof"
-	"runtime/trace"
 	"sort"
 	"strings"
 	"sync"
@@ -39,7 +38,6 @@ var (
 	affinity  = flag.Int("affinity", 0, "process affinity (passed to an OS-specific function like sched_setaffinity/SetProcessAffinityMask)")
 	tmpDir    = flag.String("tmpdir", os.TempDir(), "dir for temporary files")
 	genSvg    = flag.Bool("svg", false, "generate svg profiles")
-	traceFile = flag.String("trace", "", "write an execution trace to the named file after execution")
 
 	BenchNum  int
 	BenchMem  int
@@ -47,6 +45,12 @@ var (
 	WorkDir   string
 
 	benchmarks = make(map[string]func() Result)
+
+	// startTrace starts runtime tracing if supported and
+	// requested and returns a function to stop tracing.
+	startTrace = func() func() {
+		return func() {}
+	}
 )
 
 func Register(name string, f func() Result) {
@@ -82,19 +86,8 @@ func Main() {
 		return
 	}
 
-	if *traceFile != "" {
-		f, err := os.Create(*traceFile)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
-		defer f.Close()
-		if err := trace.Start(f); err != nil {
-			fmt.Fprintf(os.Stderr, "can't start tracing: %s\n", err)
-			os.Exit(1)
-		}
-		defer trace.Stop()
-	}
+	stopTrace := startTrace()
+	defer stopTrace()
 
 	res := f()
 
