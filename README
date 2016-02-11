@@ -3,17 +3,17 @@ http://build.golang.org/perf
 
 All benchmarks are compiled into a single binary, to build it execute:
 
-	go install golang.org/x/benchmarks/bench
+	go get golang.org/x/benchmarks/bench
 
 When you run the binary without any flags, it prints comma-separated list of
 available benchmarks:
 
-	./bench
+	bench
 	build,garbage,http,json
 
 To run a benchmark execute:
 
-	./bench -bench=json
+	bench -bench=json
 
 The binary has a number of flags to control benchmark duration, etc.
 Run 'bench -help' to get the full list of flags.
