@@ -3,17 +3,17 @@ http://build.golang.org/perf
 
 All benchmarks are compiled into a single binary, to build it execute:
 
-	go get golang.org/x/benchmarks/bench
+	$ go get golang.org/x/benchmarks/bench
 
 When you run the binary without any flags, it prints comma-separated list of
 available benchmarks:
 
-	bench
+	$ bench
 	build,garbage,http,json
 
 To run a benchmark execute:
 
-	bench -bench=json
+	$ bench -bench=json
 
 The binary has a number of flags to control benchmark duration, etc.
 Run 'bench -help' to get the full list of flags.
@@ -40,7 +40,7 @@ https://golang.org/wiki/PerfDashboard
 
 A typical usage of the benchmarking binary from dashboard builder is:
 
-	./builder -filelock=builderlock -build=false -bench -benchtime=5s \
+	$ ./builder -filelock=builderlock -build=false -bench -benchtime=5s \
 		-benchnum=5 -benchmem=1024 -benchcpu=1,2,4,8,16 \
 		-benchaffinity=85,85,85,21845 windows-amd64-perf
 
