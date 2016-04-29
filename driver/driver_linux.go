@@ -125,10 +125,22 @@ func getVMPeak() uint64 {
 func setProcessAffinity(v int) {
 	nr := uintptr(0) // NR_SCHED_SETAFFINITY
 	switch runtime.GOARCH {
-	case "amd64":
-		nr = 203
 	case "386":
 		nr = 241
+	case "amd64":
+		nr = 203
+	case "arm":
+		nr = 241
+	case "arm64":
+		nr = 122
+	case "mips64":
+		nr = 5195
+	case "mips64le":
+		nr = 5195
+	case "ppc64":
+		nr = 222
+	case "s390x":
+		nr = 239
 	default:
 		log.Printf("setProcessAffinity: unsupported arch")
 		return
