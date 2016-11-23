@@ -22,7 +22,7 @@ import (
 )
 
 func main() {
-	driver.Main(benchmark)
+	driver.Main("Garbage", benchmark)
 }
 
 // func init() {

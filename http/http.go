@@ -19,7 +19,7 @@ import (
 )
 
 func main() {
-	driver.Main(benchmark)
+	driver.Main("HTTP", benchmark)
 }
 
 func benchmark() driver.Result {

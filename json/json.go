@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	driver.Main(benchmark)
+	driver.Main("JSON", benchmark)
 }
 
 func benchmark() driver.Result {

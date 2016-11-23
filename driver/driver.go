@@ -23,7 +23,6 @@ import (
 	"runtime"
 	"runtime/pprof"
 	"sort"
-	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -31,14 +30,13 @@ import (
 
 var (
 	flake     = flag.Int("flake", 0, "test flakiness of a benchmark")
-	benchNum  = flag.Int("benchnum", 5, "number of benchmark runs")
+	benchNum  = flag.Int("benchnum", 1, "number of benchmark runs")
 	benchMem  = flag.Int("benchmem", 64, "approx RSS value to aim at in benchmarks, in MB")
 	benchTime = flag.Duration("benchtime", 5*time.Second, "run enough iterations of each benchmark to take the specified time")
 	affinity  = flag.Int("affinity", 0, "process affinity (passed to an OS-specific function like sched_setaffinity/SetProcessAffinityMask)")
 	tmpDir    = flag.String("tmpdir", os.TempDir(), "dir for temporary files")
 	genSvg    = flag.Bool("svg", false, "generate svg profiles")
 
-	BenchNum  int
 	BenchMem  int
 	BenchTime time.Duration
 	WorkDir   string
@@ -50,10 +48,9 @@ var (
 	}
 )
 
-func Main(f func() Result) {
+func Main(name string, f func() Result) {
 	flag.Parse()
 	// Copy to public variables, so that benchmarks can access the values.
-	BenchNum = *benchNum
 	BenchMem = *benchMem
 	BenchTime = *benchTime
 	WorkDir = *tmpDir
@@ -72,24 +69,9 @@ func Main(f func() Result) {
 	stopTrace := startTrace()
 	defer stopTrace()
 
-	res := f()
-
-	var metrics []string
-	for k := range res.Metrics {
-		metrics = append(metrics, k)
-	}
-	sort.Strings(metrics)
-	for _, m := range metrics {
-		fmt.Printf("GOPERF-METRIC:%v=%v\n", m, res.Metrics[m])
-	}
-
-	var files []string
-	for k := range res.Files {
-		files = append(files, k)
-	}
-	sort.Strings(files)
-	for _, f := range files {
-		fmt.Printf("GOPERF-FILE:%v=%v\n", f, res.Files[f])
+	for i := 0; i < *benchNum; i++ {
+		res := f()
+		report(name, res)
 	}
 }
 
@@ -141,24 +123,31 @@ func MakeResult() Result {
 	return Result{Metrics: make(map[string]uint64), Files: make(map[string]string)}
 }
 
-// Benchmark runs f several times, collects stats, chooses the best run
+func report(name string, res Result) {
+	for name, path := range res.Files {
+		fmt.Printf("# %s=%s\n", name, path)
+	}
+
+	fmt.Printf("Benchmark%s-%d %8d\t%10d ns/op", name, runtime.GOMAXPROCS(-1), res.N, res.RunTime)
+	var metrics []string
+	for metric := range res.Metrics {
+		if metric == "time" {
+			// Already reported from res.RunTime.
+			continue
+		}
+		metrics = append(metrics, metric)
+	}
+	sort.Strings(metrics)
+	for _, metric := range metrics {
+		fmt.Printf("\t%10d %s", res.Metrics[metric], metric)
+	}
+	fmt.Printf("\n")
+}
+
+// Benchmark runs f several times, collects stats,
 // and creates cpu/mem profiles.
 func Benchmark(f func(uint64)) Result {
-	res := MakeResult()
-	for i := 0; i < *benchNum; i++ {
-		res1 := runBenchmark(f)
-		if res.N == 0 || res.RunTime > res1.RunTime {
-			res = res1
-		}
-		// Always take RSS and sys memory metrics from last iteration.
-		// They only grow, and seem to converge to some eigen value.
-		// Variations are smaller if we do this.
-		for k, v := range res1.Metrics {
-			if k == "rss" || strings.HasPrefix(k, "sys-") {
-				res.Metrics[k] = v
-			}
-		}
-	}
+	res := runBenchmark(f)
 
 	cpuprof := processProfile(os.Args[0], res.Files["cpuprof"])
 	delete(res.Files, "cpuprof")
@@ -212,7 +201,6 @@ func runBenchmark(f func(uint64)) Result {
 		log.Printf("Benchmarking %v iterations\n", res.N)
 		res = runBenchmarkOnce(f, res.N)
 	}
-	log.Printf("Result: %+v\n", res)
 	return res
 }
 

@@ -15,21 +15,14 @@ import (
 )
 
 func main() {
-	driver.Main(benchmark)
+	driver.Main("Build", benchmark)
 }
 
 func benchmark() driver.Result {
 	if os.Getenv("GOMAXPROCS") == "" {
 		os.Setenv("GOMAXPROCS", "1")
 	}
-	res := driver.MakeResult()
-	for i := 0; i < driver.BenchNum; i++ {
-		res1 := benchmarkOnce()
-		if res.RunTime == 0 || res.RunTime > res1.RunTime {
-			res = res1
-		}
-		log.Printf("Run %v: %+v\n", i, res)
-	}
+	res := benchmarkOnce()
 	perf1, perf2 := driver.RunUnderProfiler("go", "build", "-o", "goperf", "-a", "-p", os.Getenv("GOMAXPROCS"), "cmd/go")
 	if perf1 != "" {
 		res.Files["processes"] = perf1
