@@ -4,7 +4,7 @@
 
 // JSON benchmark marshals and unmarshals ~2MB json string
 // with a tree-like object hierarchy, in 4*GOMAXPROCS goroutines.
-package json // import "golang.org/x/benchmarks/json"
+package main
 
 import (
 	"bytes"
@@ -17,8 +17,8 @@ import (
 	"golang.org/x/benchmarks/driver"
 )
 
-func init() {
-	driver.Register("json", benchmark)
+func main() {
+	driver.Main(benchmark)
 }
 
 func benchmark() driver.Result {

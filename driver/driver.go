@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Driver contains common benchmarking logic shared between benchmarks.
-// It defines the main function which calls one of the benchmarks registered
-// with Register function.
-// When a benchmark is invoked it has 2 choices:
+// Package driver provides common benchmarking logic shared between benchmarks.
+//
+// A benchmark should call Main with a benchmark function. The
+// benchmark function can do one of two things when invoked:
 //  1. Do whatever it wants, fill and return Result object.
 //  2. Call Benchmark helper function and provide benchmarking function
 //  func(N uint64), similar to standard testing benchmarks. The rest is handled
@@ -30,7 +30,6 @@ import (
 )
 
 var (
-	bench     = flag.String("bench", "", "benchmark to run")
 	flake     = flag.Int("flake", 0, "test flakiness of a benchmark")
 	benchNum  = flag.Int("benchnum", 5, "number of benchmark runs")
 	benchMem  = flag.Int("benchmem", 64, "approx RSS value to aim at in benchmarks, in MB")
@@ -44,8 +43,6 @@ var (
 	BenchTime time.Duration
 	WorkDir   string
 
-	benchmarks = make(map[string]func() Result)
-
 	// startTrace starts runtime tracing if supported and
 	// requested and returns a function to stop tracing.
 	startTrace = func() func() {
@@ -53,11 +50,7 @@ var (
 	}
 )
 
-func Register(name string, f func() Result) {
-	benchmarks[name] = f
-}
-
-func Main() {
+func Main(f func() Result) {
 	flag.Parse()
 	// Copy to public variables, so that benchmarks can access the values.
 	BenchNum = *benchNum
@@ -67,16 +60,6 @@ func Main() {
 
 	if *affinity != 0 {
 		setProcessAffinity(*affinity)
-	}
-
-	if *bench == "" {
-		printBenchmarks()
-		return
-	}
-	f := benchmarks[*bench]
-	if f == nil {
-		fmt.Printf("unknown benchmark '%v'\n", *bench)
-		os.Exit(1)
 	}
 
 	setupWatchdog()
@@ -108,21 +91,6 @@ func Main() {
 	for _, f := range files {
 		fmt.Printf("GOPERF-FILE:%v=%v\n", f, res.Files[f])
 	}
-}
-
-func printBenchmarks() {
-	var bb []string
-	for name, _ := range benchmarks {
-		bb = append(bb, name)
-	}
-	sort.Strings(bb)
-	for i, name := range bb {
-		if i != 0 {
-			fmt.Print(",")
-		}
-		fmt.Print(name)
-	}
-	fmt.Print("\n")
 }
 
 func setupWatchdog() {

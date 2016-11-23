@@ -4,7 +4,7 @@
 
 // Build is a benchmark that examines compiler and linker performance.
 // It executes 'go build -a cmd/go'.
-package build // import "golang.org/x/benchmarks/build"
+package main
 
 import (
 	"log"
@@ -14,8 +14,8 @@ import (
 	"golang.org/x/benchmarks/driver"
 )
 
-func init() {
-	driver.Register("build", benchmark)
+func main() {
+	driver.Main(benchmark)
 }
 
 func benchmark() driver.Result {

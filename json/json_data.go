@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package json
+package main
 
 var jsonbz2_base64 = []byte(`
 QlpoOTFBWSZTWZ0H0LkG0bxfgFH8UAf/8D////q////6YSvJveAAAAAH3ddt7gAN

@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // HTTP is a benchmark that examines client/server http performance.
-package http // import "golang.org/x/benchmarks/http"
+package main
 
 import (
 	"fmt"
@@ -18,8 +18,8 @@ import (
 	"golang.org/x/benchmarks/driver"
 )
 
-func init() {
-	driver.Register("http", benchmark)
+func main() {
+	driver.Main(benchmark)
 }
 
 func benchmark() driver.Result {

@@ -4,7 +4,7 @@
 
 // Garbage is a benchmark that stresses garbage collector.
 // It repeatedly parses net/http package with go/parser and then discards results.
-package garbage // import "golang.org/x/benchmarks/garbage"
+package main
 
 // The source of net/http was captured at git tag go1.5.2 by
 //go:generate sh -c "(echo 'package garbage'; echo 'var src = `'; bundle net/http http '' | sed 's/`/`+\"`\"+`/g'; echo '`') > nethttp.go"
@@ -21,9 +21,13 @@ import (
 	"golang.org/x/benchmarks/driver"
 )
 
-func init() {
-	driver.Register("garbage", benchmark)
+func main() {
+	driver.Main(benchmark)
 }
+
+// func init() {
+// 	driver.Register("garbage", benchmark)
+// }
 
 type ParsedPackage *ast.File
 
