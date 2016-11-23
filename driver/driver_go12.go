@@ -12,6 +12,6 @@ import (
 
 // New mem stats added in Go1.2
 func collectGo12MemStats(res *Result, mstats0, mstats1 *runtime.MemStats) {
-	res.Metrics["sys-gc"] = mstats1.GCSys
-	res.Metrics["sys-other"] = mstats1.OtherSys + mstats1.MSpanSys + mstats1.MCacheSys + mstats1.BuckHashSys
+	res.Metrics["GC-bytes-from-system"] = mstats1.GCSys
+	res.Metrics["other-bytes-from-system"] = mstats1.OtherSys + mstats1.MSpanSys + mstats1.MCacheSys + mstats1.BuckHashSys
 }

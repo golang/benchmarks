@@ -34,7 +34,7 @@ func (ss sysStats) Collect(res *Result) {
 		return
 	}
 	if vm := getVMPeak(); vm != 0 {
-		res.Metrics["virtual-mem"] = vm
+		res.Metrics["peak-VM-bytes"] = vm
 	}
 	usage := new(syscall.Rusage)
 	if err := syscall.Getrusage(0, usage); err != nil {
@@ -42,8 +42,8 @@ func (ss sysStats) Collect(res *Result) {
 		// Deliberately ignore the error.
 		return
 	}
-	res.Metrics["rss"] = uint64(usage.Maxrss) * rssMultiplier
-	res.Metrics["cputime"] = (cpuTime(usage) - cpuTime(&ss.Rusage)) / ss.N
+	res.Metrics["peak-RSS-bytes"] = uint64(usage.Maxrss) * rssMultiplier
+	res.Metrics["user+sys-ns/op"] = (cpuTime(usage) - cpuTime(&ss.Rusage)) / ss.N
 }
 
 func RunAndCollectSysStats(cmd *exec.Cmd, res *Result, N uint64, prefix string) (string, error) {
@@ -57,9 +57,9 @@ func RunAndCollectSysStats(cmd *exec.Cmd, res *Result, N uint64, prefix string) 
 	t1 := time.Now()
 	usage := cmd.ProcessState.SysUsage().(*syscall.Rusage)
 	res.RunTime = uint64(t1.Sub(t0)) / N
-	res.Metrics[prefix+"time"] = res.RunTime
-	res.Metrics[prefix+"cputime"] = cpuTime(usage) / N
-	res.Metrics[prefix+"rss"] = uint64(usage.Maxrss) * rssMultiplier
+	res.Metrics[prefix+"ns/op"] = res.RunTime
+	res.Metrics[prefix+"user+sys-ns/op"] = cpuTime(usage) / N
+	res.Metrics[prefix+"peak-RSS-bytes"] = uint64(usage.Maxrss) * rssMultiplier
 	return out.String(), nil
 }
 

@@ -223,8 +223,8 @@ func (ss sysStats) Collect(res *Result) {
 		log.Printf("GetProcessTimes failed: %v", err)
 		return
 	}
-	res.Metrics["cputime"] = (getCPUTime(CPU) - getCPUTime(ss.CPU)) / ss.N
-	res.Metrics["rss"] = uint64(Mem.PeakWorkingSetSize)
+	res.Metrics["user+sys-ns/op"] = (getCPUTime(CPU) - getCPUTime(ss.CPU)) / ss.N
+	res.Metrics["peak-RSS-bytes"] = uint64(Mem.PeakWorkingSetSize)
 }
 
 func RunAndCollectSysStats(cmd *exec.Cmd, res *Result, N uint64, prefix string) (string, error) {
@@ -248,7 +248,7 @@ func RunAndCollectSysStats(cmd *exec.Cmd, res *Result, N uint64, prefix string) 
 	t1 := time.Now()
 
 	res.RunTime = uint64(t1.Sub(t0)) / N
-	res.Metrics[prefix+"time"] = res.RunTime
+	res.Metrics[prefix+"ns/op"] = res.RunTime
 
 	childMu.Lock()
 	children = childProcesses
@@ -280,8 +280,8 @@ func RunAndCollectSysStats(cmd *exec.Cmd, res *Result, N uint64, prefix string) 
 		rss += uint64(Mem.PeakWorkingSetSize)
 	}
 
-	res.Metrics[prefix+"cputime"] = cputime
-	res.Metrics[prefix+"rss"] = rss
+	res.Metrics[prefix+"user+sys-ns/op"] = cputime
+	res.Metrics[prefix+"peak-RSS-bytes"] = rss
 	return out.String(), nil
 }
 

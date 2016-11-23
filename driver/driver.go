@@ -131,7 +131,7 @@ func report(name string, res Result) {
 	fmt.Printf("Benchmark%s-%d %8d\t%10d ns/op", name, runtime.GOMAXPROCS(-1), res.N, res.RunTime)
 	var metrics []string
 	for metric := range res.Metrics {
-		if metric == "time" {
+		if metric == "ns/op" {
 			// Already reported from res.RunTime.
 			continue
 		}
@@ -232,7 +232,7 @@ func runBenchmarkOnce(f func(uint64), N uint64) Result {
 	f(N)
 	res.Duration = time.Since(t0)
 	res.RunTime = uint64(time.Since(t0)) / N
-	res.Metrics["time"] = res.RunTime
+	res.Metrics["ns/op"] = res.RunTime
 	pprof.StopCPUProfile()
 
 	latencyCollect(&res)
@@ -248,18 +248,18 @@ func runBenchmarkOnce(f func(uint64), N uint64) Result {
 
 	mstats1 := new(runtime.MemStats)
 	runtime.ReadMemStats(mstats1)
-	res.Metrics["allocated"] = (mstats1.TotalAlloc - mstats0.TotalAlloc) / N
-	res.Metrics["allocs"] = (mstats1.Mallocs - mstats0.Mallocs) / N
-	res.Metrics["sys-total"] = mstats1.Sys
-	res.Metrics["sys-heap"] = mstats1.HeapSys
-	res.Metrics["sys-stack"] = mstats1.StackSys
-	res.Metrics["gc-pause-total"] = (mstats1.PauseTotalNs - mstats0.PauseTotalNs) / N
+	res.Metrics["allocated-bytes/op"] = (mstats1.TotalAlloc - mstats0.TotalAlloc) / N
+	res.Metrics["allocs/op"] = (mstats1.Mallocs - mstats0.Mallocs) / N
+	res.Metrics["bytes-from-system"] = mstats1.Sys
+	res.Metrics["heap-bytes-from-system"] = mstats1.HeapSys
+	res.Metrics["stack-bytes-from-system"] = mstats1.StackSys
+	res.Metrics["STW-ns/op"] = (mstats1.PauseTotalNs - mstats0.PauseTotalNs) / N
 	collectGo12MemStats(&res, mstats0, mstats1)
 	numGC := uint64(mstats1.NumGC - mstats0.NumGC)
 	if numGC == 0 {
-		res.Metrics["gc-pause-one"] = 0
+		res.Metrics["STW-ns/GC"] = 0
 	} else {
-		res.Metrics["gc-pause-one"] = (mstats1.PauseTotalNs - mstats0.PauseTotalNs) / numGC
+		res.Metrics["STW-ns/GC"] = (mstats1.PauseTotalNs - mstats0.PauseTotalNs) / numGC
 	}
 	return res
 }
@@ -321,9 +321,9 @@ func latencyCollect(res *Result) {
 		cnt = len(latency.data)
 	}
 	sort.Sort(latency.data[:cnt])
-	res.Metrics["latency-50"] = latency.data[cnt*50/100]
-	res.Metrics["latency-95"] = latency.data[cnt*95/100]
-	res.Metrics["latency-99"] = latency.data[cnt*99/100]
+	res.Metrics["P50-ns/op"] = latency.data[cnt*50/100]
+	res.Metrics["P95-ns/op"] = latency.data[cnt*95/100]
+	res.Metrics["P99-ns/op"] = latency.data[cnt*99/100]
 }
 
 // chooseN chooses the next number of iterations for benchmark.
