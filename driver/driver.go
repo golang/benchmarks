@@ -37,9 +37,10 @@ var (
 	tmpDir    = flag.String("tmpdir", os.TempDir(), "dir for temporary files")
 	genSvg    = flag.Bool("svg", false, "generate svg profiles")
 
-	BenchMem  int
 	BenchTime time.Duration
 	WorkDir   string
+
+	usedBenchMem bool
 
 	// startTrace starts runtime tracing if supported and
 	// requested and returns a function to stop tracing.
@@ -51,7 +52,6 @@ var (
 func Main(name string, f func() Result) {
 	flag.Parse()
 	// Copy to public variables, so that benchmarks can access the values.
-	BenchMem = *benchMem
 	BenchTime = *benchTime
 	WorkDir = *tmpDir
 
@@ -73,6 +73,11 @@ func Main(name string, f func() Result) {
 		res := f()
 		report(name, res)
 	}
+}
+
+func BenchMem() int {
+	usedBenchMem = true
+	return *benchMem
 }
 
 func setupWatchdog() {
@@ -128,6 +133,9 @@ func report(name string, res Result) {
 		fmt.Printf("# %s=%s\n", name, path)
 	}
 
+	if usedBenchMem {
+		name = fmt.Sprintf("%s/benchmem-MB=%d", name, *benchMem)
+	}
 	fmt.Printf("Benchmark%s-%d %8d\t%10d ns/op", name, runtime.GOMAXPROCS(-1), res.N, res.RunTime)
 	var metrics []string
 	for metric := range res.Metrics {

@@ -38,8 +38,8 @@ var (
 func benchmark() driver.Result {
 	if parsed == nil {
 		mem := packageMemConsumption()
-		avail := (driver.BenchMem << 20) * 4 / 5 // 4/5 to account for non-heap memory
-		npkg := avail / mem / 2                  // 2 to account for GOGC=100
+		avail := (driver.BenchMem() << 20) * 4 / 5 // 4/5 to account for non-heap memory
+		npkg := avail / mem / 2                    // 2 to account for GOGC=100
 		parsed = make([]ParsedPackage, npkg)
 		for n := 0; n < 2; n++ { // warmup GC
 			for i := range parsed {
