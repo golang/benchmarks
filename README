@@ -1,48 +1,26 @@
-This subrepository holds benchmarks used by the Go performance dashboard:
-http://build.golang.org/perf
+This subrepository holds macro-benchmarks used for Go performance
+development and monitoring.
 
-All benchmarks are compiled into a single binary, to build it execute:
+Each benchmark is compiled into a separate binary. To build and
+install them all in the current directory, execute:
 
-	$ go get golang.org/x/benchmarks/bench
+	$ GOBIN=$PWD go get golang.org/x/benchmarks/...
 
-When you run the binary without any flags, it prints comma-separated list of
-available benchmarks:
+To run a benchmark, simply execute its binary.
 
-	$ bench
-	build,garbage,http,json
+Each binary has a number of flags to control benchmark duration, etc.
+Run with '-help' to get the full list of flags.
 
-To run a benchmark execute:
+When the benchmarking finishes, the binary prints results in the
+standard Go benchmark format [1]:
 
-	$ bench -bench=json
+	$ garbage
+	BenchmarkGarbage/benchmem-MB=64-4     2000	   6443223 ns/op	   6008832 GC-bytes-from-system	    230521 STW-ns/GC	     15329 STW-ns/op	   2780501 allocated-bytes/op	     68636 allocs/op	 119041368 bytes-from-system	 104202240 heap-bytes-from-system	   8109400 other-bytes-from-system	 112427008 peak-RSS-bytes	 121511936 peak-VM-bytes	    720896 stack-bytes-from-system	  25194000 user+sys-ns/op
 
-The binary has a number of flags to control benchmark duration, etc.
-Run 'bench -help' to get the full list of flags.
-
-When the benchmarking finishes, the binary prints results:
-
-	GOPERF-METRIC:allocated=7872994
-	GOPERF-METRIC:allocs=105483
-	GOPERF-METRIC:cputime=196757680
-	GOPERF-METRIC:gc-pause-one=5762425
-	GOPERF-METRIC:gc-pause-total=2650715
-	GOPERF-METRIC:rss=63655936
-	GOPERF-METRIC:sys-gc=3407366
-	GOPERF-METRIC:sys-heap=53575680
-	GOPERF-METRIC:sys-other=5253938
-	GOPERF-METRIC:sys-stack=229376
-	GOPERF-METRIC:sys-total=62466360
-	GOPERF-METRIC:time=206958902
-	GOPERF-FILE:cpuprof=/tmp/19.prof.txt
-	GOPERF-FILE:memprof=/tmp/20.prof.txt
-
-Description of metrics is available at:
-https://golang.org/wiki/PerfDashboard
-
-A typical usage of the benchmarking binary from dashboard builder is:
-
-	$ ./builder -filelock=builderlock -build=false -bench -benchtime=5s \
-		-benchnum=5 -benchmem=1024 -benchcpu=1,2,4,8,16 \
-		-benchaffinity=85,85,85,21845 windows-amd64-perf
+This format can be processed by tools like benchstat
+(https://golang.org/x/perf/cmd/benchstat) and benchplot
+(https://godoc.org/github.com/aclements/go-misc/benchplot).
 
 To submit changes to this repository, see http://golang.org/doc/contribute.html.
 
+[1] https://github.com/golang/proposal/blob/master/design/14313-benchmark-format.md
