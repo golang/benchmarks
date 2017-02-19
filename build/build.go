@@ -36,6 +36,7 @@ func benchmark() driver.Result {
 func benchmarkOnce() driver.Result {
 	// run 'go build -a'
 	res := driver.MakeResult()
+	res.N = 1
 	cmd := exec.Command("go", "build", "-o", "gobuild", "-a", "-p", os.Getenv("GOMAXPROCS"), "cmd/go")
 	out, err := driver.RunAndCollectSysStats(cmd, &res, 1, "build-")
 	if err != nil {
