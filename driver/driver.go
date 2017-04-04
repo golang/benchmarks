@@ -66,6 +66,9 @@ func Main(name string, f func() Result) {
 		return
 	}
 
+	fmt.Print("pkg: golang.org/x/benchmarks\n")
+	fmt.Printf("goos: %s\ngoarch: %s\n\n", runtime.GOOS, runtime.GOARCH)
+
 	stopTrace := startTrace()
 	defer stopTrace()
 
