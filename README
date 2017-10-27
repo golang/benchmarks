@@ -21,6 +21,11 @@ This format can be processed by tools like benchstat
 (https://golang.org/x/perf/cmd/benchstat) and benchplot
 (https://godoc.org/github.com/aclements/go-misc/benchplot).
 
+Required extra tools:
+  For Linux, you need "perf". On Debian/Ubuntu, you can install
+  package "perf-tools-common" to get it. Run "perf" once with no
+  arguments to check if it requires additional packages to be installed.
+
 To submit changes to this repository, see http://golang.org/doc/contribute.html.
 
 [1] https://github.com/golang/proposal/blob/master/design/14313-benchmark-format.md
