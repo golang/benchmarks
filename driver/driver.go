@@ -140,7 +140,7 @@ func report(name string, res Result) {
 		name = fmt.Sprintf("%s/benchmem-MB=%d", name, *benchMem)
 	}
 	fmt.Printf("Benchmark%s-%d %8d\t%10d ns/op", name, runtime.GOMAXPROCS(-1), res.N, res.RunTime)
-	var metrics []string
+	metrics := make([]string, 0, len(res.Metrics))
 	for metric := range res.Metrics {
 		if metric == "ns/op" {
 			// Already reported from res.RunTime.

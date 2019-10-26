@@ -133,7 +133,7 @@ func setProcessAffinity(v int) {
 		return
 	}
 	// Re-exec the process w/o affinity flag.
-	var args []string
+	args := make([]string, 0, len(os.Args))
 	for i := 0; i < len(os.Args); i++ {
 		a := os.Args[i]
 		if strings.HasPrefix(a, "-affinity") {
