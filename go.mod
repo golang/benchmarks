@@ -1,6 +1,6 @@
 module golang.org/x/benchmarks
 
-go 1.11
+go 1.16
 
 require (
 	github.com/BurntSushi/toml v0.3.1
