@@ -1,0 +1,37 @@
+# All (discovered as of 2018-04-02) benchmarks that do a lot of allocation, either in size or number
+
+[[Benchmarks]]
+  Name = "ethereum_storage"
+  Repo = "github.com/ethereum/go-ethereum/swarm/storage"
+  Benchmarks = "Benchmark(Join|SplitTree)_[678]" # SplitPyramid seems to have a bug
+  NotSandboxed = true # Won't cross-compile to Linux on MacOS
+
+[[Benchmarks]]
+  Name = "ethereum_core"
+  Repo = "github.com/ethereum/go-ethereum/core"
+  Benchmarks = "Benchmark(InsertChain_ring|PoolBatchInsert10000|ChainWrite)" # ChainRead crashes as of 1.10 on 2018-03-16
+  NotSandboxed = true # Won't cross-compile to Linux on MacOS
+  Disabled = true
+
+[[Benchmarks]]
+  Name = "minio"
+  Repo = "github.com/minio/minio/cmd"
+  Tests = "none" # Don't run these tests; they hang, etc.
+  Benchmarks = "BenchmarkGetObject.*Mb" # not Get|Put|List
+  Disabled = true
+
+[[Benchmarks]]
+  Name = "spexs2"
+  Repo = "github.com/egonelbre/spexs2/_benchmark/"
+  Benchmarks = "BenchmarkRun"
+
+[[Benchmarks]]
+  Name = "ethereum_ethash"
+  Repo = "github.com/ethereum/go-ethereum/consensus/ethash"
+  Benchmarks = "BenchmarkCacheGeneration"
+  NotSandboxed = true # Won't cross-compile to Linux on MacOS
+
+[[Benchmarks]]
+  Name = "gonum_path"
+  Repo = "gonum.org/v1/gonum/graph/path/"
+  Benchmarks = "BenchmarkRandomGraphDominators/gnm-n=1e[567]"

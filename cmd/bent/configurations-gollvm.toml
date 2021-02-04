@@ -1,0 +1,18 @@
+[[Configurations]]
+  Name = "Go"
+  Root = "$HOME/work/go/"
+  RunWrapper = ["cpuprofile"]
+
+[[Configurations]]
+  Name = "Go-noasm"
+  BuildFlags = ["-tags=noasm"]
+  Root = "$HOME/work/go/"
+  RunWrapper = ["cpuprofile"]
+
+[[Configurations]]
+  Name = "Gollvm"
+  Root = "$HOME/work/gollvm/"
+  BuildFlags = ["-gccgoflags=all=-O3 -static-libgo","-tags=noasm"]
+  RunEnv = ["LD_LIBRARY_PATH=$HOME/work/gollvm/lib64"]
+  GcEnv = ["LD_LIBRARY_PATH=$HOME/work/gollvm/lib64"]
+  RunWrapper = ["cpuprofile"]

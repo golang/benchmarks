@@ -1,0 +1,8 @@
+#!/bin/bash
+# Run args as command, but wrapped in foo.
+echo Foo foo foo foo foo foo foo ${BENT_BINARY}
+echo Foo args are "$@"
+echo Foo environment is
+printenv
+"$@"
+echo  ${BENT_BINARY} oof oof oof oof oof oof ooF

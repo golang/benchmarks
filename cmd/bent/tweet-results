@@ -1,0 +1,37 @@
+#!/bin/bash
+
+RUN=$1
+shopt -s extglob
+
+BS=`which benchseries`
+BT=`which bench-tweet`
+
+doit=yes
+
+if [ "x$BS" = "x" ] ; then
+	echo "Need benchseries (currently in a CL): https://go-review.googlesource.com/c/perf/+/218923 "
+	doit=no
+fi
+
+if [ "x$BT" = "x" ] ; then
+	echo "Need bench-tweet: go get github.com/dr2chase/go-bench-tweet-bot/cmd/bench-tweet"
+	doit=no
+fi
+
+if [ ! -f .twitter/drchase-benchmark-bot ] ; then
+	echo "No twitter credentials found, looking for .twitter/drchase-benchmark-bot"
+	doit=no
+fi
+
+if [ $doit = no ] ; then
+	echo Cannot tweet about the benchmarks
+	exit 1
+fi
+
+URL="https://perf.golang.org/search?q=bentstamp%3A${RUN}"
+echo ${URL} > ${RUN}.tmp
+(cd bench ; benchseries  -png ../png -series bentstamp -last ns-per-op,build-user-ns-per-op Go*-opt.* !(Go)*-opt.*) >> ${RUN}.tmp
+
+wc ${RUN}.tmp
+bench-tweet -i ${RUN}.tmp -m png/ns-per-op.png -m png/build-user-ns-per-op.png -m png/text-bytes.png -m png/total-bytes.png
+rm ${RUN}.tmp

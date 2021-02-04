@@ -1,0 +1,12 @@
+#!/bin/bash
+# This wrapper attempts to clean up after benchmarks that dribble files into /tmp
+# Some of them respect TMPDIR, some do not.
+# The value of BENT_BINARY is not especially likely to match things normally found in /tmp
+PID=$$
+TD=/tmp/bent-${PID}
+mkdir -p ${TD}
+TMPDIR=${TD} "$@"
+rm -rf ${TD}
+if [ "x${BENT_BINARY}" != "x" ] ; then
+	rm -rf /tmp/${BENT_BINARY}*
+fi

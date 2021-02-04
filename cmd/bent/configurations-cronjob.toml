@@ -1,0 +1,56 @@
+[[Configurations]]
+  Name = "Base"
+  Root = "$ROOT/${BASE}"
+  AfterBuild = [ "benchsize", "benchdwarf" ]
+
+[[Configurations]]
+  Name = "Tip"
+  Root = "$ROOT/go-tip/"
+  AfterBuild = [ "benchsize", "benchdwarf" ]
+
+[[Configurations]]
+  Name = "Base-prof"
+  Root = "$ROOT/${BASE}"
+  RunWrapper = ["cpuprofile"]
+  Disabled = true
+
+[[Configurations]]
+  Name = "Tip-prof"
+  Root = "$ROOT/go-tip/"
+  RunWrapper = ["cpuprofile"]
+  Disabled = true
+
+[[Configurations]]
+  Name = "Tip-prof-nopreempt"
+  Root = "$ROOT/go-tip/"
+  RunWrapper = ["cpuprofile"]
+  RunEnv = ["GODEBUG=asyncpreemptoff=1"]
+  Disabled = true
+
+[[Configurations]]
+  Name = "BaseNl"
+  GcFlags = "-N -l"
+  Root = "$ROOT/${BASE}"
+  AfterBuild = [ "benchsize", "benchdwarf" ]
+  Disabled = true
+
+[[Configurations]]
+  Name = "TipNl"
+  GcFlags = "-N -l"
+  Root = "$ROOT/go-tip/"
+  AfterBuild = [ "benchsize", "benchdwarf" ]
+  Disabled = true
+
+[[Configurations]]
+  Name = "Basel"
+  GcFlags = "-l"
+  Root = "$ROOT/${BASE}"
+  AfterBuild = [ "benchsize", "benchdwarf" ]
+  Disabled = true
+
+[[Configurations]]
+  Name = "Tipl"
+  GcFlags = "-l"
+  Root = "$ROOT/go-tip/"
+  AfterBuild = [ "benchsize", "benchdwarf" ]
+  Disabled = true

@@ -1,0 +1,43 @@
+cd gopath/src/github.com/ericlagergren/decimal
+patch -p1 <<"EOF"
+diff --git a/benchmarks/pi_test.go b/benchmarks/pi_test.go
+index 86d1a15..b1310ee 100644
+--- a/benchmarks/pi_test.go
++++ b/benchmarks/pi_test.go
+@@ -67,8 +67,8 @@ var (
+ 	thirtyTwo      = decimal.New(32, 0)
+ 	apdEight       = apd.New(8, 0)
+ 	apdThirtyTwo   = apd.New(32, 0)
+-	dnumEight      = dnum.NewDnum(false, 8, 0)
+-	dnumThirtyTwo  = dnum.NewDnum(false, 32, 0)
++	dnumEight      = dnum.FromInt(8)
++	dnumThirtyTwo  = dnum.FromInt(32)
+ 	ssdecEight     = ssdec.New(8, 0)
+ 	ssdecThirtyTwo = ssdec.New(32, 0)
+ 	infEight       = inf.NewDec(8, 0)
+@@ -131,16 +131,16 @@ func calcPi_shopSpring(prec int32) ssdec.Decimal {
+
+ func calcPi_dnum() dnum.Dnum {
+ 	var (
+-		lasts = dnum.NewDnum(false, 0, 0)
+-		t     = dnum.NewDnum(false, 3, 0)
+-		s     = dnum.NewDnum(false, 3, 0)
+-		n     = dnum.NewDnum(false, 1, 0)
+-		na    = dnum.NewDnum(false, 0, 0)
+-		d     = dnum.NewDnum(false, 0, 0)
+-		da    = dnum.NewDnum(false, 24, 0)
++		lasts = dnum.FromInt(0)
++		t     = dnum.FromInt(3)
++		s     = dnum.FromInt(3)
++		n     = dnum.FromInt(1)
++		na    = dnum.FromInt(0)
++		d     = dnum.FromInt(0)
++		da    = dnum.FromInt(24)
+ 	)
+
+-	for dnum.Cmp(s, lasts) != 0 {
++	for dnum.Compare(s, lasts) != 0 {
+ 		lasts = s
+ 		n = dnum.Add(n, na)
+ 		na = dnum.Add(na, dnumEight)
+EOF

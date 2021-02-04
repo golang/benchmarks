@@ -1,0 +1,6 @@
+#!/bin/bash
+# Run args as command, but run memprofile and then pprof to capture test memprofile output
+mpf="${BENT_BINARY}_${BENT_I}.mprof"
+"$@" -test.memprofile="$mpf"
+echo memprofile in `pwd`/"$mpf"
+go tool pprof --alloc_space --text --cum --nodecount=20 "$mpf"

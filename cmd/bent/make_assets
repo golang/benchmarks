@@ -1,0 +1,2 @@
+#!/bin/bash
+go-bindata -o assets.go foo memprofile cpuprofile tmpclr benchtime benchsize benchdwarf cronjob.sh cmpjob.sh cmpcl.sh cmpcl-phase.sh tweet-results benchmarks-{all,50,gc,gcplus,trial}.toml configurations-{sample,gollvm,cronjob,cmpjob}.toml

@@ -1,0 +1,8 @@
+#!/bin/bash
+# Run args as command, but wrapped in bar.
+echo Bar bar bar bar bar bar bar
+echo Bar args are "$@"
+echo Bar environment is
+printenv
+"$@"
+echo  ${BENT_BINARY} rab rab rab rab rab rab raB

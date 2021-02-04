@@ -1,0 +1,22 @@
+[[Configurations]]
+  Name = "Old"
+  Root = "$ROOT/go-old"
+  AfterBuild = [ "benchsize", "benchdwarf" ]
+
+[[Configurations]]
+  Name = "New"
+  Root = "$ROOT/go-new"
+  AfterBuild = [ "benchsize", "benchdwarf" ]
+
+[[Configurations]]
+  Name = "Old-phase"
+  Root = "$ROOT/go-old"
+  GcFlags = "all=-d=ssa/all/time=1"
+  Disabled = true
+
+[[Configurations]]
+  Name = "New-phase"
+  Root = "$ROOT/go-new"
+  GcFlags = "all=-d=ssa/all/time=1"
+  Disabled = true
+
