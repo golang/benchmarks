@@ -156,7 +156,7 @@ func main() {
 
 	flag.IntVar(&N, "N", N, "benchmark/test repeat count")
 
-	flag.Var((*count)(&explicitAll), "a", "add '-a' flag to 'go test -c' to demand full recompile. Repeat or assign a value for repeat builds for benchmarking")
+	flag.Var((*counterFlag)(&explicitAll), "a", "add '-a' flag to 'go test -c' to demand full recompile. Repeat or assign a value for repeat builds for benchmarking")
 	flag.IntVar(&shuffle, "s", shuffle, "dimensionality of (build) shuffling (0-3), 0 = none, 1 = per-benchmark, configuration ordering, 2 = bench, config pairs, 3 = across repetitions.")
 
 	flag.StringVar(&benchmarksString, "b", "", "comma-separated list of test/benchmark names (default is all)")
@@ -180,7 +180,7 @@ func main() {
 
 	flag.BoolVar(&wikiTable, "W", wikiTable, "print benchmark info for a wiki table")
 
-	flag.Var((*count)(&verbose), "v", "print commands and other information (more -v = print more details)")
+	flag.Var((*counterFlag)(&verbose), "v", "print commands and other information (more -v = print more details)")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
@@ -1530,16 +1530,16 @@ func csToSet(s string) map[string]bool {
 	return m
 }
 
-// count is a flag.Value that is like a flag.Bool and a flag.Int.
-// If used as -name, it increments the count, but -name=x sets the count.
+// counterFlag is a flag.Value that is like a flag.Bool and a flag.Int.
+// If used as -name, it increments the counterFlag, but -name=x sets the counterFlag.
 // Used for verbose flag -v and build-all flag -a
-type count int
+type counterFlag int
 
-func (c *count) String() string {
+func (c *counterFlag) String() string {
 	return fmt.Sprint(int(*c))
 }
 
-func (c *count) Set(s string) error {
+func (c *counterFlag) Set(s string) error {
 	switch s {
 	case "true":
 		*c++
@@ -1550,11 +1550,11 @@ func (c *count) Set(s string) error {
 		if err != nil {
 			return fmt.Errorf("invalid count %q", s)
 		}
-		*c = count(n)
+		*c = counterFlag(n)
 	}
 	return nil
 }
 
-func (c *count) IsBoolFlag() bool {
+func (c *counterFlag) IsBoolFlag() bool {
 	return true
 }
