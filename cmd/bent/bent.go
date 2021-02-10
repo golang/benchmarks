@@ -605,45 +605,6 @@ ADD . /
 					todo.Benchmarks[i].Disabled = true
 					continue
 				}
-				// This next bit often doesn't work, because reasons.
-				// There is probably an algorithm for the right place to run go mod init/tidy,
-				// but I don't know it and the two simple ones I tried didn't work.
-
-				// repoDir :=  gopath + "/src/" + strings.Join(parts[:repoAt+1],"/")
-
-				// // Try a go mod init.
-				// cmd = exec.Command("go", "mod", "init")
-				// cmd.Env = getBuildEnv
-				// cmd.Dir = repoDir
-				// if verbose > 0 {
-				// 	fmt.Println(asCommandLine(cwd, cmd))
-				// } else {
-				// 	fmt.Print(".")
-				// }
-				// _, err = cmd.Output()
-				// if err != nil {
-				// 	ee := err.(*exec.ExitError)
-				// 	fmt.Printf("go mod init returned %s but that is normal if go.mod already exists\n", ee.Stderr)
-				// } else {
-				// 	// Try a go mod tidy.
-				// 	cmd = exec.Command("go", "mod", "tidy")
-				// 	cmd.Env = getBuildEnv
-				// 	cmd.Dir = repoDir
-				// 	if verbose > 0 {
-				// 		fmt.Println(asCommandLine(cwd, cmd))
-				// 	} else {
-				// 		fmt.Print(".")
-				// 	}
-				// 	_, err = cmd.Output()
-				// 	if err != nil {
-				// 		ee := err.(*exec.ExitError)
-				// 		s := fmt.Sprintf("There was an error running 'git clone', stderr = %s", ee.Stderr)
-				// 		fmt.Println(s + "DISABLING benchmark " + bench.Name)
-				// 		getAndBuildFailures = append(getAndBuildFailures, s+"("+bench.Name+")\n")
-				// 		todo.Benchmarks[i].Disabled = true
-				// 		continue
-				// 	}
-				// }
 			}
 
 			needSandbox = !bench.NotSandboxed || needSandbox
