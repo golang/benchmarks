@@ -9,6 +9,7 @@ package main
 import (
 	"bytes"
 	"embed"
+	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -213,68 +214,21 @@ results will also appear in 'bench'.
 		os.Exit(1)
 		return
 	}
-	gopath := cwd + "/gopath"
-	err = os.Mkdir(gopath, 0775)
-
-	// To avoid bad surprises, look for pkg and bin, if they exist, refuse to run
-	_, derr := os.Stat("Dockerfile")
-	_, perr := os.Stat("gopath/pkg")
-	_, berr := os.Stat("gopath/bin")
-	_, serr := os.Stat("gopath/src") // existence of src prevents initialization of Dockerfile
-
-	if perr == nil || berr == nil {
-		if !force {
-			fmt.Printf("Building/running tests will trash gopath/pkg and gopath/bin, please remove, rename or run in another directory, or use -f to force.\n")
-			os.Exit(1)
-		}
-		fmt.Printf("Building/running tests will trash gopath/pkg and gopath/bin, but force, so removing.\n")
-		cleanup("gopath")
+	gopath := path.Join(cwd, "gopath")
+	if err := os.Mkdir(gopath, 0775); err != nil {
+		fmt.Printf("error creating gopath: %v", err)
+		os.Exit(1)
 	}
-	if derr != nil && !initialize {
-		// Missing Dockerfile
-		fmt.Printf("Missing 'Dockerfile', please rerun with -I (initialize) flag if you intend to use this directory.\n")
+	goroots := path.Join(cwd, "goroots")
+	if err := os.Mkdir(goroots, 0775); err != nil {
+		fmt.Printf("error creating goroots: %v", err)
 		os.Exit(1)
 	}
 
-	if shuffle < 0 || shuffle > 3 {
-		fmt.Printf("Shuffle value (-s) ought to be between 0 and 3, inclusive, instead is %d\n", shuffle)
+	// Make sure our filesystem is in good shape.
+	if err := checkAndSetUpFileSystem(initialize); err != nil {
+		fmt.Printf("%v", err)
 		os.Exit(1)
-	}
-
-	// Create directory that will contain GOROOT for each configuration.
-	goroots := cwd + "/goroots"
-	err = os.Mkdir(goroots, 0775)
-
-	// Initialize the directory, copying in default benchmarks and sample configurations, and creating a Dockerfile
-	if initialize {
-		anyerr := false
-		if serr == nil {
-			fmt.Printf("It looks like you've already initialized this directory, remove ./gopath if you want to reinit.\n")
-			anyerr = true
-		}
-		if anyerr {
-			os.Exit(1)
-		}
-		for _, s := range copyExes {
-			copyAsset(scripts, "scripts", s)
-			os.Chmod(s, 0755)
-		}
-		for _, s := range copyConfigs {
-			copyAsset(configs, "configs", s)
-		}
-
-		err := ioutil.WriteFile("Dockerfile",
-			[]byte(`
-FROM ubuntu
-ADD . /
-`), 0664)
-		if err != nil {
-			fmt.Printf("There was an error creating %s: %v\n", "Dockerfile", err)
-			os.Exit(1)
-			return
-		}
-		fmt.Printf("Created Dockerfile\n")
-		return
 	}
 
 	todo := &Todo{}
@@ -1012,6 +966,65 @@ func asCommandLine(cwd string, cmd *exec.Cmd) string {
 	}
 	s += " )"
 	return s
+}
+
+// checkAndSetUpFileSystem does a number of tasks to ensure that the tests will
+// run properly. It:
+//
+//   - Makes sure we're not going to accidentally overwrite previous results
+//   - if shouldInit is true, we:
+//     - Create a Dockerfile.
+//     - Create all the configuration files.
+//     - Exit
+func checkAndSetUpFileSystem(shouldInit bool) error {
+	// To avoid bad surprises, look for pkg and bin, if they exist, refuse to run
+	_, derr := os.Stat("Dockerfile")
+	_, perr := os.Stat("gopath/pkg")
+	_, berr := os.Stat("gopath/bin")
+	_, serr := os.Stat("gopath/src") // existence of src prevents initialization of Dockerfile
+
+	if perr == nil || berr == nil {
+		if !force {
+			return errors.New("Building/running tests will trash gopath/pkg and gopath/bin, please remove, rename or run in another directory, or use -f to force.\n")
+		}
+		fmt.Printf("Building/running tests will trash gopath/pkg and gopath/bin, but force, so removing.\n")
+		cleanup("gopath")
+	}
+	if derr != nil && !shouldInit {
+		// Missing Dockerfile
+		return errors.New("Missing 'Dockerfile', please rerun with -I (initialize) flag if you intend to use this directory.\n")
+	}
+
+	if shuffle < 0 || shuffle > 3 {
+		return fmt.Errorf("Shuffle value (-s) ought to be between 0 and 3, inclusive, instead is %d\n", shuffle)
+	}
+
+	// Initialize the directory, copying in default benchmarks and sample configurations, and creating a Dockerfile
+	if shouldInit {
+		if serr == nil {
+			fmt.Printf("It looks like you've already initialized this directory, remove ./gopath if you want to reinit.\n")
+			os.Exit(1)
+		}
+		for _, s := range copyExes {
+			copyAsset(scripts, "scripts", s)
+			os.Chmod(s, 0755)
+		}
+		for _, s := range copyConfigs {
+			copyAsset(configs, "configs", s)
+		}
+
+		err := ioutil.WriteFile("Dockerfile",
+			[]byte(`
+FROM ubuntu
+ADD . /
+`), 0664)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("Created Dockerfile\n")
+		os.Exit(1)
+	}
+	return nil
 }
 
 func copyAsset(fs embed.FS, dir, file string) {
