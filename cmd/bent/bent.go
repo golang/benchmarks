@@ -12,6 +12,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io/fs"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -65,8 +66,6 @@ var verbose int
 
 var benchFile = "benchmarks-50.toml"         // default list of benchmarks
 var confFile = "configurations.toml"         // default list of configurations
-var testBinDir = "testbin"                   // destination for generated binaries
-var benchDir = "bench"                       // destination for benchmark outputs
 var srcPath = "src/github.com/dr2chase/bent" // Used to find configuration files.
 var container = ""
 var N = 1
@@ -110,11 +109,12 @@ type triple struct {
 var runstamp = strings.Replace(strings.Replace(time.Now().Format("2006-01-02T15:04:05"), "-", "", -1), ":", "", -1)
 
 func cleanup(gopath string) {
+	pkg, bin := path.Join(gopath, "pkg"), path.Join(gopath, "bin")
 	if verbose > 0 {
-		fmt.Printf("chmod -R u+w %s\n", gopath+"/pkg")
+		fmt.Printf("chmod -R u+w %s\n", pkg)
 	}
 	// Necessary to make directories writeable with new module stuff.
-	filepath.Walk(gopath+"/pkg", func(path string, info os.FileInfo, err error) error {
+	filepath.Walk(pkg, func(path string, info os.FileInfo, err error) error {
 		if path != "" && info != nil {
 			if mode := info.Mode(); 0 == mode&os.ModeSymlink {
 				err := os.Chmod(path, 0200|mode)
@@ -126,10 +126,10 @@ func cleanup(gopath string) {
 		return nil
 	})
 	if verbose > 0 {
-		fmt.Printf("rm -rf %s %s\n", gopath+"/pkg", gopath+"/bin")
+		fmt.Printf("rm -rf %s %s\n", pkg, bin)
 	}
-	os.RemoveAll(gopath + "/pkg")
-	os.RemoveAll(gopath + "/bin")
+	os.RemoveAll(pkg)
+	os.RemoveAll(bin)
 }
 
 func main() {
@@ -208,23 +208,6 @@ results will also appear in 'bench'.
 
 	flag.Parse()
 
-	cwd, err := os.Getwd()
-	if err != nil {
-		fmt.Printf("Could not get current working directory %v\n", err)
-		os.Exit(1)
-		return
-	}
-	gopath := path.Join(cwd, "gopath")
-	if err := os.Mkdir(gopath, 0775); err != nil {
-		fmt.Printf("error creating gopath: %v", err)
-		os.Exit(1)
-	}
-	goroots := path.Join(cwd, "goroots")
-	if err := os.Mkdir(goroots, 0775); err != nil {
-		fmt.Printf("error creating goroots: %v", err)
-		os.Exit(1)
-	}
-
 	// Make sure our filesystem is in good shape.
 	if err := checkAndSetUpFileSystem(initialize); err != nil {
 		fmt.Printf("%v", err)
@@ -236,20 +219,27 @@ results will also appear in 'bench'.
 	if err != nil {
 		fmt.Printf("There was an error opening or reading file %s: %v\n", benchFile, err)
 		os.Exit(1)
-		return
 	}
 	blobC, err := ioutil.ReadFile(confFile)
 	if err != nil {
 		fmt.Printf("There was an error opening or reading file %s: %v\n", confFile, err)
 		os.Exit(1)
-		return
 	}
 	blob := append(blobB, blobC...)
 	err = toml.Unmarshal(blob, todo)
 	if err != nil {
 		fmt.Printf("There was an error unmarshalling %s: %v\n", string(blob), err)
 		os.Exit(1)
-		return
+	}
+
+	// Create any directories we need.
+	dirs, err := createDirectories(0775)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	for _, c := range todo.Configurations {
+		c.dirs = dirs
 	}
 
 	var moreArgs []string
@@ -297,13 +287,9 @@ results will also appear in 'bench'.
 				configurations[trial.Name] = false
 			}
 		}
-		root := trial.Root
-		if root != "" {
-			root = os.ExpandEnv(root)
-			if '/' != root[len(root)-1] {
-				root = root + "/"
-			}
-			todo.Configurations[i].Root = root
+		if root := trial.Root; len(root) != 0 {
+			// TODO(jfaller): I don't think we need this "/" anymore... investigate.
+			todo.Configurations[i].Root = os.ExpandEnv(root) + "/"
 		}
 		for j, s := range trial.GcEnv {
 			trial.GcEnv[j] = os.ExpandEnv(s)
@@ -439,7 +425,7 @@ results will also appear in 'bench'.
 			defaultEnv = append(defaultEnv, e)
 		}
 	}
-	defaultEnv = replaceEnv(defaultEnv, "GOPATH", gopath)
+	defaultEnv = replaceEnv(defaultEnv, "GOPATH", dirs.gopath)
 	defaultEnv = replaceEnv(defaultEnv, "GOOS", runtime.GOOS)
 	defaultEnv = replaceEnv(defaultEnv, "GOARCH", runtime.GOARCH)
 	defaultEnv = ifMissingAddEnv(defaultEnv, "GO111MODULE", "auto")
@@ -449,8 +435,6 @@ results will also appear in 'bench'.
 
 	var getAndBuildFailures []string
 
-	err = os.Mkdir(testBinDir, 0775)
-	err = os.Mkdir(benchDir, 0775)
 	// Ignore the error -- TODO note the difference between exists already and other errors.
 
 	for i, config := range todo.Configurations {
@@ -499,7 +483,7 @@ results will also appear in 'bench'.
 				cmd.Env = replaceEnv(cmd.Env, "GOOS", "linux")
 			}
 			if verbose > 0 {
-				fmt.Println(asCommandLine(cwd, cmd))
+				fmt.Println(asCommandLine(dirs.wd, cmd))
 			} else {
 				fmt.Print(".")
 			}
@@ -515,7 +499,7 @@ results will also appear in 'bench'.
 
 			// Ensure testdir exists -- if modules are enabled, it does not.
 			// This involves invoking git to make it appear.
-			testdir := gopath + "/src/" + bench.Repo
+			testdir := path.Join(dirs.gopath, "src", bench.Repo)
 			_, terr := os.Stat(testdir)
 			if terr != nil { // Assume missing directory is the cause of the error.
 				parts := strings.Split(bench.Repo, "/")
@@ -528,8 +512,8 @@ results will also appear in 'bench'.
 					todo.Benchmarks[i].Disabled = true
 					continue
 				}
-				dirToMake := gopath + "/src/" + strings.Join(parts[:repoAt], "/")
-				repoToGet := strings.Join(parts[:repoAt+1], "/")
+				dirToMake := path.Join(dirs.gopath, "src", path.Join(parts[:repoAt]...))
+				repoToGet := path.Join(parts[:repoAt+1]...)
 				if verbose > 0 {
 					fmt.Printf("mkdir -p %s\n", dirToMake)
 				}
@@ -546,7 +530,7 @@ results will also appear in 'bench'.
 				cmd.Env = defaultEnv
 				cmd.Dir = dirToMake
 				if verbose > 0 {
-					fmt.Println(asCommandLine(cwd, cmd))
+					fmt.Println(asCommandLine(dirs.wd, cmd))
 				} else {
 					fmt.Print(".")
 				}
@@ -593,7 +577,7 @@ results will also appear in 'bench'.
 
 			root := config.Root
 
-			rootCopy := goroots + "/" + config.Name + "/"
+			rootCopy := path.Join(dirs.goroots, config.Name)
 			if verbose > 0 {
 				fmt.Printf("rm -rf %s\n", rootCopy)
 			}
@@ -617,10 +601,9 @@ results will also appear in 'bench'.
 				}
 			}
 
-			docopy(root+"bin", rootCopy+"bin")
-			docopy(root+"src", rootCopy+"src")
-			docopy(root+"pkg", rootCopy+"pkg")
-			// docopy(root +"vendor", rootCopy + "vendor")
+			docopy(path.Join(root, "bin"), path.Join(rootCopy, "bin"))
+			docopy(path.Join(root, "src"), path.Join(rootCopy, "src"))
+			docopy(path.Join(root, "pkg"), path.Join(rootCopy, "pkg"))
 
 			gocmd := config.goCommandCopy()
 
@@ -680,7 +663,7 @@ results will also appear in 'bench'.
 						if config.Disabled {
 							continue
 						}
-						s := todo.Configurations[ci].compileOne(&todo.Benchmarks[bi], cwd, yyy)
+						s := todo.Configurations[ci].compileOne(&todo.Benchmarks[bi], dirs.wd, yyy)
 						if s != "" {
 							getAndBuildFailures = append(getAndBuildFailures, s)
 						}
@@ -706,7 +689,7 @@ results will also appear in 'bench'.
 						if config.Disabled {
 							continue
 						}
-						s := config.compileOne(&todo.Benchmarks[bi], cwd, yyy)
+						s := config.compileOne(&todo.Benchmarks[bi], dirs.wd, yyy)
 						if s != "" {
 							getAndBuildFailures = append(getAndBuildFailures, s)
 						}
@@ -731,7 +714,7 @@ results will also appear in 'bench'.
 					if bench.Disabled || config.Disabled {
 						continue
 					}
-					s := config.compileOne(bench, cwd, yyy)
+					s := config.compileOne(bench, dirs.wd, yyy)
 					if s != "" {
 						getAndBuildFailures = append(getAndBuildFailures, s)
 					}
@@ -757,7 +740,7 @@ results will also appear in 'bench'.
 				if bench.Disabled || config.Disabled {
 					continue
 				}
-				s := config.compileOne(bench, cwd, p.k)
+				s := config.compileOne(bench, dirs.wd, p.k)
 				if s != "" {
 					getAndBuildFailures = append(getAndBuildFailures, s)
 				}
@@ -775,7 +758,7 @@ results will also appear in 'bench'.
 			}
 			cmd := exec.Command("docker", "build", "-q", ".")
 			if verbose > 0 {
-				fmt.Println(asCommandLine(cwd, cmd))
+				fmt.Println(asCommandLine(dirs.wd, cmd))
 			}
 			// capture standard output to get container name
 			output, err := cmd.Output()
@@ -845,7 +828,7 @@ results will also appear in 'bench'.
 
 				wrapperPrefix := "/"
 				if b.NotSandboxed {
-					wrapperPrefix = cwd + "/"
+					wrapperPrefix = dirs.wd + "/"
 				}
 				wrapperFor := func(s []string) string {
 					x := ""
@@ -878,8 +861,8 @@ results will also appear in 'bench'.
 				}
 
 				if b.NotSandboxed {
-					testdir := gopath + "/src/" + b.Repo
-					bin := cwd + "/" + testBinDir + "/" + testBinaryName
+					testdir := path.Join(dirs.gopath, "src", b.Repo)
+					bin := path.Join(dirs.wd, dirs.testBinDir, testBinaryName)
 					wrappersAndBin = append(wrappersAndBin, bin)
 
 					cmd := exec.Command(wrappersAndBin[0], wrappersAndBin[1:]...)
@@ -892,16 +875,17 @@ results will also appear in 'bench'.
 						cmd.Env = replaceEnv(cmd.Env, "GOROOT", root)
 					}
 					cmd.Env = replaceEnvs(cmd.Env, config.RunEnv)
-					cmd.Env = append(cmd.Env, "BENT_DIR="+cwd)
+					cmd.Env = append(cmd.Env, "BENT_DIR="+dirs.wd)
 					cmd.Env = append(cmd.Env, "BENT_BINARY="+testBinaryName)
 					cmd.Env = append(cmd.Env, "BENT_I="+strconv.FormatInt(int64(i), 10))
 					cmd.Args = append(cmd.Args, config.RunFlags...)
 					cmd.Args = append(cmd.Args, moreArgs...)
-					s, rc = todo.Configurations[j].runBinary(cwd, cmd, false)
+					s, rc = todo.Configurations[j].runBinary(dirs.wd, cmd, false)
 				} else {
 					// docker run --net=none -e GOROOT=... -w /src/github.com/minio/minio/cmd $D /testbin/cmd_Config.test -test.short -test.run=Nope -test.v -test.bench=Benchmark'(Get|Put|List)'
-					testdir := "/gopath/src/" + b.Repo
-					bin := "/" + testBinDir + "/" + testBinaryName
+					// TODO(jfaller): I don't think we need either of these "/" below, investigate...
+					testdir := "/" + path.Join("gopath", "src", b.Repo)
+					bin := "/" + path.Join(dirs.testBinDir, testBinaryName)
 					wrappersAndBin = append(wrappersAndBin, bin)
 
 					cmd := exec.Command("docker", "run", "--net=none",
@@ -918,7 +902,7 @@ results will also appear in 'bench'.
 					cmd.Args = append(cmd.Args, "-test.bench="+b.Benchmarks)
 					cmd.Args = append(cmd.Args, config.RunFlags...)
 					cmd.Args = append(cmd.Args, moreArgs...)
-					s, rc = todo.Configurations[j].runBinary(cwd, cmd, false)
+					s, rc = todo.Configurations[j].runBinary(dirs.wd, cmd, false)
 				}
 				if s != "" {
 					fmt.Println(s)
@@ -979,9 +963,9 @@ func asCommandLine(cwd string, cmd *exec.Cmd) string {
 func checkAndSetUpFileSystem(shouldInit bool) error {
 	// To avoid bad surprises, look for pkg and bin, if they exist, refuse to run
 	_, derr := os.Stat("Dockerfile")
-	_, perr := os.Stat("gopath/pkg")
-	_, berr := os.Stat("gopath/bin")
-	_, serr := os.Stat("gopath/src") // existence of src prevents initialization of Dockerfile
+	_, perr := os.Stat(path.Join("gopath", "pkg"))
+	_, berr := os.Stat(path.Join("gopath", "bin"))
+	_, serr := os.Stat(path.Join("gopath", "src")) // existence of src prevents initialization of Dockerfile
 
 	if perr == nil || berr == nil {
 		if !force {
@@ -1049,6 +1033,32 @@ func copyAsset(fs embed.FS, dir, file string) {
 		os.Exit(1)
 	}
 	fmt.Printf("Copied asset %s to current directory\n", file)
+}
+
+type directories struct {
+	wd, gopath, goroots, testBinDir, benchDir string
+}
+
+// createDirectories creates all the directories we need.
+func createDirectories(mode fs.FileMode) (*directories, error) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		fmt.Printf("Could not get current working directory %v\n", err)
+		os.Exit(1)
+	}
+	dirs := &directories{
+		wd:         cwd,
+		gopath:     path.Join(cwd, "gopath"),
+		goroots:    path.Join(cwd, "goroots"),
+		testBinDir: "testbin",
+		benchDir:   "bench",
+	}
+	for _, d := range []string{dirs.gopath, dirs.goroots} {
+		if err := os.Mkdir(d, mode); err != nil {
+			return nil, fmt.Errorf("error creating %v: %v", d, err)
+		}
+	}
+	return dirs, nil
 }
 
 // testBinaryName returns the name of the binary produced by "go test -c"

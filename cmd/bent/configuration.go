@@ -13,6 +13,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path"
 	"runtime"
 	"strconv"
 	"strings"
@@ -35,7 +36,8 @@ type Configuration struct {
 	Disabled    bool     // True if this configuration is temporarily disabled
 	buildStats  []BenchStat
 	benchWriter *os.File
-	rootCopy    string // The contents of GOROOT are copied here to allow benchmarking of just the test compilation.
+	rootCopy    string       // The contents of GOROOT are copied here to allow benchmarking of just the test compilation.
+	dirs        *directories // Test configuration
 }
 
 func (c *Configuration) buildBenchName() string {
@@ -43,10 +45,10 @@ func (c *Configuration) buildBenchName() string {
 }
 
 func (c *Configuration) thingBenchName(suffix string) string {
-	if strings.ContainsAny(suffix, "/") {
-		suffix = suffix[strings.LastIndex(suffix, "/")+1:]
+	if len(suffix) != 0 {
+		suffix = path.Base(suffix)
 	}
-	return benchDir + "/" + runstamp + "." + c.Name + "." + suffix
+	return path.Join(c.dirs.benchDir, runstamp+"."+c.Name+"."+suffix)
 }
 
 func (c *Configuration) benchName(b *Benchmark) string {
@@ -56,7 +58,7 @@ func (c *Configuration) benchName(b *Benchmark) string {
 func (c *Configuration) goCommand() string {
 	gocmd := "go"
 	if c.Root != "" {
-		gocmd = c.Root + "bin/" + gocmd
+		gocmd = path.Join(c.Root+"bin", gocmd)
 	}
 	return gocmd
 }
@@ -64,7 +66,7 @@ func (c *Configuration) goCommand() string {
 func (c *Configuration) goCommandCopy() string {
 	gocmd := "go"
 	if c.rootCopy != "" {
-		gocmd = c.rootCopy + "bin/" + gocmd
+		gocmd = path.Join(c.rootCopy, "bin", gocmd)
 	}
 	return gocmd
 }
@@ -110,13 +112,13 @@ func (config *Configuration) runOtherBenchmarks(b *Benchmark, cwd string) {
 		}
 
 		if !strings.ContainsAny(cmd, "/") {
-			cmd = cwd + "/" + cmd
+			cmd = path.Join(cwd, cmd)
 		}
 		if b.Disabled {
 			continue
 		}
 		testBinaryName := config.benchName(b)
-		c := exec.Command(cmd, testBinDir+"/"+testBinaryName, b.Name)
+		c := exec.Command(cmd, path.Join(config.dirs.testBinDir, testBinaryName), b.Name)
 
 		c.Env = defaultEnv
 		if !b.NotSandboxed {
@@ -148,7 +150,7 @@ func (config *Configuration) runOtherBenchmarks(b *Benchmark, cwd string) {
 func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int) string {
 	root := config.rootCopy
 	gocmd := config.goCommandCopy()
-	gopath := cwd + "/gopath"
+	gopath := path.Join(cwd, "gopath")
 
 	if explicitAll != 1 { // clear cache unless "-a[=1]" which requests -a on compilation.
 		cmd := exec.Command(gocmd, "clean", "-cache")
@@ -181,7 +183,7 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 		cmd.Args = append(cmd.Args, "-gcflags="+config.GcFlags)
 	}
 	cmd.Args = append(cmd.Args, ".")
-	cmd.Dir = gopath + "/src/" + bench.Repo
+	cmd.Dir = path.Join(gopath, "src", bench.Repo)
 	cmd.Env = defaultEnv
 	if !bench.NotSandboxed {
 		cmd.Env = replaceEnv(cmd.Env, "GOOS", "linux")
@@ -249,8 +251,8 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 	f.Close()
 
 	// Move generated binary to well-known place.
-	from := cmd.Dir + "/" + bench.testBinaryName()
-	to := testBinDir + "/" + config.benchName(bench)
+	from := path.Join(cmd.Dir, bench.testBinaryName())
+	to := path.Join(config.dirs.testBinDir, config.benchName(bench))
 	err = os.Rename(from, to)
 	if err != nil {
 		fmt.Printf("There was an error renaming %s to %s, %v\n", from, to, err)
