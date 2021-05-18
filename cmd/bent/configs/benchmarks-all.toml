@@ -95,10 +95,6 @@
 
 [[Benchmarks]]
   Name = "gonum_lapack_native"
-<<<<<<< HEAD
-  Repo = "gonum.org/v1/gonum/lapack/gonum"
-=======
->>>>>>> 8dbe4b9 (cmd/bent: refactor common benchmark info into "suites.toml"; add versions)
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
