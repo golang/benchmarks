@@ -14,7 +14,7 @@ use the -S flag.
 Initial usage :
 
 ```
-go get github.com/dr2chase/bent
+go install golang.org/x/benchmarks/cmd/bent@latest
 mkdir scratch
 cd scratch
 bent -I

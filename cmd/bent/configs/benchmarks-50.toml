@@ -261,7 +261,7 @@
 [[Benchmarks]]
   Name = "kanzi"
   Repo = "github.com/flanglet/kanzi-go/benchmark"
-  Benchmarks = "Benchmark(BWTS|FPAQ|LZ|MTFT)"
+  Benchmarks = "Benchmark(BWTS|FPAQ|LZ|MTFT)$"
 
 [[Benchmarks]]
   Name = "commonmark_markdown"

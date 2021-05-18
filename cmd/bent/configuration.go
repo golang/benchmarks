@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build go1.16
 // +build go1.16
 
 package main
@@ -118,7 +119,7 @@ func (config *Configuration) runOtherBenchmarks(b *Benchmark, cwd string) {
 			continue
 		}
 		testBinaryName := config.benchName(b)
-		c := exec.Command(cmd, path.Join(config.dirs.testBinDir, testBinaryName), b.Name)
+		c := exec.Command(cmd, path.Join(cwd, config.dirs.testBinDir, testBinaryName), b.Name)
 
 		c.Env = defaultEnv
 		if !b.NotSandboxed {
@@ -252,7 +253,7 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 
 	// Move generated binary to well-known place.
 	from := path.Join(cmd.Dir, bench.testBinaryName())
-	to := path.Join(config.dirs.testBinDir, config.benchName(bench))
+	to := path.Join(config.dirs.wd, config.dirs.testBinDir, config.benchName(bench))
 	err = os.Rename(from, to)
 	if err != nil {
 		fmt.Printf("There was an error renaming %s to %s, %v\n", from, to, err)

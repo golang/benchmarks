@@ -2,11 +2,13 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build go1.16
 // +build go1.16
 
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"embed"
 	"errors"
@@ -62,7 +64,7 @@ var pathLengths = map[string]int{
 	"go.uber.org":   2,
 }
 
-var verbose int
+var verbose counterFlag
 
 var benchFile = "benchmarks-50.toml"         // default list of benchmarks
 var confFile = "configurations.toml"         // default list of configurations
@@ -76,10 +78,10 @@ var force = false
 var noSandbox = false
 var requireSandbox = false
 var getOnly = false
-var runContainer = "" // if nonempty, skip builds and use existing named container (or binaries if -U )
-var wikiTable = false // emit the tests in a form usable in a wiki table
-var explicitAll = 0   // Include "-a" on "go test -c" test build ; repeating flag causes multiple rebuilds, useful for build benchmarking.
-var shuffle = 2       // Dimensionality of (build) shuffling; 0 = none, 1 = per-benchmark, configuration ordering, 2 = bench, config pairs, 3 = across repetitions.
+var runContainer = ""       // if nonempty, skip builds and use existing named container (or binaries if -U )
+var wikiTable = false       // emit the tests in a form usable in a wiki table
+var explicitAll counterFlag // Include "-a" on "go test -c" test build ; repeating flag causes multiple rebuilds, useful for build benchmarking.
+var shuffle = 2             // Dimensionality of (build) shuffling; 0 = none, 1 = per-benchmark, configuration ordering, 2 = bench, config pairs, 3 = across repetitions.
 
 //go:embed scripts/*
 var scripts embed.FS
@@ -138,7 +140,7 @@ func main() {
 
 	flag.IntVar(&N, "N", N, "benchmark/test repeat count")
 
-	flag.Var((*counterFlag)(&explicitAll), "a", "add '-a' flag to 'go test -c' to demand full recompile. Repeat or assign a value for repeat builds for benchmarking")
+	flag.Var(&explicitAll, "a", "add '-a' flag to 'go test -c' to demand full recompile. Repeat or assign a value for repeat builds for benchmarking")
 	flag.IntVar(&shuffle, "s", shuffle, "dimensionality of (build) shuffling (0-3), 0 = none, 1 = per-benchmark, configuration ordering, 2 = bench, config pairs, 3 = across repetitions.")
 
 	flag.StringVar(&benchmarksString, "b", "", "comma-separated list of test/benchmark names (default is all)")
@@ -162,7 +164,7 @@ func main() {
 
 	flag.BoolVar(&wikiTable, "W", wikiTable, "print benchmark info for a wiki table")
 
-	flag.Var((*counterFlag)(&verbose), "v", "print commands and other information (more -v = print more details)")
+	flag.Var(&verbose, "v", "print commands and other information (more -v = print more details)")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
@@ -238,8 +240,8 @@ results will also appear in 'bench'.
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	for _, c := range todo.Configurations {
-		c.dirs = dirs
+	for i := range todo.Configurations {
+		todo.Configurations[i].dirs = dirs
 	}
 
 	var moreArgs []string
@@ -456,7 +458,7 @@ results will also appear in 'bench'.
 	// and each benchmark is built buildCount (innerBuildCount) times before
 	// moving on to the next. (This tends to focus intermittent benchmarking
 	// noise on single configuration-benchmark combos.  This is the "old way".
-	buildCount := explicitAll
+	buildCount := int(explicitAll)
 	if buildCount < 0 {
 		buildCount = -buildCount
 	}
@@ -768,7 +770,14 @@ results will also appear in 'bench'.
 				os.Exit(2)
 				return
 			}
-			container = strings.TrimSpace(string(output))
+			// Docker prints stuff AFTER the container, thanks, Docker.
+			sc := bufio.NewScanner(bytes.NewReader(output))
+			if !sc.Scan() {
+				fmt.Printf("Could not scan line from '%s'\n", string(output))
+				os.Exit(2)
+				return
+			}
+			container = strings.TrimSpace(sc.Text())
 			if verbose == 0 {
 				fmt.Println()
 			}
@@ -1006,7 +1015,7 @@ ADD . /
 			return err
 		}
 		fmt.Printf("Created Dockerfile\n")
-		os.Exit(1)
+		os.Exit(0)
 	}
 	return nil
 }
@@ -1053,8 +1062,8 @@ func createDirectories(mode fs.FileMode) (*directories, error) {
 		testBinDir: "testbin",
 		benchDir:   "bench",
 	}
-	for _, d := range []string{dirs.gopath, dirs.goroots} {
-		if err := os.Mkdir(d, mode); err != nil {
+	for _, d := range []string{dirs.gopath, dirs.goroots, path.Join(cwd, dirs.testBinDir), path.Join(cwd, dirs.benchDir)} {
+		if err := os.Mkdir(d, mode); err != nil && !errors.Is(err, fs.ErrExist) {
 			return nil, fmt.Errorf("error creating %v: %v", d, err)
 		}
 	}
