@@ -1,10 +1,14 @@
+// Copyright 2021 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package stats
 
 import (
 	"math"
 )
 
-// IntervalTree is a structure used to make caluclating running medians quick.
+// IntervalTree is a structure used to make a calculation of running medians quick.
 // The structure is described in the Section 8/Appendix of the paper.
 type IntervalTree struct {
 	d    int
