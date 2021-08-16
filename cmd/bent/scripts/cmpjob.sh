@@ -82,7 +82,7 @@ if [ $? != 0 ] ; then
 fi
 
 cd "${ROOT}"
-${PERFLOCK} bent -U -v -N=${N} -a=${B} -L=bentjobs.log -C=configurations-cmpjob.toml "$@"
+${PERFLOCK} bent -v -N=${N} -a=${B} -L=bentjobs.log -C=configurations-cmpjob.toml "$@"
 RUN=`tail -1 bentjobs.log | awk -c '{print $1}'`
 
 cd bench

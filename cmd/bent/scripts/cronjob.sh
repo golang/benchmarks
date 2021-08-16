@@ -70,7 +70,7 @@ base=`git log -n 1 --format='%h'`
 cd "${ROOT}"
 # For arm64 big.little, might need to prefix with something like:
 # GOMAXPROCS=4 numactl -C 2-5 -- ...
-${PERFLOCK} bent -U -v -N=${N} -a=${B} -L=bentjobs.log -C=configurations-cronjob.toml -c Base,Tip "$@"
+${PERFLOCK} bent -v -N=${N} -a=${B} -L=bentjobs.log -C=configurations-cronjob.toml -c Base,Tip "$@"
 RUN=`tail -1 bentjobs.log | awk -c '{print $1}'`
 
 cd bench
@@ -106,7 +106,7 @@ fi
 # Debugging build
 
 cd "${ROOT}"
-${PERFLOCK} bent -U -v -N=${NNl} -a=${BNl} -L=bentjobsNl.log -C=configurations-cronjob.toml -c BaseNl,TipNl "$@"
+${PERFLOCK} bent -v -N=${NNl} -a=${BNl} -L=bentjobsNl.log -C=configurations-cronjob.toml -c BaseNl,TipNl "$@"
 RUN=`tail -1 bentjobsNl.log | awk -c '{print $1}'`
 
 cd bench

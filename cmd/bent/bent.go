@@ -75,7 +75,6 @@ var list = false
 var initialize = false
 var test = false
 var force = false
-var noSandbox = false
 var requireSandbox = false
 var getOnly = false
 var runContainer = ""       // if nonempty, skip builds and use existing named container (or binaries if -U )
@@ -144,13 +143,12 @@ func main() {
 	flag.IntVar(&shuffle, "s", shuffle, "dimensionality of (build) shuffling (0-3), 0 = none, 1 = per-benchmark, configuration ordering, 2 = bench, config pairs, 3 = across repetitions.")
 
 	flag.StringVar(&benchmarksString, "b", "", "comma-separated list of test/benchmark names (default is all)")
-	flag.StringVar(&benchFile, "B", benchFile, "name of file describing benchmarks")
+	flag.StringVar(&benchFile, "B", benchFile, "name of file containing benchmarks to run")
 
 	flag.StringVar(&configurationsString, "c", "", "comma-separated list of test/benchmark configurations (default is all)")
 	flag.StringVar(&confFile, "C", confFile, "name of file describing configurations")
 
-	flag.BoolVar(&noSandbox, "U", noSandbox, "run all commands unsandboxed")
-	flag.BoolVar(&requireSandbox, "S", requireSandbox, "exclude unsandboxable tests/benchmarks")
+	flag.BoolVar(&requireSandbox, "S", requireSandbox, "require Docker sandbox to run tests/benchmarks (& exclude unsandboxable tests/benchmarks)")
 
 	flag.BoolVar(&getOnly, "g", getOnly, "get tests/benchmarks and dependencies, do not build or run")
 	flag.StringVar(&runContainer, "r", runContainer, "skip get and build, go directly to run, using specified container (any non-empty string will do for unsandboxed execution)")
@@ -173,37 +171,32 @@ func main() {
 			`
 %s obtains the benchmarks/tests listed in %s and compiles
 and runs them according to the flags and environment
-variables supplied in %s. Specifying "-a" will pass "-a" to
-test compilations, but normally this should not be needed
-and only slows down builds; -a with a number that is not 1
-can be used for benchmarking builds of the tests themselves.
-(Don't forget to specify "all=..." for GCFLAGS if you want
+variables supplied in %s.
+
+Specifying "-a" will pass "-a" to test compilations, but normally this
+should not be needed and only slows down builds; -a with a number
+that is not 1 can be used for benchmarking builds of the tests
+themselves. (Don't forget to specify "all=..." for GCFLAGS if you want
 those applied to the entire build.)
 
 Both of these files can be changed with the -B and -C flags; the full
-suite of benchmarks in benchmarks-all.toml is somewhat time-consuming.
+suite of benchmarks in benchmarks-all.toml is somewhat
+time-consuming. Suites.toml contains the known benchmarks, their
+versions, and certain necessary build or run flags.
 
-Running with the -l flag will list all the available tests and benchmarks
-for the given benchmark and configuration files.
+Running with the -l flag will list all the available tests and
+benchmarks for the given benchmark and configuration files.
 
-By default the compiled tests are run in a docker container to reduce
-the chances for accidents and mischief. -U requests running tests
-unsandboxed, and -S limits the tests run to those that can be sandboxed
-(some cannot be because of cross-compilation issues; this may imply no
-change on platforms where the Docker container is not cross-compiled)
+By default benchmarks are run, not tests.  -T runs tests instead.
 
-By default benchmarks are run, not tests.  -T runs tests instead
+To run tests or benchmnarks in a docker sandbox, specify -S; if the
+host OS is not linux this will exclude some benchmarks that cannot be
+cross-compiled.
 
-This command expects to be run in a directory that does not contain
-subdirectories "gopath/pkg" and "gopath/bin", because those subdirectories
-may be created (and deleted) in the process of compiling the benchmarks.
-The same is true of subdirectory "goroots".
-It will also extensively modify subdirectory "gopath/src".
-
-All the test binaries will appear in the subdirectory 'testbin',
-and test (benchmark) output will appear in the subdirectory 'bench'
-with the suffix '.stdout'.  The test output is grouped by configuration
-to allow easy benchmark comparisons with benchstat.  Other benchmarking
+All the test binaries will appear in the subdirectory 'testbin', and
+test (benchmark) output will appear in the subdirectory 'bench' with
+the suffix '.stdout'.  The test output is grouped by configuration to
+allow easy benchmark comparisons with benchstat.  Other benchmarking
 results will also appear in 'bench'.
 `, os.Args[0], benchFile, confFile)
 	}
@@ -214,6 +207,30 @@ results will also appear in 'bench'.
 	if err := checkAndSetUpFileSystem(initialize); err != nil {
 		fmt.Printf("%v", err)
 		os.Exit(1)
+	}
+
+	// Fail early if either of these commands is missing.
+	_, errTime := exec.LookPath("/usr/bin/time")
+	_, errRsync := exec.LookPath("rsync")
+	if errTime != nil && errRsync != nil {
+		println("This program needs /usr/bin/time and rsync commands to run")
+		os.Exit(1)
+	}
+	if errRsync != nil {
+		println("This program needs the rsync command to run")
+		os.Exit(1)
+	}
+	if errTime != nil {
+		println("This program needs the /usr/bin/time command to run")
+		os.Exit(1)
+	}
+
+	if requireSandbox {
+		_, errDocker := exec.LookPath("docker")
+		if errDocker != nil {
+			println("Sandboxing benchmarks requires the docker command")
+			os.Exit(1)
+		}
 	}
 
 	todo := &Todo{}
@@ -355,7 +372,7 @@ results will also appear in 'bench'.
 				todo.Benchmarks[i].Benchmarks = "none"
 			}
 		}
-		if noSandbox {
+		if !requireSandbox {
 			todo.Benchmarks[i].NotSandboxed = true
 		}
 		if requireSandbox && todo.Benchmarks[i].NotSandboxed {

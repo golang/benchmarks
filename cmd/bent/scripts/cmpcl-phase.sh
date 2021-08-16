@@ -93,6 +93,6 @@ STAMP="$$"
 export STAMP
 
 cd "${ROOT}"
-${PERFLOCK} bent -U -v -N=${N} -a=${B} -L=bentjobs.log -c=Old-phase,New-phase -C=configurations-cmpjob.toml "$@" | tee phases.${STAMP}.log
+${PERFLOCK} bent -v -N=${N} -a=${B} -L=bentjobs.log -c=Old-phase,New-phase -C=configurations-cmpjob.toml "$@" | tee phases.${STAMP}.log
 phase-times > phases.${STAMP}.csv
 
