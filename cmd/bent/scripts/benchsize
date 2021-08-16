@@ -2,30 +2,36 @@
 
 tmp=tmp-bench-size-$$
 
-x=`which gsize`
-
-if [ "x$x" = "x" ] ; then
-	size -A "$1" > $tmp
-else
-	"$x" -A "$1" > $tmp
+if [ `uname` = "Darwin" ] ; then
+	awkcommand='{print $3}'
+	size -m "$1" > $tmp
+ else
+	x=`which gsize`
+	awkcommand='{print $2}'
+	if [ "x$x" = "x" ] ; then
+		size -A "$1" > $tmp
+	else
+		"$x" -A "$1" > $tmp
+	fi
 fi
 
 
+# note total is different -- always $2
+total=`egrep -i '^total' $tmp | awk -Wposix '{print $2}'`
 
-total=`grep Total $tmp | awk '{print $2}'`
-text=`egrep [^a-z]text[^a-z] $tmp | awk '{print $2}'`
-gopclntab=`grep gopclntab $tmp | awk '{print $2}'`
-rodata=`grep rodata $tmp | awk '{print $2}'`
-data=`egrep [^a-z]data[^a-z._] $tmp | awk '{print $2}'`
+text=`egrep [^a-z]text[^a-z] $tmp | awk -Wposix "$awkcommand"`
+gopclntab=`grep gopclntab $tmp | awk -Wposix "$awkcommand"`
+rodata=`grep rodata $tmp | awk -Wposix "$awkcommand"`
+data=`egrep [^a-z]data[^a-z._] $tmp | awk -Wposix "$awkcommand"`
 
-zdebug_info=`grep zdebug_info $tmp | awk '{print $2}'`
-zdebug_loc=`grep zdebug_loc $tmp | awk '{print $2}'`
-zdebug_line=`grep zdebug_line $tmp | awk '{print $2}'`
-zdebug_ranges=`grep zdebug_ranges $tmp | awk '{print $2}'`
-zdebug_frame=`grep zdebug_frame $tmp | awk '{print $2}'`
-zdebug_abbrev=`grep zdebug_abbrev $tmp | awk '{print $2}'`
-zdebug_pubname=`grep zdebug_pubname $tmp | awk '{print $2}'`
-zdebug_pubtype=`grep zdebug_pubtype $tmp | awk '{print $2}'`
+zdebug_info=`grep zdebug_info $tmp | awk -Wposix "$awkcommand"`
+zdebug_loc=`grep zdebug_loc $tmp | awk -Wposix "$awkcommand"`
+zdebug_line=`grep zdebug_line $tmp | awk -Wposix "$awkcommand"`
+zdebug_ranges=`grep zdebug_ranges $tmp | awk -Wposix "$awkcommand"`
+zdebug_frame=`grep zdebug_frame $tmp | awk -Wposix "$awkcommand"`
+zdebug_abbrev=`grep zdebug_abbrev $tmp | awk -Wposix "$awkcommand"`
+zdebug_pubname=`grep zdebug_pubname $tmp | awk -Wposix "$awkcommand"`
+zdebug_pubtype=`grep zdebug_pubtype $tmp | awk -Wposix "$awkcommand"`
 
 zdebug_abbrev=${zdebug_abbrev:-0}
 zdebug_pubname=${zdebug_pubname:-0}
@@ -39,7 +45,6 @@ echo "Benchmark${2}_text" 1 ${text} text-bytes
 echo "Benchmark${2}_data" 1 ${data} data-bytes
 echo "Benchmark${2}_rodata" 1 ${rodata} rodata-bytes
 echo "Benchmark${2}_pclntab" 1 ${gopclntab} pclntab-bytes
-
 
 zdebug=`expr ${zdebug_info} + ${zdebug_loc} + ${zdebug_line} + ${zdebug_ranges} + ${zdebug_frame} + ${zdebug_abbrev} + ${zdebug_pubname} + ${zdebug_pubtype}`
 

@@ -190,6 +190,7 @@
   Name = "capnproto2"
   Repo = "zombiezen.com/go/capnproto2/"
   Benchmarks = "Benchmark"
+  GcEnv = ["GO111MODULE=on"]
 
 [[Benchmarks]]
   Name = "uber_zap"
