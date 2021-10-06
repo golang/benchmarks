@@ -37,9 +37,10 @@ type Configuration struct {
 	Disabled    bool     // True if this configuration is temporarily disabled
 	buildStats  []BenchStat
 	benchWriter *os.File
-	rootCopy    string       // The contents of GOROOT are copied here to allow benchmarking of just the test compilation.
-	dirs        *directories // Test configuration
+	rootCopy    string // The contents of GOROOT are copied here to allow benchmarking of just the test compilation.
 }
+
+var dirs *directories // constant across all configurations, useful in other contexts.
 
 func (c *Configuration) buildBenchName() string {
 	return c.thingBenchName("build")
@@ -49,7 +50,7 @@ func (c *Configuration) thingBenchName(suffix string) string {
 	if len(suffix) != 0 {
 		suffix = path.Base(suffix)
 	}
-	return path.Join(c.dirs.benchDir, runstamp+"."+c.Name+"."+suffix)
+	return path.Join(dirs.benchDir, runstamp+"."+c.Name+"."+suffix)
 }
 
 func (c *Configuration) benchName(b *Benchmark) string {
@@ -119,7 +120,7 @@ func (config *Configuration) runOtherBenchmarks(b *Benchmark, cwd string) {
 			continue
 		}
 		testBinaryName := config.benchName(b)
-		c := exec.Command(cmd, path.Join(cwd, config.dirs.testBinDir, testBinaryName), b.Name)
+		c := exec.Command(cmd, path.Join(cwd, dirs.testBinDir, testBinaryName), b.Name)
 
 		c.Env = defaultEnv
 		if !b.NotSandboxed {
@@ -173,6 +174,8 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 
 	// Prefix with time for build benchmarking:
 	cmd := exec.Command("/usr/bin/time", "-p", gocmd, "test", "-vet=off", "-c")
+	compileTo := path.Join(dirs.wd, dirs.testBinDir, config.benchName(bench))
+	cmd.Args = append(cmd.Args, "-o", compileTo)
 	cmd.Args = append(cmd.Args, bench.BuildFlags...)
 	// Do not normally need -a because cache was emptied first and std was -a installed with these flags.
 	// But for -a=1, do it anyway
@@ -183,8 +186,8 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 	if config.GcFlags != "" {
 		cmd.Args = append(cmd.Args, "-gcflags="+config.GcFlags)
 	}
-	cmd.Args = append(cmd.Args, ".")
-	cmd.Dir = path.Join(gopath, "src", bench.Repo)
+	cmd.Args = append(cmd.Args, bench.Repo)
+	cmd.Dir = dirs.build // use module-mode
 	cmd.Env = defaultEnv
 	if !bench.NotSandboxed {
 		cmd.Env = replaceEnv(cmd.Env, "GOOS", "linux")
@@ -251,18 +254,8 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 	f.Sync()
 	f.Close()
 
-	// Move generated binary to well-known place.
-	from := path.Join(cmd.Dir, bench.testBinaryName())
-	to := path.Join(config.dirs.wd, config.dirs.testBinDir, config.benchName(bench))
-	err = os.Rename(from, to)
-	if err != nil {
-		fmt.Printf("There was an error renaming %s to %s, %v\n", from, to, err)
-		cleanup(gopath)
-		os.Exit(1)
-	}
 	// Trim /usr/bin/time info from soutput, it's ugly
 	if verbose > 0 {
-		fmt.Println("mv " + from + " " + to + "")
 		i := strings.LastIndex(soutput, "real")
 		if i >= 0 {
 			soutput = soutput[:i]
@@ -276,6 +269,17 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 	}
 
 	return ""
+}
+
+// say writes s to c's benchmark output file
+func (c *Configuration) say(s string) {
+	b := []byte(s)
+	nw, err := c.benchWriter.Write(b)
+	if err != nil {
+		fmt.Printf("Error writing, err = %v, nwritten = %d, nrequested = %d\n", err, nw, len(b))
+	}
+	c.benchWriter.Sync()
+	fmt.Print(string(b))
 }
 
 // runBinary runs cmd and displays the output.

@@ -1,8 +1,9 @@
 #!/bin/bash
 # Run args as command, but run cpuprofile and then pprof to capture test cpuprofile output
-pf="${BENT_BINARY}_${BENT_I}.prof"
+pf="${BENT_PROFILES}/${BENT_BINARY}_${BENT_I}.prof"
+mkdir -p ${BENT_PROFILES}
 "$@" -test.cpuprofile="$pf"
-echo cpuprofile in `pwd`/"$pf"
+echo cpuprofile in "$pf"
 if [[ x`which pprof` == x"" ]] ; then
     go tool pprof -text -flat -nodecount=20 "$pf"
 else

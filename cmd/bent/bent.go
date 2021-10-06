@@ -20,7 +20,6 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
@@ -44,8 +43,9 @@ type Benchmark struct {
 	BuildFlags []string // Flags for building test (e.g., -tags purego)
 	RunWrapper []string // (Inner) Command and args to precede whatever the operation is; may fail in the sandbox.
 	// e.g. benchmark may run as ConfigWrapper ConfigArg BenchWrapper BenchArg ActualBenchmark
-	NotSandboxed bool // True if this benchmark cannot or should not be run in a container.
-	Disabled     bool // True if this benchmark is temporarily disabled.
+	NotSandboxed bool   // True if this benchmark cannot or should not be run in a container.
+	Disabled     bool   // True if this benchmark is temporarily disabled.
+	RunDir       string // Parent directory of testdata.
 }
 
 type Todo struct {
@@ -110,26 +110,10 @@ type triple struct {
 var runstamp = strings.Replace(strings.Replace(time.Now().Format("2006-01-02T15:04:05"), "-", "", -1), ":", "", -1)
 
 func cleanup(gopath string) {
-	pkg, bin := path.Join(gopath, "pkg"), path.Join(gopath, "bin")
+	bin := path.Join(gopath, "bin")
 	if verbose > 0 {
-		fmt.Printf("chmod -R u+w %s\n", pkg)
+		fmt.Printf("rm -rf %s\n", bin)
 	}
-	// Necessary to make directories writeable with new module stuff.
-	filepath.Walk(pkg, func(path string, info os.FileInfo, err error) error {
-		if path != "" && info != nil {
-			if mode := info.Mode(); 0 == mode&os.ModeSymlink {
-				err := os.Chmod(path, 0200|mode)
-				if err != nil {
-					panic(err)
-				}
-			}
-		}
-		return nil
-	})
-	if verbose > 0 {
-		fmt.Printf("rm -rf %s %s\n", pkg, bin)
-	}
-	os.RemoveAll(pkg)
 	os.RemoveAll(bin)
 }
 
@@ -203,34 +187,42 @@ results will also appear in 'bench'.
 
 	flag.Parse()
 
-	// Make sure our filesystem is in good shape.
-	if err := checkAndSetUpFileSystem(initialize); err != nil {
-		fmt.Printf("%v", err)
-		os.Exit(1)
-	}
-
 	// Fail early if either of these commands is missing.
 	_, errTime := exec.LookPath("/usr/bin/time")
 	_, errRsync := exec.LookPath("rsync")
 	if errTime != nil && errRsync != nil {
-		println("This program needs /usr/bin/time and rsync commands to run")
+		fmt.Println("This program needs /usr/bin/time and rsync commands to run")
 		os.Exit(1)
 	}
 	if errRsync != nil {
-		println("This program needs the rsync command to run")
+		fmt.Println("This program needs the rsync command to run")
 		os.Exit(1)
 	}
 	if errTime != nil {
-		println("This program needs the /usr/bin/time command to run")
+		fmt.Println("This program needs the /usr/bin/time command to run")
 		os.Exit(1)
 	}
 
 	if requireSandbox {
 		_, errDocker := exec.LookPath("docker")
 		if errDocker != nil {
-			println("Sandboxing benchmarks requires the docker command")
+			fmt.Println("Sandboxing benchmarks requires the docker command")
 			os.Exit(1)
 		}
+	}
+
+	// Make sure our filesystem is in good shape.
+	if err := checkAndSetUpFileSystem(initialize); err != nil {
+		fmt.Printf("%v", err)
+		os.Exit(1)
+	}
+
+	var err error
+	// Create any directories we need.
+	dirs, err = createDirectories(0775)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	todo := &Todo{}
@@ -249,16 +241,6 @@ results will also appear in 'bench'.
 	if err != nil {
 		fmt.Printf("There was an error unmarshalling %s: %v\n", string(blob), err)
 		os.Exit(1)
-	}
-
-	// Create any directories we need.
-	dirs, err := createDirectories(0775)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	for i := range todo.Configurations {
-		todo.Configurations[i].dirs = dirs
 	}
 
 	var moreArgs []string
@@ -488,6 +470,26 @@ results will also appear in 'bench'.
 			fmt.Print("Go getting")
 		}
 
+		goDotMod := path.Join(dirs.build, "go.mod")
+
+		if _, err := os.Stat(goDotMod); err != nil { // if error assume go.mod does not exist
+			cmd := exec.Command("go", "mod", "init", "build")
+			cmd.Env = defaultEnv
+			cmd.Dir = dirs.build
+
+			if verbose > 0 {
+				fmt.Println(asCommandLine(dirs.wd, cmd))
+			} else {
+				fmt.Print(".")
+			}
+			_, err := cmd.Output()
+			if err != nil {
+				ee := err.(*exec.ExitError)
+				fmt.Printf("There was an error running 'go mod init', stderr = %s", ee.Stderr)
+				os.Exit(2)
+			}
+		}
+
 		// Obtain (go get -d -t -v bench.Repo) all benchmarks, once, populating src
 		for i, bench := range todo.Benchmarks {
 			if bench.Disabled {
@@ -497,6 +499,7 @@ results will also appear in 'bench'.
 
 			cmd := exec.Command("go", "get", "-d", "-t", "-v", bench.Repo)
 			cmd.Env = getBuildEnv
+			cmd.Dir = dirs.build
 
 			if !bench.NotSandboxed { // Do this so that OS-dependent dependencies are done correctly.
 				cmd.Env = replaceEnv(cmd.Env, "GOOS", "linux")
@@ -514,54 +517,6 @@ results will also appear in 'bench'.
 				getAndBuildFailures = append(getAndBuildFailures, s+"("+bench.Name+")\n")
 				todo.Benchmarks[i].Disabled = true
 				continue
-			}
-
-			// Ensure testdir exists -- if modules are enabled, it does not.
-			// This involves invoking git to make it appear.
-			testdir := path.Join(dirs.gopath, "src", bench.Repo)
-			_, terr := os.Stat(testdir)
-			if terr != nil { // Assume missing directory is the cause of the error.
-				parts := strings.Split(bench.Repo, "/")
-				root := parts[0]
-				repoAt := pathLengths[root] - 1
-				if repoAt < 1 || repoAt >= len(parts) {
-					s := fmt.Sprintf("repoAt=%d was not a valid index for %v", repoAt, parts)
-					fmt.Println(s + "DISABLING benchmark " + bench.Name)
-					getAndBuildFailures = append(getAndBuildFailures, s+"("+bench.Name+")\n")
-					todo.Benchmarks[i].Disabled = true
-					continue
-				}
-				dirToMake := path.Join(dirs.gopath, "src", path.Join(parts[:repoAt]...))
-				repoToGet := path.Join(parts[:repoAt+1]...)
-				if verbose > 0 {
-					fmt.Printf("mkdir -p %s\n", dirToMake)
-				}
-				err := os.MkdirAll(dirToMake, 0777)
-				if err != nil {
-					s := fmt.Sprintf("could not os.MkdirAll(%s), err = %v", dirToMake, err)
-					fmt.Println(s + "DISABLING benchmark " + bench.Name)
-					getAndBuildFailures = append(getAndBuildFailures, s+"("+bench.Name+")\n")
-					todo.Benchmarks[i].Disabled = true
-					continue
-				}
-
-				cmd = exec.Command("git", "clone", "https://"+repoToGet)
-				cmd.Env = defaultEnv
-				cmd.Dir = dirToMake
-				if verbose > 0 {
-					fmt.Println(asCommandLine(dirs.wd, cmd))
-				} else {
-					fmt.Print(".")
-				}
-				_, err = cmd.Output()
-				if err != nil {
-					ee := err.(*exec.ExitError)
-					s := fmt.Sprintf("There was an error running 'git clone', stderr = %s", ee.Stderr)
-					fmt.Println(s + "DISABLING benchmark " + bench.Name)
-					getAndBuildFailures = append(getAndBuildFailures, s+"("+bench.Name+")\n")
-					todo.Benchmarks[i].Disabled = true
-					continue
-				}
 			}
 
 			needSandbox = !bench.NotSandboxed || needSandbox
@@ -807,6 +762,41 @@ results will also appear in 'bench'.
 		}
 	}
 
+	// Initialize RunDir for benchmarks.
+	for i, bench := range todo.Benchmarks {
+		if bench.Disabled {
+			continue
+		}
+		// Obtain directory containing testdata, if any:
+		// Capture output of "go list -f {{.Dir}} $PKG"
+
+		cmd := exec.Command("go", "list", "-f", "{{.Dir}}", bench.Repo)
+		cmd.Env = defaultEnv
+		cmd.Dir = dirs.build
+
+		if verbose > 0 {
+			fmt.Println(asCommandLine(dirs.wd, cmd))
+		} else {
+			fmt.Print(".")
+		}
+		out, err := cmd.Output()
+		if err != nil {
+			s := fmt.Sprintf(`could not go list -f {{.Dir}} %s, err=%v`, bench.Repo, err)
+			fmt.Println(s + "DISABLING benchmark " + bench.Name)
+			getAndBuildFailures = append(getAndBuildFailures, s+"("+bench.Name+")\n")
+			todo.Benchmarks[i].Disabled = true
+			continue
+		} else if verbose > 0 {
+			fmt.Printf("# Rundir=%s\n", string(out))
+		}
+		rundir := strings.TrimSpace(string(out))
+		if !bench.NotSandboxed {
+			// if sandboxed, strip cwd from prefix of rundir.
+			rundir = rundir[len(dirs.wd):]
+		}
+		todo.Benchmarks[i].RunDir = rundir
+	}
+
 	var failures []string
 
 	// If there's a bad error running one of the benchmarks, report what we've got, please.
@@ -887,7 +877,6 @@ results will also appear in 'bench'.
 				}
 
 				if b.NotSandboxed {
-					testdir := path.Join(dirs.gopath, "src", b.Repo)
 					bin := path.Join(dirs.wd, dirs.testBinDir, testBinaryName)
 					wrappersAndBin = append(wrappersAndBin, bin)
 
@@ -895,31 +884,33 @@ results will also appear in 'bench'.
 					cmd.Args = append(cmd.Args, "-test.run="+b.Tests)
 					cmd.Args = append(cmd.Args, "-test.bench="+b.Benchmarks)
 
-					cmd.Dir = testdir
+					cmd.Dir = b.RunDir
 					cmd.Env = defaultEnv
 					if root != "" {
 						cmd.Env = replaceEnv(cmd.Env, "GOROOT", root)
 					}
 					cmd.Env = replaceEnvs(cmd.Env, config.RunEnv)
 					cmd.Env = append(cmd.Env, "BENT_DIR="+dirs.wd)
+					cmd.Env = append(cmd.Env, "BENT_PROFILES="+path.Join(dirs.wd, config.thingBenchName("profiles")))
 					cmd.Env = append(cmd.Env, "BENT_BINARY="+testBinaryName)
 					cmd.Env = append(cmd.Env, "BENT_I="+strconv.FormatInt(int64(i), 10))
 					cmd.Args = append(cmd.Args, config.RunFlags...)
 					cmd.Args = append(cmd.Args, moreArgs...)
+
+					config.say("shortname: " + b.Name + "\n")
 					s, rc = todo.Configurations[j].runBinary(dirs.wd, cmd, false)
 				} else {
 					// docker run --net=none -e GOROOT=... -w /src/github.com/minio/minio/cmd $D /testbin/cmd_Config.test -test.short -test.run=Nope -test.v -test.bench=Benchmark'(Get|Put|List)'
 					// TODO(jfaller): I don't think we need either of these "/" below, investigate...
-					testdir := "/" + path.Join("gopath", "src", b.Repo)
 					bin := "/" + path.Join(dirs.testBinDir, testBinaryName)
 					wrappersAndBin = append(wrappersAndBin, bin)
 
-					cmd := exec.Command("docker", "run", "--net=none",
-						"-w", testdir)
+					cmd := exec.Command("docker", "run", "--net=none", "-w", b.RunDir)
 					for _, e := range config.RunEnv {
 						cmd.Args = append(cmd.Args, "-e", e)
 					}
 					cmd.Args = append(cmd.Args, "-e", "BENT_DIR=/") // TODO this is not going to work well
+					cmd.Args = append(cmd.Args, "-e", "BENT_PROFILES="+path.Join(dirs.wd, config.thingBenchName("profiles")))
 					cmd.Args = append(cmd.Args, "-e", "BENT_BINARY="+testBinaryName)
 					cmd.Args = append(cmd.Args, "-e", "BENT_I="+strconv.FormatInt(int64(i), 10))
 					cmd.Args = append(cmd.Args, container)
@@ -928,6 +919,7 @@ results will also appear in 'bench'.
 					cmd.Args = append(cmd.Args, "-test.bench="+b.Benchmarks)
 					cmd.Args = append(cmd.Args, config.RunFlags...)
 					cmd.Args = append(cmd.Args, moreArgs...)
+					config.say("shortname: " + b.Name + "\n")
 					s, rc = todo.Configurations[j].runBinary(dirs.wd, cmd, false)
 				}
 				if s != "" {
@@ -990,16 +982,7 @@ func checkAndSetUpFileSystem(shouldInit bool) error {
 	// To avoid bad surprises, look for pkg and bin, if they exist, refuse to run
 	_, derr := os.Stat("Dockerfile")
 	_, perr := os.Stat(path.Join("gopath", "pkg"))
-	_, berr := os.Stat(path.Join("gopath", "bin"))
-	_, serr := os.Stat(path.Join("gopath", "src")) // existence of src prevents initialization of Dockerfile
 
-	if perr == nil || berr == nil {
-		if !force {
-			return errors.New("Building/running tests will trash gopath/pkg and gopath/bin, please remove, rename or run in another directory, or use -f to force.\n")
-		}
-		fmt.Printf("Building/running tests will trash gopath/pkg and gopath/bin, but force, so removing.\n")
-		cleanup("gopath")
-	}
 	if derr != nil && !shouldInit {
 		// Missing Dockerfile
 		return errors.New("Missing 'Dockerfile', please rerun with -I (initialize) flag if you intend to use this directory.\n")
@@ -1011,8 +994,8 @@ func checkAndSetUpFileSystem(shouldInit bool) error {
 
 	// Initialize the directory, copying in default benchmarks and sample configurations, and creating a Dockerfile
 	if shouldInit {
-		if serr == nil {
-			fmt.Printf("It looks like you've already initialized this directory, remove ./gopath if you want to reinit.\n")
+		if perr == nil {
+			fmt.Printf("It looks like you've already initialized this directory, remove ./gopath/pkg if you want to reinit.\n")
 			os.Exit(1)
 		}
 		for _, s := range copyExes {
@@ -1062,7 +1045,7 @@ func copyAsset(fs embed.FS, dir, file string) {
 }
 
 type directories struct {
-	wd, gopath, goroots, testBinDir, benchDir string
+	wd, gopath, goroots, build, testBinDir, benchDir string
 }
 
 // createDirectories creates all the directories we need.
@@ -1076,10 +1059,11 @@ func createDirectories(mode fs.FileMode) (*directories, error) {
 		wd:         cwd,
 		gopath:     path.Join(cwd, "gopath"),
 		goroots:    path.Join(cwd, "goroots"),
+		build:      path.Join(cwd, "build"),
 		testBinDir: "testbin",
 		benchDir:   "bench",
 	}
-	for _, d := range []string{dirs.gopath, dirs.goroots, path.Join(cwd, dirs.testBinDir), path.Join(cwd, dirs.benchDir)} {
+	for _, d := range []string{dirs.gopath, dirs.goroots, dirs.build, path.Join(cwd, dirs.testBinDir), path.Join(cwd, dirs.benchDir)} {
 		if err := os.Mkdir(d, mode); err != nil && !errors.Is(err, fs.ErrExist) {
 			return nil, fmt.Errorf("error creating %v: %v", d, err)
 		}
