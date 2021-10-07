@@ -5,32 +5,24 @@
 [[Benchmarks]]
   Name = "klauspost"
   Repo = "github.com/dr2chase/benchmarks/klauspost"
-  Tests = "" # Don't run these tests; they hang, etc.
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "minio"
   Repo = "github.com/minio/minio/cmd"
   Tests = "none" # Don't run these tests; they hang, etc.
-  Benchmarks = "BenchmarkGetObject5MbFS" # not Get|Put|List
+  Benchmarks = "Benchmark(MarshalMsgdataUsageCacheInfo|DecodehealingTracker|DataUpdateTracker|AppendMsg(ReplicateDecision|ResyncTargetsInfo))"
   GcEnv = ["GO111MODULE=on"]
-
-[[Benchmarks]]
-  Name = "hugo_hugolib_sitebuilding"
-  Repo = "github.com/gohugoio/hugo/hugolib"
-  Benchmarks = "BenchmarkSiteBuilding/YAML,num_pages=10,num_tags=10,tags_per_page=20,shortcodes,render-12"
-  Disabled = true # Broken as of 2019-04-10
 
 [[Benchmarks]]
   Name = "hugo_hugolib"
   Repo = "github.com/gohugoio/hugo/hugolib"
-  Benchmarks = "BenchmarkParsePage"
-  Disabled = true # Broken as of 2019-04-10
+  Benchmarks = "Benchmark(ResourceChainPostProcess|ReplaceShortcodeTokens|MergeByLanguage|GetPage$|(Cascade/langs-1-8))"
 
 [[Benchmarks]]
   Name = "ethereum_core"
   Repo = "github.com/ethereum/go-ethereum/core"
-  Benchmarks = "BenchmarkInsertChain_ring1000_memdb"
+  Benchmarks = "Benchmark([^ICBH]|H[^a]|B[^l]|C[^h]|I[^n])"
   NotSandboxed = true # Won't cross-compile to Linux on MacOS
 
 [[Benchmarks]]
@@ -66,7 +58,6 @@
 [[Benchmarks]]
   Name = "ethereum_bitutil"
   Repo = "github.com/ethereum/go-ethereum/common/bitutil"
-  # RunWrapper = ["bar"]
   Benchmarks = "Benchmark(BaseTest2KB|FastTest2KB|Encoding4KBVerySparse)"
 
 [[Benchmarks]]
@@ -137,18 +128,18 @@
 [[Benchmarks]]
   Name = "hugo_helpers"
   Repo = "github.com/gohugoio/hugo/helpers"
-  Benchmarks = "Benchmark(StripHTML|ReaderContains)"
+  Benchmarks = "Benchmark(StripHTML|TestTruncateWordsToWholeSentence$|EmojiKyokomiSprint)"
   GcEnv = ["GO111MODULE=on"]
 
 [[Benchmarks]]
-  Name = "k8s_api"
-  Repo = "k8s.io/kubernetes/pkg/api/testing"
-  Benchmarks = "BenchmarkEncodeCodecFromInternalProtobuf"
+  Name = "k8s_cache"
+  Repo = "k8s.io/client-go/tools/cache"
+  Benchmarks = "Benchmark"
 
 [[Benchmarks]]
-  Name = "k8s_schedulercache"
-  Repo = "k8s.io/kubernetes/pkg/scheduler/internal/cache"
-  Benchmarks = "BenchmarkList1kNodes30kPods"
+  Name = "k8s_workqueue"
+  Repo = "k8s.io/client-go/util/workqueue"
+  Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "uuid"
@@ -188,14 +179,15 @@
 
 [[Benchmarks]]
   Name = "uber_zap"
-  # Repo = "github.com/uber-go/zap/benchmarks"
-  Repo = "go.uber.org/zap/benchmarks"
-  Benchmarks = "BenchmarkAddingFields/(Zap.Sugar|^[ais])"
+  Repo = "go.uber.org/zap/zapcore"
+  Benchmarks = "Benchmark"
+  Version = "@v1.16.1-0.20210329175301-c23abee72d19"
 
 [[Benchmarks]]
   Name = "bindata"
   Repo = "github.com/kevinburke/go-bindata"
   Benchmarks = "Benchmark"
+  Version = "@v3.22.1-0.20211006210656-12dca65da1b8+incompatible"
 
 [[Benchmarks]]
   Name = "cespare_mph"

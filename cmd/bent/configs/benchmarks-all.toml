@@ -1,8 +1,6 @@
 # Benchmarks that build, and that run quickly enough.
 # The noisy ones are listed at the bottom
 
-# etcd bleve
-
 [[Benchmarks]]
   Name = "dustin_broadcast"
   Repo = "github.com/dustin/go-broadcast"
@@ -69,12 +67,13 @@
 [[Benchmarks]]
   Name = "ethereum_core"
   Repo = "github.com/ethereum/go-ethereum/core"
-  Benchmarks = "Benchmark([IPF]|ChainW)" # ChainRead crashes as of 1.10 on 2018-03-16
+  Benchmarks = "Benchmark([^ICBH]|H[^a]|B[^l]|C[^h]|I[^n])"
 
 [[Benchmarks]]
   Name = "ethereum_sha3"
   Repo = "github.com/ethereum/go-ethereum/crypto/sha3"
   Benchmarks = "Benchmark"
+  Disabled = true # won't even get
 
 [[Benchmarks]]
   Name = "ethereum_ecies"
@@ -99,11 +98,13 @@
   Repo = "github.com/ethereum/go-ethereum/whisper/whisperv5"
   Benchmarks = "Benchmark"
   NotSandboxed = true # Won't cross-compile to Linux on MacOS
+  Disabloed = true # won't even get
 
 [[Benchmarks]]
   Name = "eolian_dsp"
-  Repo = "buddin.us/eolian/dsp"
+  Repo = "github.com/semrekkers/eolian/dsp"
   Benchmarks = "Benchmark"
+  Disabled = true # buddin.us is dead, imports need updating
 
 [[Benchmarks]]
   Name = "spexs2"
@@ -114,22 +115,25 @@
   Name = "minio"
   Repo = "github.com/minio/minio/cmd"
   Tests = "none" # Don't run these tests; they hang, etc.
-  Benchmarks = "BenchmarkGetObject[^V125]" # not Get|Put|List
+  Benchmarks = "Benchmark([^LPGA]|L[^]i|G[^e]|P[^ua]|A[^u]|Parallel([^LPG]|L[^]i|G[^e]|P[^u]))"
 
 [[Benchmarks]]
   Name = "gonum_blas_native"
   Repo = "gonum.org/v1/gonum/blas/gonum"
   Benchmarks = "Benchmark.*Med" # not all benchmarks
+  BuildFlags = ["-tags", "safe"]
 
 [[Benchmarks]]
   Name = "gonum_lapack_native"
   Repo = "gonum.org/v1/gonum/lapack/gonum"
-  Benchmarks = "BenchmarkDgeev/.*[mt][1234]"
+  Benchmarks = "Benchmark"
+  BuildFlags = ["-tags", "safe"]
 
 [[Benchmarks]]
   Name = "gonum_mat"
   Repo = "gonum.org/v1/gonum/mat"
   Benchmarks = "Benchmark(.*Vec.*10000($|[^0])|.*Mul.*Dense.*1000H)"
+  BuildFlags = ["-tags", "safe"]
 
 [[Benchmarks]]
   Name = "semver"
@@ -144,22 +148,17 @@
 [[Benchmarks]]
   Name = "hugo_hugolib"
   Repo = "github.com/gohugoio/hugo/hugolib"
-  Benchmarks = "Benchmark(S[och]|Get|Replace)"
-
-[[Benchmarks]]
-  Name = "hugo_hugolib_sitebuilding"
-  Repo = "github.com/gohugoio/hugo/hugolib"
-  Benchmarks = "BenchmarkSiteBuilding/YAML,num_pages=10,num_tags=10,tags_per_page=20"
-
-[[Benchmarks]]
-  Name = "k8s_api"
-  Repo = "k8s.io/kubernetes/pkg/api/testing/"
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
-  Name = "k8s_schedulercache"
-  Repo = "k8s.io/kubernetes/pkg/scheduler/cache"
-  Benchmarks = "Benchmark"
+  Name = "k8s_cache"
+  Repo = "k8s.io/client-go/tools/cache"
+  Benchmarks = "B"
+
+[[Benchmarks]]
+  Name = "k8s_workqueue"
+  Repo = "k8s.io/client-go/util/workqueue"
+  Benchmarks = "B"
 
 [[Benchmarks]]
   Name = "uuid"
@@ -170,21 +169,25 @@
   Name = "gonum_topo"
   Repo = "gonum.org/v1/gonum/graph/topo/"
   Benchmarks = "Benchmark"
+  BuildFlags = ["-tags", "safe"]
 
 [[Benchmarks]]
   Name = "gonum_path"
   Repo = "gonum.org/v1/gonum/graph/path/"
   Benchmarks = "Benchmark"
+  BuildFlags = ["-tags", "safe"]
 
 [[Benchmarks]]
   Name = "gonum_community"
   Repo = "gonum.org/v1/gonum/graph/community/"
-  Benchmarks = "BenchmarkLouvainDirectedMultiplex"
+  Benchmarks = "Benchmark"
+  BuildFlags = ["-tags", "safe"]
 
 [[Benchmarks]]
   Name = "gonum_traverse"
   Repo = "gonum.org/v1/gonum/graph/traverse/"
   Benchmarks = "Benchmark"
+  BuildFlags = ["-tags", "safe"]
 
 [[Benchmarks]]
   Name = "capnproto2"
@@ -194,14 +197,15 @@
 
 [[Benchmarks]]
   Name = "uber_zap"
-  # Repo = "github.com/uber-go/zap/benchmarks"
-  Repo = "go.uber.org/zap/benchmarks"
-  Benchmarks = "Benchmark"
+  Repo = "go.uber.org/zap/zapcore"
+  Benchmarks = "B"
+  Version = "@v1.16.1-0.20210329175301-c23abee72d19"
 
 [[Benchmarks]]
   Name = "bindata"
   Repo = "github.com/kevinburke/go-bindata"
   Benchmarks = "Benchmark"
+  Version = "@v3.22.1-0.20211006210656-12dca65da1b8+incompatible"
 
 [[Benchmarks]]
   Name = "cespare_mph"
@@ -224,10 +228,11 @@
   Name = "gtank_ed25519"
   Repo = "github.com/gtank/ed25519"
   Benchmarks = "Benchmark"
+  Disabled = true # Won't go get properly
 
 [[Benchmarks]]
   Name = "nelsam_gxui_interval"
-  Repo = "github.com/nelsam/gxui/interval"
+  Repo = "git.sr.ht/~nelsam/gxui/interval"
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
@@ -254,39 +259,4 @@
   Name = "commonmark_markdown"
   Repo = "gitlab.com/golang-commonmark/markdown"
   Benchmarks = "Benchmark"
-
-
-# These are the known-noisy benchmarks
-#
-# AddScaledVec10000Inc1-12  4.58µs ±19% 4.55µs ±13% 4.83µs ±12% 4.77µs ±15%
-# AddScaledVec10000Inc2-12  10.7µs ±10% 10.9µs ± 4% 10.4µs ± 8% 10.6µs ±10%
-# AddVec10000Inc1-12  4.56µs ±19% 4.54µs ±12% 4.86µs ±13% 4.78µs ±16%
-# AddVec10000Inc2-12  10.8µs ± 5% 10.9µs ± 4% 10.3µs ± 7% 10.5µs ± 7%
-# AddVec10000Inc2-12  10.8µs ± 5% 10.9µs ± 4% 10.3µs ± 7% 10.5µs ± 7%
-# BaseTest4KB-12 1.21µs ±11% 1.19µs ± 0% 2.40µs ± 0% 3.23µs ± 1%
-# CheckVersionWildcard-12 37.2ns ±11% 35.7ns ± 0% 37.1ns ± 5% 37.6ns ±12%
-# DgemmMedMedMedNTT-12  187µs ± 6%  191µs ±11%  193µs ± 8%  189µs ± 7%
-# GetObject100KbFS-12 274µs ± 3%  262µs ±14%  278µs ± 3%  282µs ± 1%
-# GetObject10KbFS-12  104µs ± 2%  94µs ±24% 105µs ± 3%  106µs ± 2%
-# GetObject10KbXL-12  5.48ms ± 4% 5.43ms ± 4% 5.48ms ± 5% 5.52ms ± 5%
-# GetObjectParallel100KbFS-12 68.1µs ± 3% 63.9µs ±18% 69.1µs ± 2% 69.7µs ± 3%
-# GetObjectParallel10KbFS-12  48.1µs ± 4% 43.5µs ±27% 48.6µs ± 2% 48.6µs ± 2%
-# GetObjectParallel10MbFS-12  931µs ±13%  862µs ±24%  929µs ± 4%  929µs ± 3%
-# GetObjectParallel1MbFS-12 203µs ± 3%  195µs ±11%  205µs ± 2%  204µs ± 2%
-# GetObjectParallel25MbFS-12  2.28ms ±28% 2.09ms ±23% 2.21ms ± 9% 2.23ms ± 6%
-# GetObjectParallel50MbFS-12  4.50ms ±33% 4.60ms ±22% 4.41ms ±12% 4.81ms ±47%
-# GetObjectParallel5MbFS-12 531µs ± 6%  496µs ±20%  528µs ± 3%  526µs ± 6%
-# GetObjectParallelVerySmallFS-12 37.3µs ±39% 34.2µs ±34% 43.0µs ± 3% 41.9µs ±11%
-# GetObjectVerySmallFS-12 70.0µs ± 3% 58.1µs ±44% 70.6µs ± 2% 70.8µs ± 3%
-# PrecompiledIdentity/128-Gas=27-12 17.3ns ± 0% 18.0ns ± 6% 17.4ns ± 1% 18.0ns ± 7%
-# Prove-12  632µs ± 7%  617µs ±10%  617µs ±10%  626µs ± 7%
-# ReplaceDivider-12 1.03µs ±13% 1.03µs ± 9% 1.06µs ±13% 1.07µs ±10%
-# ReplaceShortcodeTokens-12 2.72µs ±12% 2.62µs ± 9% 2.82µs ± 1% 2.58µs ±10%
-# ScaleVec10000Inc1-12  2.98µs ± 3% 3.00µs ± 6% 3.12µs ±12% 2.98µs ± 2%
-# ScaleVec10000Inc2-12  5.62µs ±21% 5.60µs ± 5% 5.98µs ±11% 5.88µs ±13%
-# SubVec10000Inc1-12  4.58µs ±19% 4.54µs ±11% 4.84µs ±16% 4.76µs ±15%
-# SubVec10000Inc2-12  10.8µs ±10% 10.9µs ± 5% 10.3µs ± 8% 10.5µs ± 7%
-# ValidateVersionWildcard-12  42.8ns ± 9% 41.3ns ± 6% 43.4ns ± 7% 43.1ns ± 6%
-# VerifyProof-12  12.2µs ± 7% 12.4µs ± 6% 12.4µs ± 4% 12.3µs ± 5%
-
 

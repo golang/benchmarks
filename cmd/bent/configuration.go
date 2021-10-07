@@ -186,7 +186,7 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 		cmd.Args = append(cmd.Args, "-gcflags="+config.GcFlags)
 	}
 	cmd.Args = append(cmd.Args, bench.Repo)
-	cmd.Dir = dirs.build // use module-mode
+	cmd.Dir = bench.BuildDir // use module-mode
 	cmd.Env = defaultEnv
 	if !bench.NotSandboxed {
 		cmd.Env = replaceEnv(cmd.Env, "GOOS", "linux")

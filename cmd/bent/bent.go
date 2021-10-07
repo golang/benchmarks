@@ -46,6 +46,8 @@ type Benchmark struct {
 	NotSandboxed bool   // True if this benchmark cannot or should not be run in a container.
 	Disabled     bool   // True if this benchmark is temporarily disabled.
 	RunDir       string // Parent directory of testdata.
+	BuildDir     string // Location of go.mod for this benchmark; download here, go test -c here.
+	Version      string // To pin a benchmark at a version.
 }
 
 type Todo struct {
@@ -210,7 +212,7 @@ results will also appear in 'bench'.
 
 	var err error
 	// Create any directories we need.
-	dirs, err = createDirectories(0775)
+	dirs, err = createDirectories()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -331,6 +333,9 @@ results will also appear in 'bench'.
 			bench.Repo = bench.Repo[:len(bench.Repo)-1]
 			todo.Benchmarks[i].Repo = bench.Repo
 		}
+		if "" == bench.Version {
+			todo.Benchmarks[i].Version = "@latest"
+		}
 		if "" == bench.Tests || !test {
 			if !test {
 				todo.Benchmarks[i].Tests = "none"
@@ -378,7 +383,7 @@ results will also appear in 'bench'.
 	if list {
 		fmt.Println("Benchmarks:")
 		for _, x := range todo.Benchmarks {
-			s := x.Name + " (repo=" + x.Repo + ")"
+			s := x.Name + " (repo=" + x.Repo + x.Version + ")"
 			if x.Disabled {
 				s += " (disabled)"
 			}
@@ -456,41 +461,58 @@ results will also appear in 'bench'.
 		buildCount = 1
 	}
 
+	for i := range todo.Benchmarks {
+		bench := &todo.Benchmarks[i]
+
+		if bench.Disabled {
+			continue
+		}
+
+		// Use a separate build directory and go.mod for each benchmark, otherwise there can be conflicts.
+		// Initialize before building because this information tells where to run the test, also.
+		bench.BuildDir = path.Join(dirs.build, bench.Name)
+	}
+
 	if runContainer == "" { // If not reusing binaries/container...
 		if verbose == 0 {
 			fmt.Print("Go getting")
 		}
 
-		goDotMod := path.Join(dirs.build, "go.mod")
-
-		if _, err := os.Stat(goDotMod); err != nil { // if error assume go.mod does not exist
-			cmd := exec.Command("go", "mod", "init", "build")
-			cmd.Env = defaultEnv
-			cmd.Dir = dirs.build
-
-			if verbose > 0 {
-				fmt.Println(asCommandLine(dirs.wd, cmd))
-			} else {
-				fmt.Print(".")
-			}
-			_, err := cmd.Output()
-			if err != nil {
-				ee := err.(*exec.ExitError)
-				fmt.Printf("There was an error running 'go mod init', stderr = %s", ee.Stderr)
-				os.Exit(2)
-			}
-		}
-
 		// Obtain (go get -d -t -v bench.Repo) all benchmarks, once, populating src
-		for i, bench := range todo.Benchmarks {
+		for i := range todo.Benchmarks {
+			bench := &todo.Benchmarks[i]
+
 			if bench.Disabled {
 				continue
 			}
-			getBuildEnv := replaceEnvs(defaultEnv, bench.GcEnv)
 
-			cmd := exec.Command("go", "get", "-d", "-t", "-v", bench.Repo)
-			cmd.Env = getBuildEnv
-			cmd.Dir = dirs.build
+			// Use a separate go.mod for each benchmark, otherwise there can be conflicts.
+			if err := mkdirAsNeeded(bench.BuildDir); err != nil {
+				fmt.Printf("Couldn't create build subdirectory %s, error=%v", bench.BuildDir, err)
+				os.Exit(2)
+			}
+			goDotMod := path.Join(bench.BuildDir, "go.mod")
+			if _, err := os.Stat(goDotMod); err != nil { // if error assume go.mod does not exist
+				cmd := exec.Command("go", "mod", "init", "build")
+				cmd.Env = defaultEnv
+				cmd.Dir = bench.BuildDir
+
+				if verbose > 0 {
+					fmt.Println(asCommandLine(dirs.wd, cmd))
+				} else {
+					fmt.Print(".")
+				}
+				_, err := cmd.Output()
+				if err != nil {
+					ee := err.(*exec.ExitError)
+					fmt.Printf("There was an error running 'go mod init', stderr = %s", ee.Stderr)
+					os.Exit(2)
+				}
+			}
+
+			cmd := exec.Command("go", "get", "-d", "-t", "-v", bench.Repo+bench.Version)
+			cmd.Env = replaceEnvs(defaultEnv, bench.GcEnv)
+			cmd.Dir = bench.BuildDir
 
 			if !bench.NotSandboxed { // Do this so that OS-dependent dependencies are done correctly.
 				cmd.Env = replaceEnv(cmd.Env, "GOOS", "linux")
@@ -768,7 +790,7 @@ results will also appear in 'bench'.
 
 		cmd := exec.Command("go", "list", "-f", "{{.Dir}}", bench.Repo)
 		cmd.Env = defaultEnv
-		cmd.Dir = dirs.build
+		cmd.Dir = bench.BuildDir
 
 		if verbose > 0 {
 			fmt.Println(asCommandLine(dirs.wd, cmd))
@@ -1045,7 +1067,7 @@ type directories struct {
 }
 
 // createDirectories creates all the directories we need.
-func createDirectories(mode fs.FileMode) (*directories, error) {
+func createDirectories() (*directories, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
 		fmt.Printf("Could not get current working directory %v\n", err)
@@ -1060,11 +1082,19 @@ func createDirectories(mode fs.FileMode) (*directories, error) {
 		benchDir:   "bench",
 	}
 	for _, d := range []string{dirs.gopath, dirs.goroots, dirs.build, path.Join(cwd, dirs.testBinDir), path.Join(cwd, dirs.benchDir)} {
-		if err := os.Mkdir(d, mode); err != nil && !errors.Is(err, fs.ErrExist) {
+		if err := mkdirAsNeeded(d); err != nil {
 			return nil, fmt.Errorf("error creating %v: %v", d, err)
 		}
 	}
 	return dirs, nil
+}
+
+// mkdirAsNeeded creates directory d with mode 0775 if it does not exist already.
+func mkdirAsNeeded(d string) error {
+	if err := os.Mkdir(d, 0775); err != nil && !errors.Is(err, fs.ErrExist) {
+		return fmt.Errorf("error creating %v: %v", d, err)
+	}
+	return nil
 }
 
 // testBinaryName returns the name of the binary produced by "go test -c"
