@@ -222,7 +222,7 @@
 
 [[Benchmarks]]
   Name = "nelsam_gxui_interval"
-  Repo = "github.com/nelsam/gxui/interval"
+  Repo = "git.sr.ht/~nelsam/gxui/interval"
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
