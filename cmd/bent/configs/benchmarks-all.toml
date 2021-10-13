@@ -3,260 +3,199 @@
 
 [[Benchmarks]]
   Name = "dustin_broadcast"
-  Repo = "github.com/dustin/go-broadcast"
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "dustin_humanize"
-  Repo = "github.com/dustin/go-humanize"
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "rcrowley_metrics"
-  Repo = "github.com/rcrowley/go-metrics"
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "shopify_sarama"
-  Repo = "github.com/Shopify/sarama"
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "aws_restjson"
-  Repo = "github.com/aws/aws-sdk-go/private/protocol/restjson"
   Benchmarks = "Benchmark"
+  Disabled = true # no benchmarks
 
 [[Benchmarks]]
   Name = "aws_restxml"
-  Repo = "github.com/aws/aws-sdk-go/private/protocol/restxml"
   Benchmarks = "Benchmark"
+  Disabled = true # no benchmarks
 
 [[Benchmarks]]
   Name = "aws_jsonrpc"
-  Repo = "github.com/aws/aws-sdk-go/private/protocol/jsonrpc"
   Benchmarks = "Benchmark"
+  Disabled = true # no benchmarks
 
 [[Benchmarks]]
   Name = "aws_jsonutil"
-  Repo = "github.com/aws/aws-sdk-go/private/protocol/json/jsonutil"
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "kanzi"
-  Repo = "github.com/flanglet/kanzi-go/benchmark"
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "ethereum_bitutil"
-  Repo = "github.com/ethereum/go-ethereum/common/bitutil"
-  # Benchmarks = "Benchmark"
-  Benchmarks = "Benchmark.*Test"
+  Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "ethereum_storage"
-  Repo = "github.com/ethersphere/swarm/storage"
-  Benchmarks = "Benchmark(Join|SplitTree)" # SplitPyramid seems to have a bug
-  NotSandboxed = true # Won't cross-compile to Linux on MacOS
+  Benchmarks = "Benchmark" # SplitPyramid seems to have a bug
 
 [[Benchmarks]]
   Name = "ethereum_ethash"
-  Repo = "github.com/ethereum/go-ethereum/consensus/ethash"
   Benchmarks = "Benchmark"
-  NotSandboxed = true # Won't cross-compile to Linux on MacOS
 
 [[Benchmarks]]
   Name = "ethereum_core"
-  Repo = "github.com/ethereum/go-ethereum/core"
   Benchmarks = "Benchmark([^ICBH]|H[^a]|B[^l]|C[^h]|I[^n])"
 
 [[Benchmarks]]
   Name = "ethereum_sha3"
-  Repo = "github.com/ethereum/go-ethereum/crypto/sha3"
   Benchmarks = "Benchmark"
-  Disabled = true # won't even get
 
 [[Benchmarks]]
   Name = "ethereum_ecies"
-  Repo = "github.com/ethereum/go-ethereum/crypto/ecies"
   Benchmarks = "Benchmark"
-  NotSandboxed = true # Won't cross-compile to Linux on MacOS
 
 [[Benchmarks]]
   Name = "ethereum_corevm"
-  Repo = "github.com/ethereum/go-ethereum/core/vm"
   Benchmarks = "Benchmark"
-  NotSandboxed = true # Won't cross-compile to Linux on MacOS
 
 [[Benchmarks]]
   Name = "ethereum_trie"
-  Repo = "github.com/ethereum/go-ethereum/trie"
   Benchmarks = "Benchmark"
-  NotSandboxed = true # Won't cross-compile to Linux on MacOS
 
 [[Benchmarks]]
-  Name = "ethereum_whisperv5"
-  Repo = "github.com/ethereum/go-ethereum/whisper/whisperv5"
+  Name = "ethereum_whisper"
   Benchmarks = "Benchmark"
-  NotSandboxed = true # Won't cross-compile to Linux on MacOS
-  Disabloed = true # won't even get
 
 [[Benchmarks]]
   Name = "eolian_dsp"
-  Repo = "github.com/semrekkers/eolian/dsp"
   Benchmarks = "Benchmark"
-  Disabled = true # buddin.us is dead, imports need updating
 
 [[Benchmarks]]
   Name = "spexs2"
-  Repo = "github.com/egonelbre/spexs2/_benchmark/"
   Benchmarks = "BenchmarkRun"
 
 [[Benchmarks]]
   Name = "minio"
-  Repo = "github.com/minio/minio/cmd"
   Tests = "none" # Don't run these tests; they hang, etc.
   Benchmarks = "Benchmark([^LPGA]|L[^]i|G[^e]|P[^ua]|A[^u]|Parallel([^LPG]|L[^]i|G[^e]|P[^u]))"
 
 [[Benchmarks]]
   Name = "gonum_blas_native"
-  Repo = "gonum.org/v1/gonum/blas/gonum"
-  Benchmarks = "Benchmark.*Med" # not all benchmarks
-  BuildFlags = ["-tags", "safe"]
+  Benchmarks = "Benchmark" # not all benchmarks
 
 [[Benchmarks]]
   Name = "gonum_lapack_native"
+<<<<<<< HEAD
   Repo = "gonum.org/v1/gonum/lapack/gonum"
+=======
+>>>>>>> 8dbe4b9 (cmd/bent: refactor common benchmark info into "suites.toml"; add versions)
   Benchmarks = "Benchmark"
-  BuildFlags = ["-tags", "safe"]
 
 [[Benchmarks]]
   Name = "gonum_mat"
-  Repo = "gonum.org/v1/gonum/mat"
-  Benchmarks = "Benchmark(.*Vec.*10000($|[^0])|.*Mul.*Dense.*1000H)"
-  BuildFlags = ["-tags", "safe"]
+  Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "semver"
-  Repo = "github.com/Masterminds/semver"
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "hugo_helpers"
-  Repo = "github.com/gohugoio/hugo/helpers"
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "hugo_hugolib"
-  Repo = "github.com/gohugoio/hugo/hugolib"
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "k8s_cache"
-  Repo = "k8s.io/client-go/tools/cache"
   Benchmarks = "B"
 
 [[Benchmarks]]
   Name = "k8s_workqueue"
-  Repo = "k8s.io/client-go/util/workqueue"
   Benchmarks = "B"
 
 [[Benchmarks]]
   Name = "uuid"
-  Repo = "github.com/satori/go.uuid/"
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "gonum_topo"
-  Repo = "gonum.org/v1/gonum/graph/topo/"
   Benchmarks = "Benchmark"
-  BuildFlags = ["-tags", "safe"]
 
 [[Benchmarks]]
   Name = "gonum_path"
-  Repo = "gonum.org/v1/gonum/graph/path/"
   Benchmarks = "Benchmark"
-  BuildFlags = ["-tags", "safe"]
 
 [[Benchmarks]]
   Name = "gonum_community"
-  Repo = "gonum.org/v1/gonum/graph/community/"
   Benchmarks = "Benchmark"
-  BuildFlags = ["-tags", "safe"]
 
 [[Benchmarks]]
   Name = "gonum_traverse"
-  Repo = "gonum.org/v1/gonum/graph/traverse/"
   Benchmarks = "Benchmark"
-  BuildFlags = ["-tags", "safe"]
 
 [[Benchmarks]]
   Name = "capnproto2"
-  Repo = "zombiezen.com/go/capnproto2/"
   Benchmarks = "Benchmark"
   GcEnv = ["GO111MODULE=on"]
 
 [[Benchmarks]]
   Name = "uber_zap"
-  Repo = "go.uber.org/zap/zapcore"
   Benchmarks = "B"
-  Version = "@v1.16.1-0.20210329175301-c23abee72d19"
 
 [[Benchmarks]]
   Name = "bindata"
-  Repo = "github.com/kevinburke/go-bindata"
   Benchmarks = "Benchmark"
-  Version = "@v3.22.1-0.20211006210656-12dca65da1b8+incompatible"
 
 [[Benchmarks]]
   Name = "cespare_mph"
-  Repo = "github.com/cespare/mph"
   Benchmarks = "Benchmark"
 
 # Used by InfluxDB and Prometheus
 [[Benchmarks]]
   Name = "cespare_xxhash"
-  Repo = "github.com/cespare/xxhash"
-  BuildFlags = ["-tags", "purego"]
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "gtank_blake2s"
-  Repo = "github.com/gtank/blake2s"
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "gtank_ed25519"
-  Repo = "github.com/gtank/ed25519"
   Benchmarks = "Benchmark"
-  Disabled = true # Won't go get properly
 
 [[Benchmarks]]
   Name = "nelsam_gxui_interval"
-  Repo = "git.sr.ht/~nelsam/gxui/interval"
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "ajstarks_deck_generate"
-  Repo = "github.com/ajstarks/deck/generate"
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "benhoyt_goawk"
-  Repo = "github.com/benhoyt/goawk/interp"
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "ericlagergren_decimal"
-  Repo = "github.com/ericlagergren/decimal/benchmarks"
-  Benchmarks = "Benchmark.*_9"
+  Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "tidwall_tile38"
-  Repo = "github.com/tidwall/tile38/tests"
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "commonmark_markdown"
-  Repo = "gitlab.com/golang-commonmark/markdown"
   Benchmarks = "Benchmark"
 

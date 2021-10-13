@@ -1,0 +1,264 @@
+# A Suite is a short name, a repo, a version, and sometimes some related default values
+# for the benchmark specification files.
+
+[[Suites]]
+  Name = "dustin_broadcast"
+  Repo = "github.com/dustin/go-broadcast"
+  Version = "@v0.0.0-20171205050544-f664265f5a66"
+
+[[Suites]]
+  Name = "dustin_humanize"
+  Repo = "github.com/dustin/go-humanize"
+  Version = "@v1.0.0"
+
+[[Suites]]
+  Name = "rcrowley_metrics"
+  Repo = "github.com/rcrowley/go-metrics"
+  Version = "@v0.0.0-20201227073835-cf1acfcdf475"
+
+[[Suites]]
+  Name = "shopify_sarama"
+  Repo = "github.com/Shopify/sarama"
+  Version = "@v1.30.0"
+
+[[Suites]]
+  Name = "aws_restjson"
+  Repo = "github.com/aws/aws-sdk-go/private/protocol/restjson"
+  Version = "@v1.41.1"
+
+[[Suites]]
+  Name = "aws_restxml"
+  Repo = "github.com/aws/aws-sdk-go/private/protocol/restxml"
+  Version = "@v1.41.1"
+
+[[Suites]]
+  Name = "aws_jsonrpc"
+  Repo = "github.com/aws/aws-sdk-go/private/protocol/jsonrpc"
+  Version = "@v1.41.1"
+
+[[Suites]]
+  Name = "aws_jsonutil"
+  Repo = "github.com/aws/aws-sdk-go/private/protocol/json/jsonutil"
+  Version = "@v1.41.1"
+
+[[Suites]]
+  Name = "kanzi"
+  Repo = "github.com/flanglet/kanzi-go/benchmark"
+  Version = "@v1.9.0"
+
+[[Suites]]
+  Name = "ethereum_bitutil"
+  Repo = "github.com/ethereum/go-ethereum/common/bitutil"
+  Version = "@v1.10.9"
+
+[[Suites]]
+  Name = "ethereum_storage"
+  Repo = "github.com/ethersphere/swarm/storage"
+  NotSandboxed = true # Won't cross-compile to Linux on MacOS
+  Version = "@v0.5.8"
+
+[[Suites]]
+  Name = "ethereum_ethash"
+  Repo = "github.com/ethereum/go-ethereum/consensus/ethash"
+  NotSandboxed = true # Won't cross-compile to Linux on MacOS
+  Version = "@v1.10.9"
+
+[[Suites]]
+  Name = "ethereum_core"
+  Repo = "github.com/ethereum/go-ethereum/core"
+  Version = "@v1.10.9"
+
+[[Suites]]
+  Name = "ethereum_sha3"
+  Repo = "github.com/ethereum/go-ethereum/crypto/sha3"
+  Disabled = true # won't even get
+  Version = "@v1.10.9"
+
+[[Suites]]
+  Name = "ethereum_ecies"
+  Repo = "github.com/ethereum/go-ethereum/crypto/ecies"
+  NotSandboxed = true # Won't cross-compile to Linux on MacOS
+  Version = "@v1.10.9"
+
+[[Suites]]
+  Name = "ethereum_corevm"
+  Repo = "github.com/ethereum/go-ethereum/core/vm"
+  NotSandboxed = true # Won't cross-compile to Linux on MacOS
+  Version = "@v1.10.9"
+
+[[Suites]]
+  Name = "ethereum_trie"
+  Repo = "github.com/ethereum/go-ethereum/trie"
+  NotSandboxed = true # Won't cross-compile to Linux on MacOS
+  Version = "@v1.10.9"
+
+[[Suites]]
+  Name = "ethereum_whisper"
+  Repo = "github.com/ethereum/go-ethereum/whisper/whisperv6"
+  Benchmarks = "Benchmark"
+  NotSandboxed = true # Won't cross-compile to Linux on MacOS
+  Version = "@v1.9.2"
+
+[[Suites]]
+  Name = "eolian_dsp"
+  Repo = "github.com/semrekkers/eolian/dsp"
+  Disabled = true # buddin.us is dead, imports need updating
+
+[[Suites]]
+  Name = "spexs2"
+  Repo = "github.com/egonelbre/spexs2/_benchmark/"
+  Version = "@v0.0.0-20190702105659-492016b6bcd2"
+
+[[Suites]]
+  Name = "klauspost"
+  Repo = "github.com/dr2chase/benchmarks/klauspost"
+  Version = "@v0.0.0-20211005202936-58b13036cdde"
+
+[[Suites]]
+  Name = "minio"
+  Repo = "github.com/minio/minio/cmd"
+  Tests = "none" # Don't run these tests; they hang, etc.
+  Version = "@v0.0.0-20211012165317-13e41f2c6899"
+
+[[Suites]]
+  Name = "gonum_blas_native"
+  Repo = "gonum.org/v1/gonum/blas/gonum"
+  BuildFlags = ["-tags", "safe"]
+  Version = "@v0.9.3"
+
+[[Suites]]
+  Name = "gonum_lapack_native"
+  Repo = "gonum.org/v1/gonum/lapack/gonum"
+  BuildFlags = ["-tags", "safe"]
+  Version = "@v0.9.3"
+
+[[Suites]]
+  Name = "gonum_mat"
+  Repo = "gonum.org/v1/gonum/mat"
+  BuildFlags = ["-tags", "safe"]
+  Version = "@v0.9.3"
+
+[[Suites]]
+  Name = "semver"
+  Repo = "github.com/Masterminds/semver"
+  Version = "@v1.5.0"
+
+[[Suites]]
+  Name = "hugo_helpers"
+  Repo = "github.com/gohugoio/hugo/helpers"
+  Version = "@v0.88.1"
+
+[[Suites]]
+  Name = "hugo_hugolib"
+  Repo = "github.com/gohugoio/hugo/hugolib"
+  Version = "@v0.88.1"
+
+[[Suites]]
+  Name = "k8s_cache"
+  Repo = "k8s.io/client-go/tools/cache"
+  Version = "@v0.22.2"
+
+[[Suites]]
+  Name = "k8s_workqueue"
+  Repo = "k8s.io/client-go/util/workqueue"
+  Version = "@v0.22.2"
+
+[[Suites]]
+  Name = "uuid"
+  Repo = "github.com/satori/go.uuid/"
+  Version = "@v1.2.0"
+  Disabled = true # not a benchmark anymore
+
+[[Suites]]
+  Name = "gonum_topo"
+  Repo = "gonum.org/v1/gonum/graph/topo/"
+  BuildFlags = ["-tags", "safe"]
+  Version = "@v0.9.3"
+
+[[Suites]]
+  Name = "gonum_path"
+  Repo = "gonum.org/v1/gonum/graph/path/"
+  BuildFlags = ["-tags", "safe"]
+  Version = "@v0.9.3"
+
+[[Suites]]
+  Name = "gonum_community"
+  Repo = "gonum.org/v1/gonum/graph/community/"
+  BuildFlags = ["-tags", "safe"]
+  Version = "@v0.9.3"
+
+[[Suites]]
+  Name = "gonum_traverse"
+  Repo = "gonum.org/v1/gonum/graph/traverse/"
+  BuildFlags = ["-tags", "safe"]
+  Version = "@v0.9.3"
+
+[[Suites]]
+  Name = "capnproto2"
+  Repo = "zombiezen.com/go/capnproto2/"
+  GcEnv = ["GO111MODULE=on"]
+  Version = "@v2.18.2+incompatible"
+
+[[Suites]]
+  Name = "uber_zap"
+  Repo = "go.uber.org/zap/zapcore"
+  Version = "@v1.16.1-0.20210329175301-c23abee72d19"
+
+[[Suites]]
+  Name = "bindata"
+  Repo = "github.com/kevinburke/go-bindata"
+  Version = "@v3.22.1-0.20211006210656-12dca65da1b8+incompatible"
+
+[[Suites]]
+  Name = "cespare_mph"
+  Repo = "github.com/cespare/mph"
+  Version = "@v0.1.0"
+
+# Used by InfluxDB and Prometheus
+[[Suites]]
+  Name = "cespare_xxhash"
+  Repo = "github.com/cespare/xxhash"
+  BuildFlags = ["-tags", "purego"]
+  Version = "@v1.1.0"
+
+[[Suites]]
+  Name = "gtank_blake2s"
+  Repo = "github.com/gtank/blake2s"
+  Version = "@v0.0.0-20180603041446-333f0593be06"
+
+[[Suites]]
+  Name = "gtank_ed25519"
+  Repo = "github.com/gtank/ed25519"
+  Disabled = true # Won't go get properly
+
+[[Suites]]
+  Name = "nelsam_gxui_interval"
+  Repo = "git.sr.ht/~nelsam/gxui/interval"
+  Version = "@v0.2.0"
+
+[[Suites]]
+  Name = "ajstarks_deck_generate"
+  Repo = "github.com/ajstarks/deck/generate"
+  Version = "@v0.0.0-20211012005819-a09e9c2a9a29"
+
+[[Suites]]
+  Name = "benhoyt_goawk"
+  Repo = "github.com/benhoyt/goawk/interp"
+  Version = "@v1.8.1"
+
+[[Suites]]
+  Name = "ericlagergren_decimal"
+  Repo = "github.com/ericlagergren/decimal/benchmarks"
+  Version = "@v0.0.0-20210307182354-5f8425a47c58"
+
+[[Suites]]
+  Name = "tidwall_tile38"
+  Repo = "github.com/tidwall/tile38/tests"
+  Version = "@v0.0.0-20211002002505-72b3683f27da"
+  RunDir = "tile38"
+
+[[Suites]]
+  Name = "commonmark_markdown"
+  Repo = "gitlab.com/golang-commonmark/markdown"
+  Version = "@v0.0.0-20191127184510-91b5b3c99c19"
+

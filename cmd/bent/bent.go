@@ -50,9 +50,27 @@ type Benchmark struct {
 	Version      string // To pin a benchmark at a version.
 }
 
+type Suite struct {
+	Name       string   // Short name for benchmark/test
+	Contact    string   // Contact not used, but may be present in description
+	Repo       string   // Repo + subdir where test resides, used for "go get -t -d ..."
+	Tests      string   // Tests to run (regex for -test.run= )
+	Benchmarks string   // Benchmarks to run (regex for -test.bench= )
+	GcEnv      []string // Environment variables supplied to 'go test -c' for building, getting
+	BuildFlags []string // Flags for building test (e.g., -tags purego)
+	RunWrapper []string // (Inner) Command and args to precede whatever the operation is; may fail in the sandbox.
+	// e.g. benchmark may run as ConfigWrapper ConfigArg BenchWrapper BenchArg ActualBenchmark
+	NotSandboxed bool   // True if this benchmark cannot or should not be run in a container.
+	Disabled     bool   // True if this benchmark is temporarily disabled.
+	RunDir       string // Parent directory of testdata;
+	BuildDir     string // Location of go.mod for this benchmark; download here, go test -c here.
+	Version      string // To pin a benchmark at a version.
+}
+
 type Todo struct {
 	Benchmarks     []Benchmark
 	Configurations []Configuration
+	Suites         []Suite
 }
 
 // The length of the path to the root of the git repo, inclusive.
@@ -68,9 +86,9 @@ var pathLengths = map[string]int{
 
 var verbose counterFlag
 
-var benchFile = "benchmarks-50.toml"         // default list of benchmarks
-var confFile = "configurations.toml"         // default list of configurations
-var srcPath = "src/github.com/dr2chase/bent" // Used to find configuration files.
+var benchFile = "benchmarks-50.toml" // default list of benchmarks
+var confFile = "configurations.toml" // default list of configurations
+var suiteFile = "suites.toml"        // default list of suites
 var container = ""
 var N = 1
 var list = false
@@ -98,6 +116,7 @@ var copyExes = []string{
 var copyConfigs = []string{
 	"benchmarks-all.toml", "benchmarks-50.toml", "benchmarks-gc.toml", "benchmarks-gcplus.toml", "benchmarks-trial.toml",
 	"configurations-sample.toml", "configurations-gollvm.toml", "configurations-cronjob.toml", "configurations-cmpjob.toml",
+	"suites.toml",
 }
 
 var defaultEnv []string
@@ -229,11 +248,58 @@ results will also appear in 'bench'.
 		fmt.Printf("There was an error opening or reading file %s: %v\n", confFile, err)
 		os.Exit(1)
 	}
+	blobS, err := ioutil.ReadFile(suiteFile)
+	if err != nil {
+		fmt.Printf("There was an error opening or reading file %s: %v\n", suiteFile, err)
+		os.Exit(1)
+	}
 	blob := append(blobB, blobC...)
+	blob = append(blob, blobS...)
 	err = toml.Unmarshal(blob, todo)
 	if err != nil {
 		fmt.Printf("There was an error unmarshalling %s: %v\n", string(blob), err)
 		os.Exit(1)
+	}
+
+	// Copy defaults for benchmarks from suites.
+	// (old code had these associated with the "benchmarks" files)
+	suites := make(map[string]*Suite)
+
+	for i, s := range todo.Suites {
+		suites[s.Name] = &todo.Suites[i]
+	}
+
+	update := func(a *string, s string) {
+		if *a == "" {
+			*a = s
+		}
+	}
+
+	updateFlags := func(a *[]string, s []string) {
+		if *a == nil {
+			*a = s
+		}
+	}
+
+	for i := range todo.Benchmarks {
+		b := &todo.Benchmarks[i]
+		s := suites[b.Name]
+		if s == nil {
+			fmt.Printf("Benchmark %sw appearing in %s is not listed in %s\n", b.Name, benchFile, suiteFile)
+			os.Exit(1)
+		}
+		update(&b.Repo, s.Repo)
+		update(&b.Version, s.Version)
+		update(&b.Tests, s.Tests)
+		update(&b.Benchmarks, s.Benchmarks)
+		update(&b.RunDir, s.RunDir)
+
+		b.Disabled = s.Disabled || b.Disabled
+		b.NotSandboxed = s.NotSandboxed || b.NotSandboxed
+
+		updateFlags(&b.BuildFlags, s.BuildFlags)
+		updateFlags(&b.GcEnv, s.GcEnv)
+
 	}
 
 	var moreArgs []string
@@ -781,8 +847,23 @@ results will also appear in 'bench'.
 	}
 
 	// Initialize RunDir for benchmarks.
-	for i, bench := range todo.Benchmarks {
+	for i := range todo.Benchmarks {
+		bench := &todo.Benchmarks[i]
 		if bench.Disabled {
+			continue
+		}
+		if bench.RunDir != "" { // allow specification of e.g. tmp; otherwise, uses readonly source dir in module cache (for testdata).
+			// TODO should it always be a tempdir and just copy testdata to there?
+			dir, err := os.MkdirTemp("", bench.RunDir)
+			if err != nil {
+				fmt.Printf("Could not create temporary dir w/ pattern %s for benchmark %s, err=%v\n", bench.RunDir, bench.Name, err)
+			}
+			if verbose > 0 {
+				fmt.Printf("mkdir %s\n", dir)
+				fmt.Printf("# Rundir=%s; will be deleted on exit\n", dir)
+			}
+			bench.RunDir = dir
+			defer os.RemoveAll(dir)
 			continue
 		}
 		// Obtain directory containing testdata, if any:
@@ -812,7 +893,7 @@ results will also appear in 'bench'.
 			// if sandboxed, strip cwd from prefix of rundir.
 			rundir = rundir[len(dirs.wd):]
 		}
-		todo.Benchmarks[i].RunDir = rundir
+		bench.RunDir = rundir
 	}
 
 	var failures []string
@@ -1013,8 +1094,11 @@ func checkAndSetUpFileSystem(shouldInit bool) error {
 	// Initialize the directory, copying in default benchmarks and sample configurations, and creating a Dockerfile
 	if shouldInit {
 		if perr == nil {
-			fmt.Printf("It looks like you've already initialized this directory, remove ./gopath/pkg if you want to reinit.\n")
-			os.Exit(1)
+			if !force {
+				fmt.Printf("It looks like you've already initialized this directory, remove ./gopath/pkg if you want to reinit.\n")
+				os.Exit(1)
+			}
+			fmt.Printf("Directory appears to already be initialized, but -f (force) so copying files anyway.\n")
 		}
 		for _, s := range copyExes {
 			copyAsset(scripts, "scripts", s)
