@@ -202,7 +202,22 @@
 [[Suites]]
   Name = "uber_zap"
   Repo = "go.uber.org/zap/zapcore"
-  Version = "@v1.16.1-0.20210329175301-c23abee72d19"
+  Version = "@v1.19.1"
+
+[[Suites]]
+  Name = "uber_tally"
+  Repo = "github.com/uber-go/tally"
+  Version = "@v3.4.2+incompatible"
+
+[[Suites]]
+  Name = "bloom_bits"
+  Repo = "github.com/bits-and-blooms/bitset"
+  Version = "@v1.2.1"
+
+[[Suites]]
+  Name = "bloom_bloom"
+  Repo = "github.com/bits-and-blooms/bloom/v3"
+  Version = "@v3.1.0"
 
 [[Suites]]
   Name = "bindata"
@@ -261,4 +276,3 @@
   Name = "commonmark_markdown"
   Repo = "gitlab.com/golang-commonmark/markdown"
   Version = "@v0.0.0-20191127184510-91b5b3c99c19"
-

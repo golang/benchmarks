@@ -115,11 +115,11 @@
 
 [[Benchmarks]]
   Name = "k8s_cache"
-  Benchmarks = "B"
+  Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "k8s_workqueue"
-  Benchmarks = "B"
+  Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "uuid"
@@ -144,11 +144,22 @@
 [[Benchmarks]]
   Name = "capnproto2"
   Benchmarks = "Benchmark"
-  GcEnv = ["GO111MODULE=on"]
 
 [[Benchmarks]]
   Name = "uber_zap"
-  Benchmarks = "B"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "uber_tally"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "bloom_bits"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "bloom_bloom"
+  Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "bindata"

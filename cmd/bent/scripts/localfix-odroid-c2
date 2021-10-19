@@ -1,0 +1,4 @@
+B=3
+N=15
+BUILDER_TYPE="Odroid-C2-arm"
+export BENTARCH="arm" # referenced in configurations-cronjob.toml

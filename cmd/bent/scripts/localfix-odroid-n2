@@ -1,0 +1,5 @@
+NUMACTL='numactl -C 2-5 --'
+export GOMAXPROCS=4
+B=3
+N=15
+BUILDER_TYPE="Odroid-N2-arm64"

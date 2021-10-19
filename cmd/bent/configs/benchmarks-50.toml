@@ -18,11 +18,11 @@
 
 [[Benchmarks]]
   Name = "ethereum_core"
-  Benchmarks = "Benchmark([^ICBH]|H[^a]|B[^l]|C[^h]|I[^n])"
+  Benchmarks = "Benchmark([^ICBH]|H[^a]|B[^l]|C[^h]|I[^n]).*10000"
 
 [[Benchmarks]]
   Name = "shopify_sarama"
-  Benchmarks = "Benchmark"
+  Benchmarks = "BenchmarkBroker" # BenchmarkStick.* are noisy
 
 [[Benchmarks]]
   Name = "aws_restjson"
@@ -70,7 +70,7 @@
 
 [[Benchmarks]]
   Name = "ethereum_trie"
-  Benchmarks = "Benchmark[HCKGU]" # Prove and VerifyProof are noisy
+  Benchmarks = "Benchmark[HCKGU].*/10K" # Prove and VerifyProof are noisy
 
 [[Benchmarks]]
   Name = "spexs2"
@@ -103,7 +103,7 @@
 
 [[Benchmarks]]
   Name = "k8s_workqueue"
-  Benchmarks = "Benchmark"
+  Benchmarks = "BenchmarkParallelizeUntil" # DelayingQueue is noisy
 
 [[Benchmarks]]
   Name = "uuid"
@@ -132,6 +132,10 @@
 [[Benchmarks]]
   Name = "uber_zap"
   Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "uber_tally"
+  Benchmarks = "BucketsEqual|ScopeTaggedNoCachedSubscopes|HistogramAllocation"
 
 [[Benchmarks]]
   Name = "bindata"
@@ -179,8 +183,8 @@
   Benchmarks = "Benchmark(FtoaRegexTrailing|ParseBigBytes)"
 
 [[Benchmarks]]
-  Name = "rcrowley_metrics"
-  Benchmarks = "(BenchmarkCompute1000000)" # BenchmarkMetrics is very noisy
+  Name = "bloom_bloom"
+  Benchmarks = "Benchmark[SC]" # avoid "Estimated"
 
 [[Benchmarks]]
   Name = "kanzi"

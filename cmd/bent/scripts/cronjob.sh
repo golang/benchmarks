@@ -7,13 +7,15 @@ ${PERFLOCK} echo "Gratuitous perflock to prevent this script from starting if so
 
 ROOT="${HOME}/work/bent-cron"
 export ROOT
+cd "${ROOT}"
 
 # BASE is the baseline, defined here, assumed checked out and built.
-BASE=Go1.14
+BASE=Go1.17
 export BASE
 
 # N is number of benchmarks, B is number of builds
-# Can override these with -N= and -a= on command line.
+# Can override these with -N= and -a= on command line, or in localfix.
+#
 N=25
 B=25
 NNl=0
@@ -21,11 +23,14 @@ BNl=1
 Nl=0
 Bl=1
 
+# Adjust N, B, define NUMACTL, set GOMAXPROCS, as necessary.
+if [ -e ./localfix ] ; then
+	. ./localfix
+fi
+
 if [ "x${SUITE}" = "x" ] ; then
 	SUITE="bent-cron"
 fi
-
-cd "${ROOT}"
 
 if [ ! -e "${BASE}" ] ; then
 	echo Missing expected baseline directory "${BASE}" in "${ROOT}", attempting to checkout and build.
@@ -60,6 +65,7 @@ if [ $? != 0 ] ; then
 	exit 1
 fi
 tip=`git log -n 1 --format='%h'`
+tiptime=`git log -n 1 --format='%cI'`
 
 # Get revision for base so there is no ambiguity
 cd "${ROOT}"/${BASE}
@@ -70,16 +76,44 @@ base=`git log -n 1 --format='%h'`
 cd "${ROOT}"
 # For arm64 big.little, might need to prefix with something like:
 # GOMAXPROCS=4 numactl -C 2-5 -- ...
-${PERFLOCK} bent -v -N=${N} -a=${B} -L=bentjobs.log -C=configurations-cronjob.toml -c Base,Tip "$@"
+GOARCH="${BENTARCH}" ${NUMACTL} ${PERFLOCK} bent -v -N=${N} -a=${B} -L=bentjobs.log -C=configurations-cronjob.toml -c Base,Tip "$@"
 RUN=`tail -1 bentjobs.log | awk -c '{print $1}'`
+runstamp="$RUN"
+bentstamp="$RUN"
+
+# variables for better benchmarking
+denominator_branch="${BASE}"
+denominator_hash="${base}"
+
+numerator_branch="master"
+numerator_hash="$tip"
+numerator_stamp="$tiptime"
+
+builder_id=`uname -n`
+builder_type="${BUILDER_TYPE}"
 
 cd bench
 STAMP="stamp-$$"
 export STAMP
+
+append () {
+    c=`eval echo $\`echo $1\``
+	echo "$1: $c" >> ${STAMP}
+}
+
 echo "suite: ${SUITE}" >> ${STAMP}
-echo "bentstamp: ${RUN}" >> "${STAMP}"
-echo "tip: ${tip}" >> "${STAMP}"
-echo "base: ${base}" >> "${STAMP}"
+append bentstamp
+append tip
+append base
+# new stuff for better benchmarking
+append numerator_branch
+append numerator_hash
+append numerator_stamp
+append denominator_branch
+append denominator_hash
+append builder_id
+append builder_type
+append runstamp
 
 SFX="${RUN}"
 
@@ -106,16 +140,29 @@ fi
 # Debugging build
 
 cd "${ROOT}"
-${PERFLOCK} bent -v -N=${NNl} -a=${BNl} -L=bentjobsNl.log -C=configurations-cronjob.toml -c BaseNl,TipNl "$@"
+GOARCH="${BENTARCH}" ${NUMACTL} ${PERFLOCK} bent -v -N=${NNl} -a=${BNl} -L=bentjobsNl.log -C=configurations-cronjob.toml -c BaseNl,TipNl
 RUN=`tail -1 bentjobsNl.log | awk -c '{print $1}'`
+runstamp="$RUN"
+bentstamp="$RUN"
 
 cd bench
 STAMP="stamp-$$"
 export STAMP
+
 echo "suite: ${SUITE}-Nl" >> ${STAMP}
-echo "bentstamp: ${RUN}" >> "${STAMP}"
-echo "tip: ${tip}" >> "${STAMP}"
-echo "base: ${base}" >> "${STAMP}"
+
+append bentstamp
+append tip
+append base
+# new stuff for better benchmarking
+append numerator_branch
+append numerator_hash
+append numerator_stamp
+append denominator_branch
+append denominator_hash
+append builder_id
+append builder_type
+append runstamp
 
 SFX="${RUN}"
 
@@ -134,16 +181,27 @@ rm "${STAMP}"
 # No-inline build
 
 cd "${ROOT}"
-${PERFLOCK} bent -U -v -N=${Nl} -a=${Bl} -L=bentjobsl.log -C=configurations-cronjob.toml -c Basel,Tipl "$@"
+${NUMACTL} ${PERFLOCK} bent -v -N=${Nl} -a=${Bl} -L=bentjobsl.log -C=configurations-cronjob.toml -c Basel,Tipl
 RUN=`tail -1 bentjobsl.log | awk -c '{print $1}'`
+runstamp="$RUN"
+bentstamp="$RUN"
 
 cd bench
 STAMP="stamp-$$"
 export STAMP
 echo "suite: ${SUITE}-l" >> ${STAMP}
-echo "bentstamp: ${RUN}" >> "${STAMP}"
-echo "tip: ${tip}" >> "${STAMP}"
-echo "base: ${base}" >> "${STAMP}"
+append bentstamp
+append tip
+append base
+# new stuff for better benchmarking
+append numerator_branch
+append numerator_hash
+append numerator_stamp
+append denominator_branch
+append denominator_hash
+append builder_id
+append builder_type
+append runstamp
 
 SFX="${RUN}"
 
