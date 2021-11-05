@@ -16,9 +16,9 @@ import (
 	"os/exec"
 	"path"
 	"runtime"
-	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 // Configuration is a structure that holds all the variables necessary to
@@ -172,8 +172,7 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 		}
 	}
 
-	// Prefix with time for build benchmarking:
-	cmd := exec.Command("/usr/bin/time", "-p", gocmd, "test", "-vet=off", "-c")
+	cmd := exec.Command(gocmd, "test", "-vet=off", "-c")
 	compileTo := path.Join(dirs.wd, dirs.testBinDir, config.benchName(bench))
 	cmd.Args = append(cmd.Args, "-o", compileTo)
 	cmd.Args = append(cmd.Args, bench.BuildFlags...)
@@ -206,7 +205,9 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 
 	defer cleanup(gopath)
 
+	start := time.Now()
 	output, err := cmd.CombinedOutput()
+	realTime := time.Since(start)
 	if err != nil {
 		s := ""
 		switch e := err.(type) {
@@ -220,12 +221,13 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 		return s + "(" + bench.Name + ")\n"
 	}
 	soutput := string(output)
-	// Capture times from the end of the output.
-	rbt := extractTime(soutput, "real")
-	ubt := extractTime(soutput, "user")
-	sbt := extractTime(soutput, "sys")
-	config.buildStats = append(config.buildStats,
-		BenchStat{Name: bench.Name, RealTime: rbt, UserTime: ubt, SysTime: sbt})
+	bs := BenchStat{
+		Name:     bench.Name,
+		RealTime: realTime,
+		UserTime: cmd.ProcessState.UserTime(),
+		SysTime:  cmd.ProcessState.SystemTime(),
+	}
+	config.buildStats = append(config.buildStats, bs)
 
 	// Report and record build stats to testbin
 
@@ -239,7 +241,7 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 		buf.WriteString(s)
 	}
 	s := fmt.Sprintf("Benchmark%s 1 %d build-real-ns/op %d build-user-ns/op %d build-sys-ns/op\n",
-		strings.Title(bench.Name), rbt, ubt, sbt)
+		strings.Title(bench.Name), bs.RealTime.Nanoseconds(), bs.UserTime.Nanoseconds(), bs.SysTime.Nanoseconds())
 	if verbose > 0 {
 		fmt.Print(s)
 	}
@@ -364,31 +366,4 @@ func (c *Configuration) runBinary(cwd string, cmd *exec.Cmd, printWorkingDot boo
 		return fmt.Sprintf("Error [read stderr] running '%s', %v, rc = %d", line, errE, rc), rc
 	}
 	return "", rc
-}
-
-// extractTime extracts a time (from /usr/bin/time -p) based on the tag
-// and returns the time converted to nanoseconds.  Missing times and bad
-// data result in NaN.
-func extractTime(output, label string) int64 {
-	// find tag in first column
-	li := strings.LastIndex(output, label)
-	if li < 0 {
-		return -1
-	}
-	output = output[li+len(label):]
-	// lose intervening white space
-	li = strings.IndexAny(output, "0123456789-.eEdD")
-	if li < 0 {
-		return -1
-	}
-	output = output[li:]
-	li = strings.IndexAny(output, "\n\r\t ")
-	if li >= 0 { // failing to find EOL is a special case of done.
-		output = output[:li]
-	}
-	x, err := strconv.ParseFloat(output, 64)
-	if err != nil {
-		return -1
-	}
-	return int64(x * 1000 * 1000 * 1000)
 }

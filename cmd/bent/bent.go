@@ -30,7 +30,7 @@ import (
 
 type BenchStat struct {
 	Name                        string
-	RealTime, UserTime, SysTime int64 // nanoseconds, -1 if missing.
+	RealTime, UserTime, SysTime time.Duration
 }
 
 type Benchmark struct {
@@ -81,6 +81,7 @@ var runContainer = ""       // if nonempty, skip builds and use existing named c
 var wikiTable = false       // emit the tests in a form usable in a wiki table
 var explicitAll counterFlag // Include "-a" on "go test -c" test build ; repeating flag causes multiple rebuilds, useful for build benchmarking.
 var shuffle = 2             // Dimensionality of (build) shuffling; 0 = none, 1 = per-benchmark, configuration ordering, 2 = bench, config pairs, 3 = across repetitions.
+var haveRsync = true
 
 //go:embed scripts/*
 var scripts embed.FS
@@ -187,20 +188,10 @@ results will also appear in 'bench'.
 
 	flag.Parse()
 
-	// Fail early if either of these commands is missing.
-	_, errTime := exec.LookPath("/usr/bin/time")
 	_, errRsync := exec.LookPath("rsync")
-	if errTime != nil && errRsync != nil {
-		fmt.Println("This program needs /usr/bin/time and rsync commands to run")
-		os.Exit(1)
-	}
 	if errRsync != nil {
-		fmt.Println("This program needs the rsync command to run")
-		os.Exit(1)
-	}
-	if errTime != nil {
-		fmt.Println("This program needs the /usr/bin/time command to run")
-		os.Exit(1)
+		haveRsync = false
+		fmt.Println("Warning: using cp instead of rsync")
 	}
 
 	if requireSandbox {
@@ -567,7 +558,12 @@ results will also appear in 'bench'.
 					config.Disabled = true
 				}
 
-				cp := exec.Command("rsync", "-a", from+"/", to)
+				var cp *exec.Cmd
+				if haveRsync {
+					cp = exec.Command("rsync", "-a", from+"/", to)
+				} else {
+					cp = exec.Command("cp", "-a", from+"/.", to)
+				}
 				s, _ = config.runBinary("", cp, false)
 				if s != "" {
 					fmt.Println("Error copying directory tree, ", from, to)

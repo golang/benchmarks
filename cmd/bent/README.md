@@ -6,12 +6,13 @@ a mess on the benchmark-running machine.
 
 Installation:
 ```go get github.com/dr2chase/bent```
-Requires commands `rsync` and `/usr/bin/time`.
 
-Also depends on burntsushi/toml, and expects that Docker is installed and available on the command line.
+Depends on burntsushi/toml, and expects that Docker is installed and available on the command line.
 You can avoid the need for Docker with the `-U` command line flag, if you're okay with running benchmarks outside containers.
 Alternately, if you wish to only run those benchmarks that can be compiled into a container (this is platform-dependent)
 use the -S flag.
+
+Install `rsync` for slightly improved copy performance.
 
 Initial usage :
 
