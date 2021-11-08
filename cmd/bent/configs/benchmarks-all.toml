@@ -204,3 +204,94 @@
   Name = "commonmark_markdown"
   Benchmarks = "Benchmark"
 
+[[Benchmarks]]
+  Name = "workiva_augmentedtree"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "workiva_bitarray"
+  Benchmarks = "Benchmark" # note BenchmarkBitmap* is flawed
+
+[[Benchmarks]]
+  Name = "workiva_btree_palm"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "workiva_btree_plus"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "workiva_fibheap"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "workiva_queue"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "workiva_rangetree"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "workiva_hilbert"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "workiva_rangetree_skiplist"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "workiva_set"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "workiva_slice"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "workiva_avl"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "workiva_sort"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "workiva_ctrie"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "workiva_dtrie"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "workiva_triex"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "workiva_triey"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "thriftrw_gen"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "thriftrw_protocol"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "yarpc"
+  Benchmarks = "Benchmark"
+  Disabled = true
+  # Requires user intervention on Darwin, accepts network connections
+
+[[Benchmarks]]
+  Name = "uber_tchannel"
+  Benchmarks = "Benchmark"
+  Disabled = true # fails to compile
+
+[[Benchmarks]]
+  Name = "uber_tchannel_benchmark"
+  Benchmarks = "Benchmark"
+  Disabled = true # fails to compile

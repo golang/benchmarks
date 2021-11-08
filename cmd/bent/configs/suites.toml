@@ -284,3 +284,112 @@
   Version = "@v0.0.0-20191127184510-91b5b3c99c19"
   ExtraFiles = ["spec"]
 
+[[Suites]]
+  Name = "workiva_augmentedtree"
+  Repo = "github.com/Workiva/go-datastructures/augmentedtree"
+  Version = "@v1.0.53"
+
+[[Suites]]
+  Name = "workiva_bitarray"
+  Repo = "github.com/Workiva/go-datastructures/bitarray"
+  Version = "@v1.0.53"
+
+[[Suites]]
+  Name = "workiva_btree_palm"
+  Repo = "github.com/Workiva/go-datastructures/btree/palm"
+  Version = "@v1.0.53"
+
+[[Suites]]
+  Name = "workiva_btree_plus"
+  Repo = "github.com/Workiva/go-datastructures/btree/plus"
+  Version = "@v1.0.53"
+
+[[Suites]]
+  Name = "workiva_fibheap"
+  Repo = "github.com/Workiva/go-datastructures/fibheap"
+  Version = "@v1.0.53"
+
+[[Suites]]
+  Name = "workiva_queue"
+  Repo = "github.com/Workiva/go-datastructures/queue"
+  Version = "@v1.0.53"
+
+[[Suites]]
+  Name = "workiva_rangetree"
+  Repo = "github.com/Workiva/go-datastructures/rangetree"
+  Version = "@v1.0.53"
+
+[[Suites]]
+  Name = "workiva_hilbert"
+  Repo = "github.com/Workiva/go-datastructures/rtree/hilbert"
+  Version = "@v1.0.53"
+
+[[Suites]]
+  Name = "workiva_rangetree_skiplist"
+  Repo = "github.com/Workiva/go-datastructures/rangetree/skiplist"
+  Version = "@v1.0.53"
+
+[[Suites]]
+  Name = "workiva_set"
+  Repo = "github.com/Workiva/go-datastructures/set"
+  Version = "@v1.0.53"
+
+[[Suites]]
+  Name = "workiva_slice"
+  Repo = "github.com/Workiva/go-datastructures/slice/skip"
+  Version = "@v1.0.53"
+
+[[Suites]]
+  Name = "workiva_avl"
+  Repo = "github.com/Workiva/go-datastructures/tree/avl"
+  Version = "@v1.0.53"
+
+[[Suites]]
+  Name = "workiva_sort"
+  Repo = "github.com/Workiva/go-datastructures/sort"
+  Version = "@v1.0.53"
+
+[[Suites]]
+  Name = "workiva_ctrie"
+  Repo = "github.com/Workiva/go-datastructures/trie/ctrie"
+  Version = "@v1.0.53"
+
+[[Suites]]
+  Name = "workiva_dtrie"
+  Repo = "github.com/Workiva/go-datastructures/trie/dtrie"
+  Version = "@v1.0.53"
+
+[[Suites]]
+  Name = "workiva_triex"
+  Repo = "github.com/Workiva/go-datastructures/trie/xfast"
+  Version = "@v1.0.53"
+
+[[Suites]]
+  Name = "workiva_triey"
+  Repo = "github.com/Workiva/go-datastructures/trie/yfast"
+  Version = "@v1.0.53"
+
+[[Suites]]
+  Name = "thriftrw_gen"
+  Repo = "go.uber.org/thriftrw/gen"
+  Version = "@v1.29.2"
+
+[[Suites]]
+  Name = "thriftrw_protocol"
+  Repo = "go.uber.org/thriftrw/protocol/binary"
+  Version = "@v1.29.2"
+
+[[Suites]]
+  Name = "yarpc"
+  Repo = "go.uber.org/yarpc"
+  Version = "@v1.58.0"
+
+[[Suites]]
+  Name = "uber_tchannel"
+  Repo = "github.com/uber/tchannel-go"
+  Version = "@v1.22.0"
+
+[[Suites]]
+  Name = "uber_tchannel_benchmark"
+  Repo = "github.com/uber/tchannel-go/benchmark"
+  Version = "@v1.22.0"
