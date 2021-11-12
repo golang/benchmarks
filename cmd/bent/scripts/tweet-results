@@ -30,7 +30,7 @@ fi
 
 URL="https://perf.golang.org/search?q=bentstamp%3A${RUN}"
 echo ${URL} > ${RUN}.tmp
-(cd bench ; benchseries  -png ../png -series bentstamp -last ns-per-op,build-user-ns-per-op Go*-opt.* !(Go)*-opt.*) >> ${RUN}.tmp
+(cd bench ; benchseries -sparse -png ../png -series bentstamp -last ns-per-op,build-user-ns-per-op Go*-opt.* !(Go)*-opt.*) >> ${RUN}.tmp
 
 wc ${RUN}.tmp
 bench-tweet -i ${RUN}.tmp -m png/ns-per-op.png -m png/build-user-ns-per-op.png -m png/text-bytes.png -m png/total-bytes.png
