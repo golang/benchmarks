@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build !aix && !plan9
+// +build !aix,!plan9
+
 package main
 
 // TODO(mknyszek): Add more terms, approximately 50x more if possible.
