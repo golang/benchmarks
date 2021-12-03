@@ -5,14 +5,12 @@
 //go:build go1.16
 // +build go1.16
 
-package main_test
+package main
 
 import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
-	"sync"
 	"testing"
 )
 
@@ -20,52 +18,40 @@ const dataDir = "testdata"
 
 var binary, dir string
 
-// We implement TestMain so remove the test binary when all is done.
+// TestMain implemented to allow (1) alternate use as bent command itself if BENT_TEST_IS_CMD_BENT is in environment,
+// and (2) to create and remove a temporary directory for test initialization.
 func TestMain(m *testing.M) {
-	os.Exit(testMain(m))
-}
-
-func testMain(m *testing.M) int {
+	if os.Getenv("BENT_TEST_IS_CMD_BENT") != "" {
+		main()
+		os.Exit(0)
+	}
 	var err error
 	dir, err = os.MkdirTemp("", "bent_test")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		return 1
+		os.Exit(1)
 	}
 	defer os.RemoveAll(dir)
-	binary = filepath.Join(dir, "testbent.exe")
-	return m.Run()
+	m.Run()
 }
 
-var (
-	built    = false // We have built the binary.
-	failed   = false // We have failed to build the binary, don't try again.
-	onlyOnce sync.Once
-)
-
-func build(t *testing.T) {
-	onlyOnce.Do(func() {
-		cmd := exec.Command("go", "build", "-o", binary)
-		output, err := cmd.CombinedOutput()
-		if err != nil {
-			failed = true
-			fmt.Fprintf(os.Stderr, "%s\n", output)
-			t.Fatal(err)
-		}
-		built = true
-	})
-	if failed {
-		t.Skip("cannot run on this environment")
+// bentCmd returns a "bent" command (that is implemented by rerunning the current program after setting
+// BENT_TEST_IS_CMD_BENT).  The command is always run in the temporary directory created by TestMain.
+func bentCmd(t *testing.T, args ...string) *exec.Cmd {
+	exe, err := os.Executable()
+	if err != nil {
+		t.Fatal(err)
 	}
+	cmd := exec.Command(exe, args...)
+	cmd.Dir = dir
+	cmd.Env = append(os.Environ(), "BENT_TEST_IS_CMD_BENT=1", "PWD="+dir)
+	return cmd
 }
 
 func TestBent(t *testing.T) {
-	build(t)
-	cmd := exec.Command(binary, "-I")
-	cmd.Dir = dir
+	cmd := bentCmd(t, "-I")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		failed = true
 		fmt.Fprintf(os.Stderr, "%s\n", output)
 		t.Fatal(err)
 	}
@@ -74,11 +60,9 @@ func TestBent(t *testing.T) {
 	Bs := []string{"all", "50", "gc", "gcplus", "trial"}
 	for _, c := range Cs {
 		for _, b := range Bs {
-			cmd = exec.Command(binary, "-l", "-C=configurations-"+c+".toml", "-B=benchmarks-"+b+".toml")
-			cmd.Dir = dir
+			cmd = bentCmd(t, "-l", "-C=configurations-"+c+".toml", "-B=benchmarks-"+b+".toml")
 			output, err = cmd.CombinedOutput()
 			if err != nil {
-				failed = true
 				fmt.Fprintf(os.Stderr, "%s\n", output)
 				t.Fatal(err)
 			}
