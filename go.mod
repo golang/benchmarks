@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	cloud.google.com/go/storage v1.18.2
-	github.com/BurntSushi/toml v0.3.1
+	github.com/BurntSushi/toml v1.0.0
 	github.com/biogo/biogo v1.0.4
 	github.com/biogo/graph v0.0.0-20150317020928-057c1989faed
 	github.com/biogo/store v0.0.0-20201120204734-aad293a2328f

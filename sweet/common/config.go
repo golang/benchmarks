@@ -5,8 +5,11 @@
 package common
 
 import (
+	"bytes"
 	"fmt"
 	"path/filepath"
+
+	"github.com/BurntSushi/toml"
 )
 
 const ConfigHelp = `
@@ -51,6 +54,40 @@ func (c *Config) GoTool() *Go {
 		Tool: filepath.Join(c.GoRoot, "bin", "go"),
 		Env:  c.BuildEnv.Env,
 	}
+}
+
+func ConfigFileMarshalTOML(c *ConfigFile) ([]byte, error) {
+	// Unfortunately because the github.com/BurntSushi/toml
+	// package at v1.0.0 doesn't correctly support Marshaler
+	// (see https://github.com/BurntSushi/toml/issues/341)
+	// we can't actually implement Marshaler for ConfigEnv.
+	// So instead we work around this by implementing MarshalTOML
+	// on Config and use dummy types that have a straightforward
+	// mapping that *does* work.
+	type config struct {
+		Name     string   `toml:"name"`
+		GoRoot   string   `toml:"goroot"`
+		BuildEnv []string `toml:"envbuild"`
+		ExecEnv  []string `toml:"envexec"`
+	}
+	type configFile struct {
+		Configs []*config `toml:"config"`
+	}
+	var cfgs configFile
+	for _, c := range c.Configs {
+		var cfg config
+		cfg.Name = c.Name
+		cfg.GoRoot = c.GoRoot
+		cfg.BuildEnv = c.BuildEnv.Collapse()
+		cfg.ExecEnv = c.ExecEnv.Collapse()
+
+		cfgs.Configs = append(cfgs.Configs, &cfg)
+	}
+	var b bytes.Buffer
+	if err := toml.NewEncoder(&b).Encode(&cfgs); err != nil {
+		return nil, err
+	}
+	return b.Bytes(), nil
 }
 
 type ConfigEnv struct {
