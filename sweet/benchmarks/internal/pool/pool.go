@@ -20,6 +20,8 @@ import (
 	"context"
 	"errors"
 	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
 // Done is used to signal to the pool that the worker has no more useful work
@@ -39,66 +41,45 @@ type Worker interface {
 
 // P implements a heterogeneous pool of Workers.
 type P struct {
-	workers           []Worker
-	gun, cancel, done chan struct{}
-	errs              chan error
+	workers []Worker
+	gun     chan struct{}
+	g       *errgroup.Group
 }
 
 // New creates a new pool of the given workers.
 //
 // The provided context will be passed to all workers' run methods.
 func New(ctx context.Context, workers []Worker) *P {
+	g, ctx := errgroup.WithContext(ctx)
 	gun := make(chan struct{})
-	cancel := make(chan struct{})
-	errs := make(chan error, len(workers))
-	ready := make(chan struct{}, len(workers))
+
+	var ready sync.WaitGroup
+	ready.Add(len(workers))
 
 	// Spin up workers.
-	wg := sync.WaitGroup{}
 	for _, w := range workers {
-		go func(w Worker) {
-			wg.Add(1)
-			defer wg.Done()
-			ready <- struct{}{}
+		w := w
+		g.Go(func() error {
+			ready.Done()
 			<-gun // wait for starting gun to close
-		loop:
 			for {
 				err := w.Run(ctx)
-				if err == Done {
-					break
+				if err == Done || ctx.Err() != nil {
+					return nil
 				} else if err != nil {
-					errs <- err
-					break
-				}
-				select {
-				case <-ctx.Done():
-					break loop
-				case <-cancel:
-					break loop
-				default:
+					return err
 				}
 			}
-		}(w)
+		})
 	}
 
 	// Wait for all workers to be ready.
-	for range workers {
-		<-ready
-	}
-
-	// Spin up waiter.
-	done := make(chan struct{})
-	go func() {
-		wg.Wait()
-		done <- struct{}{}
-	}()
+	ready.Wait()
 
 	return &P{
 		workers: workers,
 		gun:     gun,
-		cancel:  cancel,
-		done:    done,
-		errs:    errs,
+		g:       g,
 	}
 }
 
@@ -123,15 +104,5 @@ func (p *P) Run() error {
 			w.Close()
 		}
 	}()
-	// Wait for completion.
-	select {
-	case <-p.done:
-	case err := <-p.errs:
-		// Broadcast cancel to all workers
-		// and wait until they're done.
-		close(p.cancel)
-		<-p.done
-		return err
-	}
-	return nil
+	return p.g.Wait()
 }

@@ -8,7 +8,6 @@ import (
 	"context"
 	"io"
 	"testing"
-	"time"
 )
 
 func TestEmptyPool(t *testing.T) {
@@ -96,17 +95,8 @@ func TestPoolCancel(t *testing.T) {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	p := New(ctx, workers)
-	sig := make(chan struct{})
-	go func() {
-		if err := p.Run(); err != nil {
-			t.Fatalf("got error from good pool: %v", err)
-		}
-		sig <- struct{}{}
-	}()
 	cancel()
-	select {
-	case <-sig:
-	case <-time.After(3 * time.Second):
-		t.Fatal("test timed out after 3 seconds")
+	if err := p.Run(); err != nil {
+		t.Fatalf("got error from good pool: %v", err)
 	}
 }
