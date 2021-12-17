@@ -103,8 +103,6 @@ append () {
 
 echo "suite: ${SUITE}" >> ${STAMP}
 append bentstamp
-append tip
-append base
 # new stuff for better benchmarking
 append numerator_branch
 append numerator_hash
@@ -152,8 +150,6 @@ export STAMP
 echo "suite: ${SUITE}-Nl" >> ${STAMP}
 
 append bentstamp
-append tip
-append base
 # new stuff for better benchmarking
 append numerator_branch
 append numerator_hash
@@ -191,8 +187,6 @@ STAMP="stamp-$$"
 export STAMP
 echo "suite: ${SUITE}-l" >> ${STAMP}
 append bentstamp
-append tip
-append base
 # new stuff for better benchmarking
 append numerator_branch
 append numerator_hash
