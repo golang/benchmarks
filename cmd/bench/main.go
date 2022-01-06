@@ -4,9 +4,13 @@
 
 // Binary bench provides a unified wrapper around the different types of
 // benchmarks in x/benchmarks.
+//
+// Benchmarks are run against the toolchain in GOROOT, and optionally an
+// additional baseline toolchain in BENCH_BASELINE_GOROOT.
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -34,12 +38,7 @@ func goCommand(goroot string, args ...string) *exec.Cmd {
 	return cmd
 }
 
-func main() {
-	goroot, err := determineGOROOT()
-	if err != nil {
-		log.Fatalf("Unable to determine GOROOT: %v", err)
-	}
-
+func run(goroot string) error {
 	log.Printf("GOROOT under test: %s", goroot)
 
 	pass := true
@@ -52,6 +51,34 @@ func main() {
 	if err := bent(goroot); err != nil {
 		pass = false
 		log.Printf("Error running bent: %v", err)
+	}
+
+	if !pass {
+		return fmt.Errorf("benchmarks failed")
+	}
+	return nil
+}
+
+func main() {
+	goroot, err := determineGOROOT()
+	if err != nil {
+		log.Fatalf("Unable to determine GOROOT: %v", err)
+	}
+
+	fmt.Println("toolchain: experiment")
+
+	pass := true
+	if err := run(goroot); err != nil {
+		pass = false
+	}
+
+	baseline := os.Getenv("BENCH_BASELINE_GOROOT")
+	if baseline != "" {
+		fmt.Println("toolchain: baseline")
+
+		if err := run(baseline); err != nil {
+			pass = false
+		}
 	}
 
 	if !pass {
