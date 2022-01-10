@@ -26,7 +26,7 @@ func goTest(goroot string) error {
 		}
 	}
 	if needGOROOT {
-		env = append(env, "GOROOT=" + goroot)
+		env = append(env, "GOROOT="+goroot)
 	}
 	cmd.Env = env
 
