@@ -17,6 +17,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"golang.org/x/benchmarks/sweet/common"
 )
 
 var wait = flag.Bool("wait", true, "wait for system idle before starting benchmarking")
@@ -35,27 +37,37 @@ func determineGOROOT() (string, error) {
 	return strings.TrimSpace(string(b)), nil
 }
 
-func goCommand(goroot string, args ...string) *exec.Cmd {
-	bin := filepath.Join(goroot, "bin/go")
-	cmd := exec.Command(bin, args...)
-	return cmd
+type toolchain struct {
+	*common.Go
+	Name string
 }
 
-func run(goroot string) error {
-	log.Printf("GOROOT under test: %s", goroot)
+func toolchainFromGOROOT(name, goroot string) *toolchain {
+	return &toolchain{
+		Go: &common.Go{
+			Tool: filepath.Join(goroot, "bin", "go"),
+			// Update the GOROOT so the wrong one doesn't propagate from
+			// the environment.
+			Env:        common.NewEnvFromEnviron().MustSet("GOROOT=" + goroot),
+			PassOutput: true,
+		},
+		Name: name,
+	}
+}
 
+func run(tcs []*toolchain) error {
+	// Because each of the functions below is responsible for running
+	// benchmarks under each toolchain itself, it is also responsible
+	// for ensuring that the benchmark tag "toolchain" is printed.
 	pass := true
-
-	if err := goTest(goroot); err != nil {
+	if err := goTest(tcs); err != nil {
 		pass = false
 		log.Printf("Error running Go tests: %v", err)
 	}
-
-	if err := bent(goroot); err != nil {
+	if err := bent(tcs); err != nil {
 		pass = false
 		log.Printf("Error running bent: %v", err)
 	}
-
 	if !pass {
 		return fmt.Errorf("benchmarks failed")
 	}
@@ -73,29 +85,22 @@ func main() {
 		}
 	}
 
-	goroot, err := determineGOROOT()
+	// Find the toolchain under test.
+	gorootExperiment, err := determineGOROOT()
 	if err != nil {
 		log.Fatalf("Unable to determine GOROOT: %v", err)
 	}
+	toolchains := []*toolchain{toolchainFromGOROOT("experiment", gorootExperiment)}
 
-	fmt.Println("toolchain: experiment")
-
-	pass := true
-	if err := run(goroot); err != nil {
-		pass = false
+	// Find the baseline toolchain, if applicable.
+	gorootBaseline := os.Getenv("BENCH_BASELINE_GOROOT")
+	if gorootBaseline != "" {
+		toolchains = append(toolchains, toolchainFromGOROOT("baseline", gorootBaseline))
 	}
 
-	baseline := os.Getenv("BENCH_BASELINE_GOROOT")
-	if baseline != "" {
-		fmt.Println("toolchain: baseline")
-
-		if err := run(baseline); err != nil {
-			pass = false
-		}
-	}
-
-	if !pass {
-		log.Printf("FAIL")
+	// Run benchmarks against the toolchains.
+	if err := run(toolchains); err != nil {
+		log.Print("FAIL")
 		os.Exit(1)
 	}
 }

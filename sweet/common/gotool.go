@@ -8,13 +8,15 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"golang.org/x/benchmarks/sweet/common/log"
 )
 
 type Go struct {
-	Tool string
-	Env  *Env
+	Tool       string
+	Env        *Env
+	PassOutput bool
 }
 
 func SystemGoTool() (*Go, error) {
@@ -28,37 +30,41 @@ func SystemGoTool() (*Go, error) {
 	}, nil
 }
 
-func (g *Go) run(args ...string) error {
+func (g *Go) Do(args ...string) error {
 	cmd := exec.Command(g.Tool, args...)
 	cmd.Env = g.Env.Collapse()
+	if g.PassOutput {
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+	}
 	log.TraceCommand(cmd, false)
 	return cmd.Run()
+}
+
+func (g *Go) GOROOT() string {
+	return filepath.Dir(filepath.Dir(g.Tool))
 }
 
 func (g *Go) BuildPackage(pkg, out string) error {
 	if pkg[0] == '/' || pkg[0] == '.' {
 		return fmt.Errorf("path used as package in go build")
 	}
-	return g.build(pkg, out)
+	return g.Do("build", "-o", out, pkg)
 }
 
 func (g *Go) BuildPath(path, out string) error {
 	if path[0] != '/' && path[0] != '.' {
 		path = "./" + path
 	}
-	return g.build(path, out)
-}
-
-func (g *Go) build(pkgOrPath, out string) (err error) {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return fmt.Errorf("failed to get current working directory: %v", err)
 	}
 	defer chdir(cwd)
-	if err := chdir(pkgOrPath); err != nil {
+	if err := chdir(path); err != nil {
 		return fmt.Errorf("failed to enter build directory: %v", err)
 	}
-	return g.run("build", "-o", out)
+	return g.Do("build", "-o", out)
 }
 
 func chdir(path string) error {

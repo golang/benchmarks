@@ -18,23 +18,25 @@ import (
 // TODO(prattmic): refactor bent to export Todo so we can directly build this
 // in Go.
 var configurationTmpl = template.Must(template.New("configuration").Parse(`
+{{- range . -}}
 [[Configurations]]
-  Name = "Benchmark"
-  Root = "{{.}}"
+  Name = "{{.Name}}"
+  Root = "{{.GOROOT}}"
+
+{{end -}}
 `))
 
-func writeConfiguration(filename, goroot string) error {
+func writeBentConfiguration(filename string, tcs []*toolchain) error {
 	var buf bytes.Buffer
-	if err := configurationTmpl.Execute(&buf, goroot); err != nil {
+	if err := configurationTmpl.Execute(&buf, tcs); err != nil {
 		return fmt.Errorf("error generating configuration: %w", err)
 	}
 
-	log.Printf("bent configuration for GOROOT %s:\n%s", goroot, buf.String())
+	log.Printf("bent configuration:\n%s", buf.String())
 
 	if err := os.WriteFile(filename, buf.Bytes(), 0644); err != nil {
 		return fmt.Errorf("error creating configurations.toml: %w", err)
 	}
-
 	return nil
 }
 
@@ -60,39 +62,34 @@ func removeAllIncludingReadonly(dir string) error {
 	return os.RemoveAll(dir)
 }
 
-func bent(goroot string) (err error) {
+func bent(tcs []*toolchain) (err error) {
 	dir, err := os.MkdirTemp("", "bent")
 	if err != nil {
 		return fmt.Errorf("error creating temporary directory: %w", err)
 	}
 	defer func() {
-		err = removeAllIncludingReadonly(dir)
-		if err != nil {
+		r := removeAllIncludingReadonly(dir)
+		if r != nil && err == nil {
 			err = fmt.Errorf("error removing temporary directory: %w", err)
+		} else if r != nil {
+			log.Printf("error removing temporary directory: %v", err)
 		}
 	}()
 	log.Printf("Bent temporary directory: %s", dir)
 
-	bentPath := filepath.Join(dir, "bent")
-
 	log.Printf("Building bent...")
 
-	// Build bent itself. N.B. we don't need to do this with the goroot
-	// under test since we aren't testing bent itself, but we are sure that
-	// this toolchain exists.
-	//
-	// TODO(prattmic): do this only once on first call?
-	cmd := goCommand(goroot, "build", "-o", bentPath, "golang.org/x/benchmarks/cmd/bent")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("error building bent: %w", err)
+	// Build bent itself. Just pick any toolchain we have; it doesn't matter which.
+	// We're not benchmarking bent itself, it's just a driver.
+	bentPath := filepath.Join(dir, "bent")
+	if err := tcs[0].BuildPackage("golang.org/x/benchmarks/cmd/bent", bentPath); err != nil {
+		return fmt.Errorf("building bent: %w", err)
 	}
 
 	log.Printf("Initializing bent...")
 
 	// Initialize scratch dir for bent.
-	cmd = exec.Command(bentPath, "-I")
+	cmd := exec.Command(bentPath, "-I")
 	cmd.Dir = dir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -101,13 +98,15 @@ func bent(goroot string) (err error) {
 	}
 
 	confFile := filepath.Join(dir, "configurations.toml")
-	if err := writeConfiguration(confFile, goroot); err != nil {
+	if err := writeBentConfiguration(confFile, tcs); err != nil {
 		return fmt.Errorf("error writing configuration: %w", err)
 	}
 
 	log.Printf("Running bent...")
 
 	// Finally we can actually run the benchmarks.
+	// N.B. bent prints the "toolchain" tag to indicate which toolchain is being used.
+	// It's passed to bent via the TOML configuration.
 	cmd = exec.Command(bentPath, "-C", confFile, "-B", filepath.Join(dir, "benchmarks-50.toml"))
 	cmd.Dir = dir
 	cmd.Stdout = os.Stdout
@@ -115,6 +114,5 @@ func bent(goroot string) (err error) {
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("error running bent -I: %w", err)
 	}
-
 	return nil
 }

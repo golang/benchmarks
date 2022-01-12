@@ -998,6 +998,7 @@ results will also appear in 'bench'.
 					cmd.Args = append(cmd.Args, moreArgs...)
 
 					config.say("shortname: " + b.Name + "\n")
+					config.say("toolchain: " + config.Name + "\n")
 					s, rc = todo.Configurations[j].runBinary(dirs.wd, cmd, false)
 				} else {
 					// docker run --net=none -e GOROOT=... -w /src/github.com/minio/minio/cmd $D /testbin/cmd_Config.test -test.short -test.run=Nope -test.v -test.bench=Benchmark'(Get|Put|List)'
@@ -1020,6 +1021,7 @@ results will also appear in 'bench'.
 					cmd.Args = append(cmd.Args, config.RunFlags...)
 					cmd.Args = append(cmd.Args, moreArgs...)
 					config.say("shortname: " + b.Name + "\n")
+					config.say("toolchain: " + config.Name + "\n")
 					s, rc = todo.Configurations[j].runBinary(dirs.wd, cmd, false)
 				}
 				if s != "" {
