@@ -313,7 +313,7 @@ func runOne(bench benchmark, cfg *config) (err error) {
 		driver.BenchmarkPID(srvCmd.Process.Pid),
 		driver.DoPerf(true),
 	}
-	iters := 60 * 50000
+	iters := 20 * 50000
 	if cfg.short {
 		iters = 1000
 	}
