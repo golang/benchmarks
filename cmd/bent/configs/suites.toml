@@ -270,9 +270,10 @@
   Name = "tidwall_tile38"
   Repo = "github.com/tidwall/tile38/tests"
   Version = "@v0.0.0-20211002002505-72b3683f27da"
-  RunDir = "tile38"
 
 [[Suites]]
   Name = "commonmark_markdown"
   Repo = "gitlab.com/golang-commonmark/markdown"
   Version = "@v0.0.0-20191127184510-91b5b3c99c19"
+  ExtraDirs = ["spec"]
+

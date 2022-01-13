@@ -43,28 +43,16 @@ type Benchmark struct {
 	BuildFlags []string // Flags for building test (e.g., -tags purego)
 	RunWrapper []string // (Inner) Command and args to precede whatever the operation is; may fail in the sandbox.
 	// e.g. benchmark may run as ConfigWrapper ConfigArg BenchWrapper BenchArg ActualBenchmark
-	NotSandboxed bool   // True if this benchmark cannot or should not be run in a container.
-	Disabled     bool   // True if this benchmark is temporarily disabled.
-	RunDir       string // Parent directory of testdata.
-	BuildDir     string // Location of go.mod for this benchmark; download here, go test -c here.
-	Version      string // To pin a benchmark at a version.
+	NotSandboxed bool     // True if this benchmark cannot or should not be run in a container.
+	Disabled     bool     // True if this benchmark is temporarily disabled.
+	RunDir       string   // Parent directory of testdata.
+	ExtraDirs    []string // other directories expected for running tests/benchmarks
+	BuildDir     string   // Location of go.mod for this benchmark; download here, go test -c here.
+	Version      string   // To pin a benchmark at a version.
 }
 
 type Suite struct {
-	Name       string   // Short name for benchmark/test
-	Contact    string   // Contact not used, but may be present in description
-	Repo       string   // Repo + subdir where test resides, used for "go get -t -d ..."
-	Tests      string   // Tests to run (regex for -test.run= )
-	Benchmarks string   // Benchmarks to run (regex for -test.bench= )
-	GcEnv      []string // Environment variables supplied to 'go test -c' for building, getting
-	BuildFlags []string // Flags for building test (e.g., -tags purego)
-	RunWrapper []string // (Inner) Command and args to precede whatever the operation is; may fail in the sandbox.
-	// e.g. benchmark may run as ConfigWrapper ConfigArg BenchWrapper BenchArg ActualBenchmark
-	NotSandboxed bool   // True if this benchmark cannot or should not be run in a container.
-	Disabled     bool   // True if this benchmark is temporarily disabled.
-	RunDir       string // Parent directory of testdata;
-	BuildDir     string // Location of go.mod for this benchmark; download here, go test -c here.
-	Version      string // To pin a benchmark at a version.
+	Benchmark
 }
 
 type Todo struct {
@@ -292,11 +280,11 @@ results will also appear in 'bench'.
 		update(&b.Version, s.Version)
 		update(&b.Tests, s.Tests)
 		update(&b.Benchmarks, s.Benchmarks)
-		update(&b.RunDir, s.RunDir)
 
 		b.Disabled = s.Disabled || b.Disabled
 		b.NotSandboxed = s.NotSandboxed || b.NotSandboxed
 
+		updateFlags(&b.ExtraDirs, s.ExtraDirs)
 		updateFlags(&b.BuildFlags, s.BuildFlags)
 		updateFlags(&b.GcEnv, s.GcEnv)
 
@@ -852,20 +840,6 @@ results will also appear in 'bench'.
 		if bench.Disabled {
 			continue
 		}
-		if bench.RunDir != "" { // allow specification of e.g. tmp; otherwise, uses readonly source dir in module cache (for testdata).
-			// TODO should it always be a tempdir and just copy testdata to there?
-			dir, err := os.MkdirTemp("", bench.RunDir)
-			if err != nil {
-				fmt.Printf("Could not create temporary dir w/ pattern %s for benchmark %s, err=%v\n", bench.RunDir, bench.Name, err)
-			}
-			if verbose > 0 {
-				fmt.Printf("mkdir %s\n", dir)
-				fmt.Printf("# Rundir=%s; will be deleted on exit\n", dir)
-			}
-			bench.RunDir = dir
-			defer os.RemoveAll(dir)
-			continue
-		}
 		// Obtain directory containing testdata, if any:
 		// Capture output of "go list -f {{.Dir}} $PKG"
 
@@ -893,7 +867,34 @@ results will also appear in 'bench'.
 			// if sandboxed, strip cwd from prefix of rundir.
 			rundir = rundir[len(dirs.wd):]
 		}
-		bench.RunDir = rundir
+		bench.RunDir = bench.BuildDir
+
+		copySubDir := func(subdir string) bool {
+			// as necessary, make a copy of subdir
+			testdata := path.Join(rundir, subdir)
+			if _, err := os.Stat(testdata); err == nil {
+				testdataCopy := path.Join(bench.RunDir, subdir)
+				os.Mkdir(testdataCopy, fs.FileMode(0755))
+				cp := copyCommand(testdata, testdataCopy)
+				_, err := cp.Output()
+				if err != nil {
+					s := fmt.Sprintf(`could not %s, err=%v`, asCommandLine(dirs.wd, cp), err)
+					fmt.Println(s + "DISABLING benchmark " + bench.Name)
+					getAndBuildFailures = append(getAndBuildFailures, s+"("+bench.Name+")\n")
+					todo.Benchmarks[i].Disabled = true
+					return true
+				}
+			}
+			return false
+		}
+		if copySubDir("testdata") {
+			continue
+		}
+		for _, s := range bench.ExtraDirs {
+			if copySubDir(s) {
+				continue
+			}
+		}
 	}
 
 	var failures []string
@@ -1120,6 +1121,14 @@ ADD . /
 		os.Exit(0)
 	}
 	return nil
+}
+
+func copyCommand(from, to string) *exec.Cmd {
+	if haveRsync {
+		return exec.Command("rsync", "-a", from+"/", to)
+	} else {
+		return exec.Command("cp", "-a", from+"/.", to)
+	}
 }
 
 func copyAsset(fs embed.FS, dir, file string) {
