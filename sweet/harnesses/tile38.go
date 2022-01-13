@@ -60,15 +60,19 @@ func (h Tile38) Run(cfg *common.Config, rcfg *common.RunConfig) error {
 	if err := makeWriteable(dataPath); err != nil {
 		return err
 	}
+	args := append(rcfg.Args, []string{
+		"-host", "127.0.0.1",
+		"-port", "9851",
+		"-server", filepath.Join(rcfg.BinDir, server),
+		"-data", dataPath,
+		"-tmp", rcfg.TmpDir,
+	}...)
+	if rcfg.Short {
+		args = append(args, "-short")
+	}
 	cmd := exec.Command(
 		filepath.Join(rcfg.BinDir, "tile38-bench"),
-		append(rcfg.Args, []string{
-			"-host", "127.0.0.1",
-			"-port", "9851",
-			"-server", filepath.Join(rcfg.BinDir, server),
-			"-data", dataPath,
-			"-tmp", rcfg.TmpDir,
-		}...)...,
+		args...,
 	)
 	cmd.Env = cfg.ExecEnv.Collapse()
 	cmd.Stdout = rcfg.Results

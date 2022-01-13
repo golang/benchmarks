@@ -72,7 +72,12 @@ func (h GoBuild) Get(srcDir string) error {
 }
 
 func (h GoBuild) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
-	for _, bench := range buildBenchmarks {
+	benchmarks := buildBenchmarks
+	if bcfg.Short {
+		// Do only the pkgsite benchmark.
+		benchmarks = []*buildBenchmark{buildBenchmarks[2]}
+	}
+	for _, bench := range benchmarks {
 		// Generate a symlink to the repository and put it in bin.
 		// It's not a binary, but it's the only place we can put it
 		// and still access it in Run.
@@ -94,7 +99,12 @@ func (h GoBuild) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 }
 
 func (h GoBuild) Run(cfg *common.Config, rcfg *common.RunConfig) error {
-	for _, bench := range buildBenchmarks {
+	benchmarks := buildBenchmarks
+	if rcfg.Short {
+		// Do only the pkgsite benchmark.
+		benchmarks = []*buildBenchmark{buildBenchmarks[2]}
+	}
+	for _, bench := range benchmarks {
 		cmd := exec.Command(
 			filepath.Join(rcfg.BinDir, "go-build-bench"),
 			append(rcfg.Args, []string{

@@ -30,12 +30,12 @@ type config struct {
 	host        string
 	port        int
 	seed        int64
-	iter        int
 	serverBin   string
 	dataPath    string
 	tmpDir      string
 	serverProcs int
 	isProfiling bool
+	short       bool
 }
 
 func (c *config) profilePath(typ driver.ProfileType) string {
@@ -60,10 +60,10 @@ func init() {
 	flag.StringVar(&cliCfg.host, "host", "", "hostname of tile38 server")
 	flag.IntVar(&cliCfg.port, "port", 9851, "port for tile38 server")
 	flag.Int64Var(&cliCfg.seed, "seed", 0, "seed for PRNG")
-	flag.IntVar(&cliCfg.iter, "iter", 60*50000, "how many iterations to run (for profiling)")
 	flag.StringVar(&cliCfg.serverBin, "server", "", "path to tile38 server binary")
 	flag.StringVar(&cliCfg.dataPath, "data", "", "path to tile38 server data")
 	flag.StringVar(&cliCfg.tmpDir, "tmp", "", "path to temporary directory")
+	flag.BoolVar(&cliCfg.short, "short", false, "whether to run a short version of this benchmark")
 
 	// Grab the number of procs we have and give ourselves only 1/4 of those.
 	procs := runtime.GOMAXPROCS(-1)
@@ -313,8 +313,12 @@ func runOne(bench benchmark, cfg *config) (err error) {
 		driver.BenchmarkPID(srvCmd.Process.Pid),
 		driver.DoPerf(true),
 	}
+	iters := 60 * 50000
+	if cfg.short {
+		iters = 1000
+	}
 	return driver.RunBenchmark(bench.name(), func(d *driver.B) error {
-		return bench.run(d, cfg.host, cfg.port, cfg.serverProcs, cfg.iter)
+		return bench.run(d, cfg.host, cfg.port, cfg.serverProcs, iters)
 	}, opts...)
 }
 
@@ -326,6 +330,10 @@ func main() {
 	}
 	for _, typ := range driver.ProfileTypes {
 		cliCfg.isProfiling = cliCfg.isProfiling || driver.ProfilingEnabled(typ)
+	}
+	benchmarks := benchmarks
+	if cliCfg.short {
+		benchmarks = benchmarks[:1]
 	}
 	for _, bench := range benchmarks {
 		if err := runOne(bench, &cliCfg); err != nil {

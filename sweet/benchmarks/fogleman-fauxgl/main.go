@@ -17,6 +17,12 @@ import (
 
 var im image.Image
 
+var imagesPerRotation int
+
+func init() {
+	flag.IntVar(&imagesPerRotation, "images-per-rotation", 72, "number of images per rotation to generate")
+}
+
 func main() {
 	driver.SetFlags(flag.CommandLine)
 	flag.Parse()
@@ -25,6 +31,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "expected input STL file")
 		os.Exit(1)
 	}
+	inc := 360 / imagesPerRotation
 
 	// Load mesh into animation structure.
 	anim, err := animatebench.Load(flag.Arg(0))
@@ -35,7 +42,7 @@ func main() {
 	err = driver.RunBenchmark("FoglemanFauxGLRenderRotateBoat", func(b *driver.B) error {
 		runtime.GC()
 		b.ResetTimer()
-		for i := 0; i < 360; i += 5 {
+		for i := 0; i < 360; i += inc {
 			im = anim.RenderNext()
 		}
 		return nil

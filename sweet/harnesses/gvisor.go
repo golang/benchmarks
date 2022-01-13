@@ -57,13 +57,17 @@ func (h GVisor) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 }
 
 func (h GVisor) Run(cfg *common.Config, rcfg *common.RunConfig) error {
+	args := append(rcfg.Args, []string{
+		"-runsc", filepath.Join(rcfg.BinDir, "runsc"),
+		"-assets-dir", rcfg.AssetsDir,
+		"-tmp", rcfg.TmpDir,
+	}...)
+	if rcfg.Short {
+		args = append(args, "-short")
+	}
 	cmd := exec.Command(
 		filepath.Join(rcfg.BinDir, "gvisor-bench"),
-		append(rcfg.Args, []string{
-			"-runsc", filepath.Join(rcfg.BinDir, "runsc"),
-			"-assets-dir", rcfg.AssetsDir,
-			"-tmp", rcfg.TmpDir,
-		}...)...,
+		args...,
 	)
 	cmd.Env = cfg.ExecEnv.Collapse()
 	cmd.Stdout = rcfg.Results

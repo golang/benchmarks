@@ -18,6 +18,12 @@ import (
 	_ "github.com/blevesearch/bleve/analysis/analyzer/keyword"
 )
 
+var iterations int
+
+func init() {
+	flag.IntVar(&iterations, "iterations", 50, "number of times to iterate over the list of query terms")
+}
+
 func parseFlags() error {
 	flag.Parse()
 	if flag.NArg() != 1 {
@@ -26,13 +32,13 @@ func parseFlags() error {
 	return nil
 }
 
-func run(idxdir string) error {
+func run(idxdir string, iterations int) error {
 	index, err := bleve.Open(idxdir)
 	if err != nil {
 		return err
 	}
 	return driver.RunBenchmark("BleveQuery", func(_ *driver.B) error {
-		for j := 0; j < 50; j++ {
+		for j := 0; j < iterations; j++ {
 			for _, term := range terms {
 				query := bleve.NewTermQuery(term)
 				query.SetField("Text")
@@ -52,7 +58,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	if err := run(flag.Arg(0)); err != nil {
+	if err := run(flag.Arg(0), iterations); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}

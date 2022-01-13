@@ -19,6 +19,12 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
+var short bool
+
+func init() {
+	flag.BoolVar(&short, "short", false, "whether to run a short version of this benchmark")
+}
+
 func parseFlags() error {
 	flag.Parse()
 	if flag.NArg() != 2 {
@@ -60,6 +66,9 @@ func doBenchmark(s *lua.LState, input lua.LString) error {
 	}
 	if err := s.CallByParam(freq, input, lua.LNumber(2)); err != nil {
 		return err
+	}
+	if short {
+		return nil
 	}
 	if err := s.CallByParam(count, input, lua.LString("GGT")); err != nil {
 		return err

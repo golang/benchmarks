@@ -79,11 +79,14 @@ func BleveIndex() common.Harness {
 	return &localBenchHarness{
 		binName: "bleve-index-bench",
 		genArgs: func(cfg *common.Config, rcfg *common.RunConfig) []string {
-			return []string{
+			args := []string{
 				"-batch-size", "100",
-				"-documents", "1000",
 				filepath.Join(rcfg.AssetsDir, "enwiki-20080103-pages-articles.xml.bz2"),
 			}
+			if rcfg.Short {
+				args = append([]string{"-documents", "100"}, args...)
+			}
+			return args
 		},
 	}
 }
@@ -92,9 +95,11 @@ func BleveQuery() common.Harness {
 	return &localBenchHarness{
 		binName: "bleve-query-bench",
 		genArgs: func(cfg *common.Config, rcfg *common.RunConfig) []string {
-			return []string{
-				filepath.Join(rcfg.AssetsDir, "index"),
+			args := []string{filepath.Join(rcfg.AssetsDir, "index")}
+			if rcfg.Short {
+				args = append([]string{"-iterations", "1"}, args...)
 			}
+			return args
 		},
 		beforeRun: func(cfg *common.Config, rcfg *common.RunConfig) error {
 			// Make sure all the index passed to the benchmark is writeable.
@@ -108,9 +113,11 @@ func FoglemanFauxGL() common.Harness {
 	return &localBenchHarness{
 		binName: "fogleman-fauxgl-bench",
 		genArgs: func(cfg *common.Config, rcfg *common.RunConfig) []string {
-			return []string{
-				filepath.Join(rcfg.AssetsDir, "3dbenchy.stl"),
+			args := []string{filepath.Join(rcfg.AssetsDir, "3dbenchy.stl")}
+			if rcfg.Short {
+				args = append([]string{"-images-per-rotation", "1"}, args...)
 			}
+			return args
 		},
 		noStdout: true,
 	}
@@ -133,10 +140,14 @@ func GopherLua() common.Harness {
 	return &localBenchHarness{
 		binName: "gopher-lua-bench",
 		genArgs: func(cfg *common.Config, rcfg *common.RunConfig) []string {
-			return []string{
+			args := []string{
 				filepath.Join(rcfg.AssetsDir, "k-nucleotide.lua"),
 				filepath.Join(rcfg.AssetsDir, "input.txt"),
 			}
+			if rcfg.Short {
+				args = append([]string{"-short"}, args...)
+			}
+			return args
 		},
 	}
 }

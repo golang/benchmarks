@@ -209,6 +209,7 @@ func (b *benchmark) execute(cfgs []*common.Config, r *runCfg) error {
 			BinDir:   binDir,
 			SrcDir:   srcDir,
 			BenchDir: benchDir,
+			Short:    r.short,
 		}
 		if err := b.harness.Build(cfg, &bcfg); err != nil {
 			return fmt.Errorf("build %s for %s: %v", b.name, cfg.Name, err)
@@ -261,6 +262,7 @@ func (b *benchmark) execute(cfgs []*common.Config, r *runCfg) error {
 			AssetsDir: assetsDir,
 			Args:      args,
 			Results:   results,
+			Short:     r.short,
 		})
 	}
 

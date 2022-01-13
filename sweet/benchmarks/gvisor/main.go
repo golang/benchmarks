@@ -23,6 +23,7 @@ type config struct {
 	runscPath string
 	assetsDir string
 	tmpDir    string
+	short     bool
 }
 
 var cliCfg config
@@ -32,6 +33,7 @@ func init() {
 	flag.StringVar(&cliCfg.runscPath, "runsc", "", "path to the runsc binary")
 	flag.StringVar(&cliCfg.assetsDir, "assets-dir", "", "path to the directory containing benchmark root filesystems")
 	flag.StringVar(&cliCfg.tmpDir, "tmp", "", "path to a temporary working directory")
+	flag.BoolVar(&cliCfg.short, "short", false, "whether to run a short version of the benchmarks")
 }
 
 type benchmark interface {
@@ -39,14 +41,20 @@ type benchmark interface {
 	run(*config, io.Writer) error
 }
 
-// List of all benchmarks.
-var benchmarks = []benchmark{
-	startup{},
-	systemCall{500000},
-	httpServer{20 * time.Second},
-}
-
 func main1() error {
+	benchmarks := []benchmark{
+		startup{},
+		systemCall{500000},
+		httpServer{20 * time.Second},
+	}
+	if cliCfg.short {
+		benchmarks = []benchmark{
+			startup{},
+			systemCall{500},
+			httpServer{1 * time.Second},
+		}
+	}
+
 	// Run each benchmark once.
 	for _, bench := range benchmarks {
 		// Run the benchmark command under runsc.

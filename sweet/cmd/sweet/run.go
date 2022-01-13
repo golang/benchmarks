@@ -50,6 +50,7 @@ type runCfg struct {
 	memProfile bool
 	perf       bool
 	perfFlags  string
+	short      bool
 }
 
 type runCmd struct {
@@ -124,6 +125,7 @@ func (c *runCmd) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&c.quiet, "quiet", false, "whether to suppress activity output on stderr (no effect on -shell)")
 	f.BoolVar(&c.printCmd, "shell", false, "whether to print the commands being executed to stdout")
 	f.BoolVar(&c.stopOnError, "stop-on-error", false, "whether to stop running benchmarks if an error occurs or a benchmark fails")
+	f.BoolVar(&c.short, "short", false, "whether to run a short version of the benchmarks for testing")
 	f.Var(&c.toRun, "run", "benchmark group or comma-separated list of benchmarks to run")
 }
 

@@ -28,6 +28,7 @@ var (
 	memProfileDir string
 	perfDir       string
 	perfFlags     string
+	short         bool
 )
 
 func SetFlags(f *flag.FlagSet) {

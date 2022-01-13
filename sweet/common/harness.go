@@ -20,6 +20,11 @@ type BuildConfig struct {
 	// BenchDir is the path to the benchmark's source directory in the Sweet
 	// repository.
 	BenchDir string
+
+	// Short indicates whether or not to run a short version of the benchmarks
+	// for testing. Guaranteed to be the same as RunConfig.Short for any
+	// RunConfig.
+	Short bool
 }
 
 type RunConfig struct {
@@ -50,6 +55,11 @@ type RunConfig struct {
 	// Results is the file to which benchmark results should be appended
 	// in the Go benchmark format.
 	Results *os.File
+
+	// Short indicates whether or not to run a short version of the benchmarks
+	// for testing. Guaranteed to be the same as BuildConfig.Short for any
+	// BuildConfig.
+	Short bool
 }
 
 type Harness interface {
