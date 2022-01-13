@@ -68,6 +68,10 @@ func run(tcs []*toolchain) error {
 		pass = false
 		log.Printf("Error running bent: %v", err)
 	}
+	if err := sweet(tcs); err != nil {
+		pass = false
+		log.Printf("Error running sweet: %v", err)
+	}
 	if !pass {
 		return fmt.Errorf("benchmarks failed")
 	}

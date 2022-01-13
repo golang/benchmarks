@@ -41,6 +41,13 @@ func (g *Go) Do(args ...string) error {
 	return cmd.Run()
 }
 
+func (g *Go) List(args ...string) ([]byte, error) {
+	cmd := exec.Command(g.Tool, append([]string{"list"}, args...)...)
+	cmd.Env = g.Env.Collapse()
+	log.TraceCommand(cmd, false)
+	return cmd.CombinedOutput()
+}
+
 func (g *Go) GOROOT() string {
 	return filepath.Dir(filepath.Dir(g.Tool))
 }
