@@ -546,25 +546,26 @@ results will also appear in 'bench'.
 				os.Exit(2)
 			}
 			goDotMod := path.Join(bench.BuildDir, "go.mod")
-			if _, err := os.Stat(goDotMod); err != nil { // if error assume go.mod does not exist
-				cmd := exec.Command("go", "mod", "init", "build")
-				cmd.Env = defaultEnv
-				cmd.Dir = bench.BuildDir
+			if _, err := os.Stat(goDotMod); err == nil {
+				os.Remove(goDotMod) // always want a fresh go.mod
+			}
+			cmd := exec.Command("go", "mod", "init", "build")
+			cmd.Env = defaultEnv
+			cmd.Dir = bench.BuildDir
 
-				if verbose > 0 {
-					fmt.Println(asCommandLine(dirs.wd, cmd))
-				} else {
-					fmt.Print(".")
-				}
-				_, err := cmd.Output()
-				if err != nil {
-					ee := err.(*exec.ExitError)
-					fmt.Printf("There was an error running 'go mod init', stderr = %s", ee.Stderr)
-					os.Exit(2)
-				}
+			if verbose > 0 {
+				fmt.Println(asCommandLine(dirs.wd, cmd))
+			} else {
+				fmt.Print(".")
+			}
+			_, err := cmd.Output()
+			if err != nil {
+				ee := err.(*exec.ExitError)
+				fmt.Printf("There was an error running 'go mod init', stderr = %s", ee.Stderr)
+				os.Exit(2)
 			}
 
-			cmd := exec.Command("go", "get", "-d", "-t", "-v", bench.Repo+bench.Version)
+			cmd = exec.Command("go", "get", "-d", "-t", "-v", bench.Repo+bench.Version)
 			cmd.Env = replaceEnvs(defaultEnv, bench.GcEnv)
 			cmd.Dir = bench.BuildDir
 
@@ -576,7 +577,7 @@ results will also appear in 'bench'.
 			} else {
 				fmt.Print(".")
 			}
-			_, err := cmd.Output()
+			_, err = cmd.Output()
 			if err != nil {
 				ee := err.(*exec.ExitError)
 				s := fmt.Sprintf("There was an error running 'go get', stderr = %s", ee.Stderr)
