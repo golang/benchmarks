@@ -108,6 +108,7 @@
   Name = "spexs2"
   Repo = "github.com/egonelbre/spexs2/_benchmark/"
   Version = "@v0.0.0-20190702105659-492016b6bcd2"
+  ExtraFiles = ["proteins_10k.inp", "proteins_10k.ref", "proteins_30k.inp", "proteins_30k.ref", "proteins_large.inp", "proteins_large.ref"]
 
 [[Suites]]
   Name = "klauspost"
@@ -275,5 +276,5 @@
   Name = "commonmark_markdown"
   Repo = "gitlab.com/golang-commonmark/markdown"
   Version = "@v0.0.0-20191127184510-91b5b3c99c19"
-  ExtraDirs = ["spec"]
+  ExtraFiles = ["spec"]
 

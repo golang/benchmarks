@@ -46,7 +46,7 @@ type Benchmark struct {
 	NotSandboxed bool     // True if this benchmark cannot or should not be run in a container.
 	Disabled     bool     // True if this benchmark is temporarily disabled.
 	RunDir       string   // Parent directory of testdata.
-	ExtraDirs    []string // other directories expected for running tests/benchmarks
+	ExtraFiles   []string // other directories expected for running tests/benchmarks
 	BuildDir     string   // Location of go.mod for this benchmark; download here, go test -c here.
 	Version      string   // To pin a benchmark at a version.
 }
@@ -284,7 +284,7 @@ results will also appear in 'bench'.
 		b.Disabled = s.Disabled || b.Disabled
 		b.NotSandboxed = s.NotSandboxed || b.NotSandboxed
 
-		updateFlags(&b.ExtraDirs, s.ExtraDirs)
+		updateFlags(&b.ExtraFiles, s.ExtraFiles)
 		updateFlags(&b.BuildFlags, s.BuildFlags)
 		updateFlags(&b.GcEnv, s.GcEnv)
 
@@ -835,6 +835,7 @@ results will also appear in 'bench'.
 	}
 
 	// Initialize RunDir for benchmarks.
+benchmarks_loop:
 	for i := range todo.Benchmarks {
 		bench := &todo.Benchmarks[i]
 		if bench.Disabled {
@@ -855,7 +856,7 @@ results will also appear in 'bench'.
 		out, err := cmd.Output()
 		if err != nil {
 			s := fmt.Sprintf(`could not go list -f {{.Dir}} %s, err=%v`, bench.Repo, err)
-			fmt.Println(s + "DISABLING benchmark " + bench.Name)
+			fmt.Println(s + "\nDISABLING benchmark " + bench.Name)
 			getAndBuildFailures = append(getAndBuildFailures, s+"("+bench.Name+")\n")
 			todo.Benchmarks[i].Disabled = true
 			continue
@@ -869,32 +870,49 @@ results will also appear in 'bench'.
 		}
 		bench.RunDir = bench.BuildDir
 
-		copySubDir := func(subdir string) bool {
+		copy := func(subdir string, failIfMissing bool) bool {
 			// as necessary, make a copy of subdir
 			testdata := path.Join(rundir, subdir)
-			if _, err := os.Stat(testdata); err == nil {
+			if stat, err := os.Stat(testdata); err == nil {
 				testdataCopy := path.Join(bench.RunDir, subdir)
-				os.Mkdir(testdataCopy, fs.FileMode(0755))
-				cp := copyCommand(testdata, testdataCopy)
+				var cp *exec.Cmd
+				os.RemoveAll(testdataCopy) // clean out what can be cleaned
+				if stat.IsDir() {
+					if verbose > 0 {
+						fmt.Printf("mkdir -p %s\n", testdataCopy)
+					}
+					os.Mkdir(testdataCopy, fs.FileMode(0755))
+					cp = copyCommand(testdata, testdataCopy)
+				} else {
+					cp = copyFile(testdata, testdataCopy)
+				}
+				if verbose > 0 {
+					fmt.Println(asCommandLine(dirs.wd, cp))
+				}
 				_, err := cp.Output()
 				if err != nil {
 					s := fmt.Sprintf(`could not %s, err=%v`, asCommandLine(dirs.wd, cp), err)
-					fmt.Println(s + "DISABLING benchmark " + bench.Name)
+					fmt.Println(s + "\nDISABLING benchmark " + bench.Name)
 					getAndBuildFailures = append(getAndBuildFailures, s+"("+bench.Name+")\n")
 					todo.Benchmarks[i].Disabled = true
 					return true
 				}
+				return false
 			}
-			return false
+			if failIfMissing {
+				s := fmt.Sprintf(`could not find file/directory %s to copy`, testdata)
+				fmt.Println(s + "\nDISABLING benchmark " + bench.Name)
+				getAndBuildFailures = append(getAndBuildFailures, s+"("+bench.Name+")\n")
+				todo.Benchmarks[i].Disabled = true
+			}
+			return failIfMissing
 		}
-		if copySubDir("testdata") {
-			continue
-		}
-		for _, s := range bench.ExtraDirs {
-			if copySubDir(s) {
-				continue
+		for _, s := range bench.ExtraFiles {
+			if copy(s, true) {
+				continue benchmarks_loop
 			}
 		}
+		copy("testdata", false)
 	}
 
 	var failures []string
@@ -1131,6 +1149,10 @@ func copyCommand(from, to string) *exec.Cmd {
 	} else {
 		return exec.Command("cp", "-a", from+"/.", to)
 	}
+}
+
+func copyFile(from, to string) *exec.Cmd {
+	return exec.Command("cp", "-p", from, to)
 }
 
 func copyAsset(fs embed.FS, dir, file string) {
