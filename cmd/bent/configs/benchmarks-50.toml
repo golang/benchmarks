@@ -41,16 +41,8 @@
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
-  Name = "tidwall_tile38"
-  Benchmarks = "Benchmark"
-
-[[Benchmarks]]
   Name = "ethereum_bitutil"
   Benchmarks = "Benchmark(BaseTest2KB|FastTest2KB|Encoding4KBVerySparse)"
-
-[[Benchmarks]]
-  Name = "ethereum_storage"
-  Benchmarks = "BenchmarkJoin_8" # SplitPyramid seems to have a bug
 
 [[Benchmarks]]
   Name = "ethereum_ethash"

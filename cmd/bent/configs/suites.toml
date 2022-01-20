@@ -55,6 +55,7 @@
   Name = "ethereum_storage"
   Repo = "github.com/ethersphere/swarm/storage"
   NotSandboxed = true # Won't cross-compile to Linux on MacOS
+  Disabled = true # Abandonware
   Version = "@v0.5.8"
 
 [[Suites]]

@@ -45,10 +45,6 @@
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
-  Name = "ethereum_storage"
-  Benchmarks = "Benchmark" # SplitPyramid seems to have a bug
-
-[[Benchmarks]]
   Name = "ethereum_ethash"
   Benchmarks = "Benchmark"
 
@@ -201,6 +197,8 @@
 [[Benchmarks]]
   Name = "tidwall_tile38"
   Benchmarks = "Benchmark"
+  Disabled = true
+  # Requires user intervention on Darwin, accepts network connections
 
 [[Benchmarks]]
   Name = "commonmark_markdown"
