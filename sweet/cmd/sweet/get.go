@@ -10,7 +10,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -115,36 +114,30 @@ func (c *getCmd) Run(_ []string) error {
 }
 
 func downloadAndExtract(todir, bucket, hashfile, version string, auth bootstrap.AuthOption, readonly bool) error {
-	tf, err := ioutil.TempFile("", "go-sweet-assets")
+	log.Printf("Downloading assets archive for version %s to %s", version, todir)
+
+	// Create storage reader for streaming.
+	rc, err := bootstrap.NewStorageReader(bucket, version, auth)
 	if err != nil {
 		return err
 	}
-	defer tf.Close()
-	log.Printf("Downloading assets archive for version %s", version)
-	if err := bootstrap.DownloadArchive(tf, bucket, version, auth); err != nil {
-		tf.Close()
+	defer rc.Close()
+
+	// Pass everything we read through a hash.
+	hash := bootstrap.Hash()
+	r := io.TeeReader(rc, hash)
+
+	// Stream and extract the results.
+	if err := extractAssets(r, todir, readonly); err != nil {
 		return err
 	}
-	if _, err := tf.Seek(0, 0); err != nil {
-		return err
-	}
-	log.Printf("Verifying archive checksum...")
-	if err := checkAssetsHash(tf, hashfile, version); err != nil {
-		return err
-	}
-	if _, err := tf.Seek(0, 0); err != nil {
-		return err
-	}
-	log.Printf("Installing assets to %s", todir)
-	return extractAssets(tf, todir, readonly)
+
+	// Check the hash.
+	return checkAssetsHash(bootstrap.CanonicalizeHash(hash), hashfile, version)
 }
 
-func checkAssetsHash(tf io.Reader, hashfile, version string) error {
+func checkAssetsHash(hash, hashfile, version string) error {
 	vals, err := bootstrap.ReadHashesFile(hashfile)
-	if err != nil {
-		return err
-	}
-	hash, err := bootstrap.HashStream(tf)
 	if err != nil {
 		return err
 	}
@@ -158,11 +151,11 @@ func checkAssetsHash(tf io.Reader, hashfile, version string) error {
 	return nil
 }
 
-func extractAssets(tf io.Reader, outdir string, readonly bool) error {
+func extractAssets(r io.Reader, outdir string, readonly bool) error {
 	if err := os.MkdirAll(outdir, os.ModePerm); err != nil {
 		return fmt.Errorf("create assets directory: %v", err)
 	}
-	gr, err := gzip.NewReader(tf)
+	gr, err := gzip.NewReader(r)
 	if err != nil {
 		return err
 	}

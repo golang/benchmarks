@@ -50,14 +50,18 @@ func (h Hashes) WriteToFile(hashfile string) error {
 	return json.NewEncoder(f).Encode(&h)
 }
 
-func canonicalizeHash(h hash.Hash) string {
+func CanonicalizeHash(h hash.Hash) string {
 	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
+func Hash() hash.Hash {
+	return sha256.New()
+}
+
 func HashStream(r io.Reader) (string, error) {
-	hash := sha256.New()
+	hash := Hash()
 	if _, err := io.Copy(hash, r); err != nil {
 		return "", err
 	}
-	return canonicalizeHash(hash), nil
+	return CanonicalizeHash(hash), nil
 }

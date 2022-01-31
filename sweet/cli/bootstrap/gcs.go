@@ -86,31 +86,24 @@ func UploadArchive(r io.Reader, bucket, version string, auth AuthOption, force, 
 	return nil
 }
 
-func DownloadArchive(w io.Writer, bucket, version string, auth AuthOption) error {
+func NewStorageReader(bucket, version string, auth AuthOption) (*storage.Reader, error) {
 	ctx := context.Background()
 	opts := []option.ClientOption{option.WithScopes(storage.ScopeReadOnly)}
 	switch auth {
 	case AuthAppDefault:
 		creds, err := google.FindDefaultCredentials(ctx, storage.ScopeReadOnly)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		opts = append(opts, option.WithCredentials(creds))
 	case AuthNone:
 		opts = append(opts, option.WithoutAuthentication())
 	default:
-		return fmt.Errorf("unknown authentication method")
+		return nil, fmt.Errorf("unknown authentication method")
 	}
 	client, err := storage.NewClient(ctx, opts...)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	rc, err := client.Bucket(bucket).Object(VersionArchiveName(version)).NewReader(ctx)
-	if err != nil {
-		return err
-	}
-	if _, err = io.Copy(w, rc); err != nil {
-		return err
-	}
-	return rc.Close()
+	return client.Bucket(bucket).Object(VersionArchiveName(version)).NewReader(ctx)
 }
