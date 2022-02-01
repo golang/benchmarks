@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"hash"
-	"io"
 	"os"
 )
 
@@ -56,12 +55,4 @@ func CanonicalizeHash(h hash.Hash) string {
 
 func Hash() hash.Hash {
 	return sha256.New()
-}
-
-func HashStream(r io.Reader) (string, error) {
-	hash := Hash()
-	if _, err := io.Copy(hash, r); err != nil {
-		return "", err
-	}
-	return CanonicalizeHash(hash), nil
 }

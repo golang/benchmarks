@@ -7,7 +7,6 @@ package bootstrap
 import (
 	"context"
 	"fmt"
-	"io"
 
 	"cloud.google.com/go/storage"
 
@@ -43,47 +42,32 @@ func (a *AuthOption) Set(input string) error {
 	return fmt.Errorf("unrecognized authentication option: %s", input)
 }
 
-func UploadArchive(r io.Reader, bucket, version string, auth AuthOption, force, public bool) error {
+func NewStorageWriter(bucket, version string, auth AuthOption, force bool) (*storage.Writer, error) {
 	ctx := context.Background()
 	var opts []option.ClientOption
 	switch auth {
 	case AuthAppDefault:
 		creds, err := google.FindDefaultCredentials(ctx, storage.ScopeReadWrite)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		opts = append(opts, option.WithCredentials(creds))
 	case AuthNone:
-		return fmt.Errorf("authentication required for upload")
+		return nil, fmt.Errorf("authentication required for upload")
 	default:
-		return fmt.Errorf("unknown authentication method")
+		return nil, fmt.Errorf("unknown authentication method")
 	}
 	client, err := storage.NewClient(ctx, opts...)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	o := client.Bucket(bucket).Object(VersionArchiveName(version))
 	if _, err := o.Attrs(ctx); err != nil && err != storage.ErrObjectNotExist {
-		return fmt.Errorf("checking if object exists: %v", err)
+		return nil, fmt.Errorf("checking if object exists: %v", err)
 	} else if err == nil && !force {
-		return fmt.Errorf("assets object already exists for version %s", version)
+		return nil, fmt.Errorf("assets object already exists for version %s", version)
 	}
-
-	// Write the archive to GCS.
-	wc := o.NewWriter(ctx)
-	if _, err = io.Copy(wc, r); err != nil {
-		return err
-	}
-	if err := wc.Close(); err != nil {
-		return err
-	}
-
-	if public {
-		// Make the archive public.
-		acl := o.ACL()
-		return acl.Set(ctx, storage.AllUsers, storage.RoleReader)
-	}
-	return nil
+	return o.NewWriter(ctx), nil
 }
 
 func NewStorageReader(bucket, version string, auth AuthOption) (*storage.Reader, error) {

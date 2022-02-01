@@ -10,7 +10,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -29,7 +28,6 @@ Usage: %s put [flags]
 type putCmd struct {
 	auth           bootstrap.AuthOption
 	force          bool
-	public         bool
 	cache          string
 	bucket         string
 	assetsDir      string
@@ -49,7 +47,6 @@ func (c *putCmd) SetFlags(f *flag.FlagSet) {
 	c.auth = bootstrap.AuthAppDefault
 	f.Var(&c.auth, "auth", fmt.Sprintf("authentication method (options: %s)", authOpts(false)))
 	f.BoolVar(&c.force, "force", false, "force upload even if assets for this version exist")
-	f.BoolVar(&c.public, "public", false, "make the new assets archive public")
 	f.StringVar(&c.version, "version", common.Version, "the version to upload assets for")
 	f.StringVar(&c.bucket, "bucket", "go-sweet-assets", "GCS bucket to upload assets to")
 	f.StringVar(&c.assetsDir, "assets-dir", "./assets", "assets directory to tar, compress, and upload")
@@ -62,28 +59,28 @@ func (c *putCmd) Run(_ []string) error {
 	if err := bootstrap.ValidateVersion(c.version); err != nil {
 		return err
 	}
-	tf, err := ioutil.TempFile("", "go-sweet-assets")
+
+	log.Printf("Archiving, compressing, and uploading: %s", c.assetsDir)
+
+	// Create storage writer for streaming.
+	wc, err := bootstrap.NewStorageWriter(c.bucket, c.version, c.auth, c.force)
 	if err != nil {
 		return err
 	}
-	defer tf.Close()
+	defer wc.Close()
 
-	log.Printf("Archiving and compressing: %s", c.assetsDir)
-	if err := createAssetsArchive(tf, c.assetsDir, c.version); err != nil {
+	// Pass everything we write through a hash.
+	hash := bootstrap.Hash()
+	w := io.MultiWriter(wc, hash)
+
+	// Write the archive.
+	if err := createAssetsArchive(w, c.assetsDir, c.version); err != nil {
 		return err
 	}
-	if _, err := tf.Seek(0, 0); err != nil {
-		return err
-	}
-	log.Printf("Uploading archive to %s", c.bucket)
-	if err := bootstrap.UploadArchive(tf, c.bucket, c.version, c.auth, c.force, c.public); err != nil {
-		return err
-	}
-	if _, err := tf.Seek(0, 0); err != nil {
-		return err
-	}
+
+	// Update hash file.
 	log.Printf("Updating hash file...")
-	return hashAssetsArchive(tf, c.assetsHashFile, c.version, c.force)
+	return updateAssetsHash(bootstrap.CanonicalizeHash(hash), c.assetsHashFile, c.version, c.force)
 }
 
 func createAssetsArchive(w io.Writer, assetsDir, version string) error {
@@ -134,12 +131,8 @@ func createAssetsArchive(w io.Writer, assetsDir, version string) error {
 	})
 }
 
-func hashAssetsArchive(tf io.Reader, hashfile, version string, force bool) error {
+func updateAssetsHash(hash, hashfile, version string, force bool) error {
 	vals, err := bootstrap.ReadHashesFile(hashfile)
-	if err != nil {
-		return err
-	}
-	hash, err := bootstrap.HashStream(tf)
 	if err != nil {
 		return err
 	}
