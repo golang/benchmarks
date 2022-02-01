@@ -14,7 +14,7 @@ import (
 var ErrNotInCache = errors.New("not found in cache")
 
 func CachedAssets(cache, version string) (string, error) {
-	name := VersionDirName(version)
+	name := VersionArchiveName(version)
 	if err := os.MkdirAll(cache, os.ModePerm); err != nil {
 		return "", fmt.Errorf("failed to create cache directory: %v", err)
 	}

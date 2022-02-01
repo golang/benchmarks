@@ -5,7 +5,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -132,7 +134,7 @@ func mkdirAll(path string) error {
 
 func copyDirContents(dst, src string) error {
 	log.CommandPrintf("cp -r %s/* %s", src, dst)
-	return fileutil.CopyDir(dst, src)
+	return fileutil.CopyDir(dst, src, nil)
 }
 
 func rmDirContents(dir string) error {
@@ -160,13 +162,26 @@ func (b *benchmark) execute(cfgs []*common.Config, r *runCfg) error {
 	log.Printf("Setting up benchmark: %s", b.name)
 
 	// Compute top-level directories for this benchmark to work in.
-	topAssetsDir := filepath.Join(r.assetsDir, b.name)
 	benchDir := filepath.Join(r.benchDir, b.name)
 	topDir := filepath.Join(r.workDir, b.name)
 	srcDir := filepath.Join(topDir, "src")
 
-	hasAssets, err := fileutil.FileExists(topAssetsDir)
-	if err != nil {
+	// Check if assets for this benchmark exist. Not all benchmarks have assets!
+	var hasAssets bool
+	assetsFSDir := b.name
+	if f, err := r.assetsFS.Open(assetsFSDir); err == nil {
+		fi, err := f.Stat()
+		if err != nil {
+			f.Close()
+			return err
+		}
+		if !fi.IsDir() {
+			f.Close()
+			return fmt.Errorf("found assets file for %s instead of directory", b.name)
+		}
+		f.Close()
+		hasAssets = true
+	} else if !errors.Is(err, fs.ErrNotExist) {
 		return err
 	}
 
@@ -271,7 +286,8 @@ func (b *benchmark) execute(cfgs []*common.Config, r *runCfg) error {
 		for i, setup := range setups {
 			if hasAssets {
 				// Set up assets directory for test run.
-				if err := copyDirContents(setup.AssetsDir, topAssetsDir); err != nil {
+				r.logCopyDirCommand(b.name, setup.AssetsDir)
+				if err := fileutil.CopyDir(setup.AssetsDir, assetsFSDir, r.assetsFS); err != nil {
 					return err
 				}
 			}

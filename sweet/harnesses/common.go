@@ -32,7 +32,7 @@ func gitCloneToCommit(dir, url, branch, hash string) error {
 
 func copyFile(dst, src string) error {
 	log.CommandPrintf("cp %s %s", src, dst)
-	return fileutil.CopyFile(dst, src, nil)
+	return fileutil.CopyFile(dst, src, nil, nil)
 }
 
 func makeWriteable(dir string) error {
@@ -51,9 +51,4 @@ func makeWriteable(dir string) error {
 func symlink(dst, src string) error {
 	log.CommandPrintf("ln -s %s %s", src, dst)
 	return os.Symlink(src, dst)
-}
-
-func copySymlink(dst, src string) error {
-	log.CommandPrintf("cp %s %s", src, dst)
-	return fileutil.CopySymlink(dst, src, nil)
 }

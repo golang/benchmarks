@@ -5,8 +5,7 @@
 package main
 
 import (
-	"archive/tar"
-	"compress/gzip"
+	"archive/zip"
 	"flag"
 	"fmt"
 	"io"
@@ -49,7 +48,7 @@ func (c *putCmd) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&c.force, "force", false, "force upload even if assets for this version exist")
 	f.StringVar(&c.version, "version", common.Version, "the version to upload assets for")
 	f.StringVar(&c.bucket, "bucket", "go-sweet-assets", "GCS bucket to upload assets to")
-	f.StringVar(&c.assetsDir, "assets-dir", "./assets", "assets directory to tar, compress, and upload")
+	f.StringVar(&c.assetsDir, "assets-dir", "./assets", "assets directory to zip and upload")
 	f.StringVar(&c.assetsHashFile, "assets-hash-file", "./assets.hash", "file containing assets SHA256 hashes")
 }
 
@@ -83,50 +82,48 @@ func (c *putCmd) Run(_ []string) error {
 	return updateAssetsHash(bootstrap.CanonicalizeHash(hash), c.assetsHashFile, c.version, c.force)
 }
 
-func createAssetsArchive(w io.Writer, assetsDir, version string) error {
-	gw := gzip.NewWriter(w)
-	defer gw.Close()
-
-	tw := tar.NewWriter(gw)
-	defer tw.Close()
-
+func createAssetsArchive(w io.Writer, assetsDir, version string) (err error) {
+	zw := zip.NewWriter(w)
+	defer func() {
+		if cerr := zw.Close(); cerr != nil && err == nil {
+			err = fmt.Errorf("closing zip archive: %w", cerr)
+		}
+	}()
 	return filepath.Walk(assetsDir, func(fpath string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
+		outPath, err := filepath.Rel(assetsDir, fpath)
+		if err != nil {
+			// By the guarantees of filepath.Walk, this shouldn't happen.
+			panic(err)
+		}
 		if info.IsDir() {
-			return nil
+			// Add a trailing slash to indicate we're creating a directory.
+			_, err := zw.Create(outPath + "/")
+			return err
 		}
-		isSymlink := info.Mode()&os.ModeSymlink != 0
-		link := ""
-		if isSymlink {
-			l, err := os.Readlink(fpath)
-			if err != nil {
-				return err
-			}
-			link = l
+		if info.Mode()&os.ModeSymlink != 0 {
+			return fmt.Errorf("encountered symlink %s: symbolic links are not supported in assets", fpath)
 		}
+		// Create a file in our zip archive for writing.
+		fh := new(zip.FileHeader)
+		fh.Name = outPath
+		fh.Method = zip.Deflate
+		fh.SetMode(info.Mode())
+		zf, err := zw.CreateHeader(fh)
+		if err != nil {
+			return err
+		}
+		// Open the original file for reading.
 		f, err := os.Open(fpath)
 		if err != nil {
 			return err
 		}
 		defer f.Close()
-		header, err := tar.FileInfoHeader(info, link)
-		if err != nil {
-			return err
-		}
-		header.Name, err = filepath.Rel(assetsDir, fpath)
-		if err != nil {
-			panic(err)
-		}
-		if err := tw.WriteHeader(header); err != nil {
-			return err
-		}
-		if isSymlink {
-			// We don't need to copy any data for the symlink.
-			return nil
-		}
-		_, err = io.Copy(tw, f)
+
+		// Copy data into the archive.
+		_, err = io.Copy(zf, f)
 		return err
 	})
 }

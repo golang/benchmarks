@@ -7,7 +7,7 @@ package fileutil
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
+	"io/fs"
 	"os"
 	"path/filepath"
 )
@@ -38,10 +38,19 @@ func FileExists(path string) (bool, error) {
 // src to a new file created at dst with the same file mode
 // as the old one.
 //
+// If srcFS != nil, then src is assumed to be a path within
+// srcFS.
+//
 // Returns a non-nil error if copying or acquiring the
 // os.FileInfo for the file fails.
-func CopyFile(dst, src string, sfinfo os.FileInfo) error {
-	sf, err := os.Open(src)
+func CopyFile(dst, src string, sfinfo fs.FileInfo, srcFS fs.FS) error {
+	var sf fs.File
+	var err error
+	if srcFS != nil {
+		sf, err = srcFS.Open(src)
+	} else {
+		sf, err = os.Open(src)
+	}
 	if err != nil {
 		return err
 	}
@@ -61,49 +70,18 @@ func CopyFile(dst, src string, sfinfo os.FileInfo) error {
 	return err
 }
 
-// CopySymlink takes the symlink at path src and installs a new
-// symlink at path dst which contains the same link path. As a result,
-// relative symlinks point to a new location, relative to dst.
-//
-// sfinfo should be the result of an Lstat on src, and should always
-// indicate a symlink. If not, or if sfinfo is nil, then the os.FileInfo
-// for the symlink at src is regenerated.
-//
-// In effect, sfinfo is just an optimization to avoid
-// querying the path for the os.FileInfo more than necessary.
-//
-// Returns a non-nil error if the path src doesn't point to a symlink
-// or if an error is encountered in reading the link or installing
-// a new link.
-func CopySymlink(dst, src string, sfinfo os.FileInfo) error {
-	if sfinfo == nil || sfinfo.Mode()&os.ModeSymlink == 0 {
-		var err error
-		sfinfo, err = os.Lstat(src)
-		if err != nil {
-			return err
-		}
-	}
-	if sfinfo.Mode()&os.ModeSymlink == 0 {
-		return fmt.Errorf("source file is not a symlink")
-	}
-	// Handle a symlink by copying the
-	// link verbatim.
-	link, err := os.Readlink(src)
-	if err != nil {
-		return err
-	}
-	return os.Symlink(link, dst)
-}
-
 // CopyDir recursively copies the directory at path src to
 // a new directory at path dst. If a symlink is encountered
 // along the way, its link is copied verbatim and installed
 // in the destination directory heirarchy, as in CopySymlink.
 //
+// If srcFS != nil, then src is assumed to be a path within
+// srcFS.
+//
 // dst and directories under dst may not retain the permissions
 // of src or the corresponding directories under src. Instead,
 // we always set the permissions of the new directories to 0755.
-func CopyDir(dst, src string) error {
+func CopyDir(dst, src string, srcFS fs.FS) error {
 	// Ignore the permissions of src, since if dst
 	// isn't writable we can't actually copy files into it.
 	// Pick a safe default that allows us to modify the
@@ -112,22 +90,30 @@ func CopyDir(dst, src string) error {
 	if err := os.MkdirAll(dst, 0755); err != nil {
 		return err
 	}
-	fs, err := ioutil.ReadDir(src)
+	var des []fs.DirEntry
+	var err error
+	if srcFS != nil {
+		des, err = fs.ReadDir(srcFS, src)
+	} else {
+		des, err = os.ReadDir(src)
+	}
 	if err != nil {
 		return err
 	}
-	for _, fi := range fs {
+	for _, de := range des {
+		fi, err := de.Info()
+		if err != nil {
+			return err
+		}
 		d, s := filepath.Join(dst, fi.Name()), filepath.Join(src, fi.Name())
 		if fi.IsDir() {
-			if err := CopyDir(d, s); err != nil {
+			if err := CopyDir(d, s, srcFS); err != nil {
 				return err
 			}
 		} else if fi.Mode()&os.ModeSymlink != 0 {
-			if err := CopySymlink(d, s, fi); err != nil {
-				return err
-			}
+			return fmt.Errorf("symbolic links not supported")
 		} else {
-			if err := CopyFile(d, s, fi); err != nil {
+			if err := CopyFile(d, s, fi, srcFS); err != nil {
 				return err
 			}
 		}

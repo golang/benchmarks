@@ -34,7 +34,7 @@ func copyFiles(dstPath, srcPath string, relPaths []string) error {
 	for _, relPath := range relPaths {
 		outputPath := filepath.Join(dstPath, relPath)
 		inputPath := filepath.Join(srcPath, relPath)
-		err := fileutil.CopyFile(outputPath, inputPath, nil)
+		err := fileutil.CopyFile(outputPath, inputPath, nil, nil)
 		if err != nil {
 			return err
 		}

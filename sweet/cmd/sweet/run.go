@@ -5,9 +5,11 @@
 package main
 
 import (
+	"archive/zip"
 	"flag"
 	"fmt"
 	"io"
+	"io/fs"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -15,6 +17,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"golang.org/x/benchmarks/sweet/cli/bootstrap"
 	"golang.org/x/benchmarks/sweet/common"
 	"golang.org/x/benchmarks/sweet/common/log"
 
@@ -40,17 +43,29 @@ files.`
 )
 
 type runCfg struct {
-	count      int
-	resultsDir string
-	benchDir   string
-	assetsDir  string
-	workDir    string
-	dumpCore   bool
-	cpuProfile bool
-	memProfile bool
-	perf       bool
-	perfFlags  string
-	short      bool
+	count       int
+	resultsDir  string
+	benchDir    string
+	assetsDir   string
+	workDir     string
+	assetsCache string
+	dumpCore    bool
+	cpuProfile  bool
+	memProfile  bool
+	perf        bool
+	perfFlags   string
+	short       bool
+
+	assetsFS fs.FS
+}
+
+func (r *runCfg) logCopyDirCommand(fromRelDir, toDir string) {
+	if r.assetsDir == "" {
+		assetsFile, _ := bootstrap.CachedAssets(r.assetsCache, common.Version)
+		log.CommandPrintf("unzip %s '%s/*' -d %s", assetsFile, fromRelDir, toDir)
+	} else {
+		log.CommandPrintf("cp -r %s/* %s", filepath.Join(r.assetsDir, fromRelDir), toDir)
+	}
 }
 
 type runCmd struct {
@@ -113,8 +128,9 @@ func (*runCmd) PrintUsage(w io.Writer, base string) {
 func (c *runCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.runCfg.resultsDir, "results", "./results", "location to write benchmark results to")
 	f.StringVar(&c.runCfg.benchDir, "bench-dir", "./benchmarks", "the benchmarks directory in the sweet source")
-	f.StringVar(&c.runCfg.assetsDir, "assets-dir", "./assets", "the directory containing assets for sweet benchmarks")
+	f.StringVar(&c.runCfg.assetsDir, "assets-dir", "", "the directory containing uncompressed assets for sweet benchmarks (overrides -cache)")
 	f.StringVar(&c.runCfg.workDir, "work-dir", "", "work directory for benchmarks (default: temporary directory)")
+	f.StringVar(&c.runCfg.assetsCache, "cache", bootstrap.CacheDefault(), "cache location for assets")
 	f.BoolVar(&c.runCfg.dumpCore, "dump-core", false, "whether to dump core files for each benchmark process when it completes a benchmark")
 	f.BoolVar(&c.runCfg.cpuProfile, "cpuprofile", false, "whether to dump a CPU profile for each benchmark (ensures all benchmarks do the same amount of work)")
 	f.BoolVar(&c.runCfg.memProfile, "memprofile", false, "whether to dump a memory profile for each benchmark (ensures all executions do the same amount of work")
@@ -152,10 +168,6 @@ func (c *runCmd) Run(args []string) error {
 	if err != nil {
 		return fmt.Errorf("creating absolute path from provided work root: %v", err)
 	}
-	c.assetsDir, err = filepath.Abs(c.assetsDir)
-	if err != nil {
-		return fmt.Errorf("creating absolute path from assets path: %v", err)
-	}
 	c.benchDir, err = filepath.Abs(c.benchDir)
 	if err != nil {
 		return fmt.Errorf("creating absolute path from benchmarks path: %v", err)
@@ -164,14 +176,53 @@ func (c *runCmd) Run(args []string) error {
 	if err != nil {
 		return fmt.Errorf("creating absolute path from results path: %v", err)
 	}
-
-	// Make sure the assets directory is there.
-	if info, err := os.Stat(c.assetsDir); os.IsNotExist(err) {
-		return fmt.Errorf("assets not found at %q: forgot to run `sweet get`?", c.assetsDir)
-	} else if err != nil {
-		return fmt.Errorf("stat assets %q: %v", c.assetsDir, err)
-	} else if info.Mode()&os.ModeDir == 0 {
-		return fmt.Errorf("%q is not a directory", c.assetsDir)
+	if c.assetsDir != "" {
+		c.assetsDir, err = filepath.Abs(c.assetsDir)
+		if err != nil {
+			return fmt.Errorf("creating absolute path from assets path: %v", err)
+		}
+		if info, err := os.Stat(c.assetsDir); os.IsNotExist(err) {
+			return fmt.Errorf("assets not found at %q: did you mean to specify assets-dir?", c.assetsDir)
+		} else if err != nil {
+			return fmt.Errorf("stat assets %q: %v", c.assetsDir, err)
+		} else if info.Mode()&os.ModeDir == 0 {
+			return fmt.Errorf("%q is not a directory", c.assetsDir)
+		}
+		c.assetsFS = os.DirFS(c.assetsDir)
+	} else {
+		if c.assetsCache == "" {
+			return fmt.Errorf("missing assets cache and assets directory: cannot proceed without assets")
+		}
+		c.assetsCache, err = filepath.Abs(c.assetsCache)
+		if err != nil {
+			return fmt.Errorf("creating absolute path from assets cache path: %v", err)
+		}
+		if info, err := os.Stat(c.assetsCache); os.IsNotExist(err) {
+			return fmt.Errorf("assets not found at %q: forgot to run `sweet get`?", c.assetsDir)
+		} else if err != nil {
+			return fmt.Errorf("stat assets %q: %v", c.assetsDir, err)
+		} else if info.Mode()&os.ModeDir == 0 {
+			return fmt.Errorf("%q is not a directory", c.assetsDir)
+		}
+		assetsFile, err := bootstrap.CachedAssets(c.assetsCache, common.Version)
+		if err == bootstrap.ErrNotInCache {
+			return fmt.Errorf("assets for version %q not found in %q", common.Version, c.assetsCache)
+		} else if err != nil {
+			return err
+		}
+		f, err := os.Open(assetsFile)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		fi, err := f.Stat()
+		if err != nil {
+			return err
+		}
+		c.assetsFS, err = zip.NewReader(f, fi.Size())
+		if err != nil {
+			return err
+		}
 	}
 	log.Printf("Work directory: %s", c.workDir)
 

@@ -5,8 +5,7 @@
 package main
 
 import (
-	"archive/tar"
-	"compress/gzip"
+	"archive/zip"
 	"flag"
 	"fmt"
 	"io"
@@ -16,7 +15,6 @@ import (
 
 	"golang.org/x/benchmarks/sweet/cli/bootstrap"
 	"golang.org/x/benchmarks/sweet/common"
-	"golang.org/x/benchmarks/sweet/common/fileutil"
 	"golang.org/x/benchmarks/sweet/common/log"
 )
 
@@ -42,10 +40,9 @@ func authOpts(includeNone bool) string {
 type getCmd struct {
 	auth           bootstrap.AuthOption
 	force          bool
-	copyAssets     bool
 	cache          string
 	bucket         string
-	assetsDir      string
+	copyDir        string
 	assetsHashFile string
 	version        string
 }
@@ -59,11 +56,10 @@ func (*getCmd) PrintUsage(w io.Writer, base string) {
 func (c *getCmd) SetFlags(f *flag.FlagSet) {
 	f.Var(&c.auth, "auth", fmt.Sprintf("authentication method (options: %s)", authOpts(true)))
 	f.BoolVar(&c.force, "force", false, "force download even if assets for this version exist in the cache")
-	f.BoolVar(&c.copyAssets, "copy", false, "copy assets to assets-dir instead of symlinking")
-	f.StringVar(&c.cache, "cache", bootstrap.CacheDefault(), "cache location for tar'd and compressed assets, if set to \"\" will ignore cache")
+	f.StringVar(&c.cache, "cache", bootstrap.CacheDefault(), "cache location for assets")
 	f.StringVar(&c.version, "version", common.Version, "the version to download assets for")
 	f.StringVar(&c.bucket, "bucket", "go-sweet-assets", "GCS bucket to download assets from")
-	f.StringVar(&c.assetsDir, "assets-dir", "./assets", "location to extract assets into")
+	f.StringVar(&c.copyDir, "copy", "", "location to extract assets into, useful for development")
 	f.StringVar(&c.assetsHashFile, "assets-hash-file", "./assets.hash", "file to check SHA256 hash of the downloaded artifact against")
 }
 
@@ -72,49 +68,78 @@ func (c *getCmd) Run(_ []string) error {
 	if err := bootstrap.ValidateVersion(c.version); err != nil {
 		return err
 	}
-	installAssets := func(todir string, readonly bool) error {
-		return downloadAndExtract(todir, c.bucket, c.assetsHashFile, c.version, c.auth, readonly)
+	if c.copyDir == "" && c.cache == "" {
+		log.Printf("No cache to populate and assets are not copied. Nothing to do.")
+		return nil
 	}
+
+	// Create a file that we'll download assets into.
+	var (
+		f     *os.File
+		fName string
+		err   error
+	)
 	if c.cache == "" {
-		log.Printf("Skipping cache...")
-		return installAssets(c.assetsDir, false)
-	}
-	log.Printf("Checking cache: %s", c.cache)
-	t, err := bootstrap.CachedAssets(c.cache, c.version)
-	if err == bootstrap.ErrNotInCache || (err == nil && c.force) {
-		if err := installAssets(t, true); err != nil {
+		// There's no cache, which means we'll be extracting directly.
+		// Just create a temporary file. zip archives cannot be streamed
+		// out unfortunately (the API requires a ReaderAt).
+		f, err = os.CreateTemp("", "go-sweet-assets")
+		if err != nil {
 			return err
 		}
-	} else if err != nil {
-		return err
-	}
-	if !c.copyAssets {
-		log.Printf("Creating symlink to %s", c.assetsDir)
-		if info, err := os.Lstat(c.assetsDir); err == nil {
-			if info.Mode()&os.ModeSymlink != 0 {
-				// We have a symlink, so just delete it so we can replace it.
-				if err := os.Remove(c.assetsDir); err != nil {
-					return fmt.Errorf("installing assets: removing %s: %v", c.assetsDir, err)
-				}
-			} else {
-				return fmt.Errorf("installing assets: %s is not a symlink; to install assets here, remove it and re-run this command", c.assetsDir)
+		defer f.Close()
+		fName = f.Name()
+	} else {
+		// There is a cache, so create a file in the cache if there isn't
+		// one already.
+		log.Printf("Checking cache: %s", c.cache)
+		fName, err = bootstrap.CachedAssets(c.cache, c.version)
+		if err == bootstrap.ErrNotInCache || (err == nil && c.force) {
+			f, err = os.Create(fName)
+			if err != nil {
+				return err
 			}
-		} else if !os.IsNotExist(err) {
-			return fmt.Errorf("stat %s: %v", c.assetsDir, err)
+			defer f.Close()
+		} else if err != nil {
+			return err
 		}
-		return os.Symlink(t, c.assetsDir)
 	}
-	if _, err := os.Stat(c.assetsDir); err == nil {
-		return fmt.Errorf("installing assets: %s exists; to copy assets here, remove it and re-run this command", c.assetsDir)
+
+	// If f is not nil, then we need to download assets.
+	// Otherwise they're in a cache.
+	if f != nil {
+		// Download the compressed assets into f.
+		if err := downloadAssets(f, c.bucket, c.assetsHashFile, c.version, c.auth); err != nil {
+			return err
+		}
+	}
+	// If we're not copying, we're done.
+	if c.copyDir == "" {
+		return nil
+	}
+	if f == nil {
+		// Since f is nil, and we'll be extracting, we need to open the file.
+		f, err := os.Open(fName)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+	}
+
+	// Check to make sure out destination is clear.
+	if _, err := os.Stat(c.copyDir); err == nil {
+		return fmt.Errorf("installing assets: %s exists; to copy assets here, remove it and re-run this command", c.copyDir)
 	} else if !os.IsNotExist(err) {
-		return fmt.Errorf("stat %s: %v", c.assetsDir, err)
+		return fmt.Errorf("stat %s: %v", c.copyDir, err)
 	}
-	log.Printf("Copying assets %s", c.assetsDir)
-	return fileutil.CopyDir(c.assetsDir, t)
+
+	// Extract assets into assetsDir.
+	log.Printf("Copying assets to %s", c.copyDir)
+	return extractAssets(f, c.copyDir)
 }
 
-func downloadAndExtract(todir, bucket, hashfile, version string, auth bootstrap.AuthOption, readonly bool) error {
-	log.Printf("Downloading assets archive for version %s to %s", version, todir)
+func downloadAssets(toFile *os.File, bucket, hashfile, version string, auth bootstrap.AuthOption) error {
+	log.Printf("Downloading assets archive for version %s to %s", version, toFile.Name())
 
 	// Create storage reader for streaming.
 	rc, err := bootstrap.NewStorageReader(bucket, version, auth)
@@ -127,8 +152,8 @@ func downloadAndExtract(todir, bucket, hashfile, version string, auth bootstrap.
 	hash := bootstrap.Hash()
 	r := io.TeeReader(rc, hash)
 
-	// Stream and extract the results.
-	if err := extractAssets(r, todir, readonly); err != nil {
+	// Stream the results.
+	if _, err := io.Copy(toFile, r); err != nil {
 		return err
 	}
 
@@ -151,56 +176,45 @@ func checkAssetsHash(hash, hashfile, version string) error {
 	return nil
 }
 
-func extractAssets(r io.Reader, outdir string, readonly bool) error {
+func extractAssets(archive *os.File, outdir string) error {
 	if err := os.MkdirAll(outdir, os.ModePerm); err != nil {
 		return fmt.Errorf("create assets directory: %v", err)
 	}
-	gr, err := gzip.NewReader(r)
+	archiveInfo, err := archive.Stat()
 	if err != nil {
 		return err
 	}
-	defer gr.Close()
-
-	tr := tar.NewReader(gr)
-	for {
-		hdr, err := tr.Next()
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			return err
-		}
-		fullpath := filepath.Join(outdir, hdr.Name)
-		if err := os.MkdirAll(filepath.Dir(fullpath), os.ModePerm); err != nil {
-			return err
-		}
-		f, err := os.Create(fullpath)
-		if err != nil {
-			return err
-		}
-		if _, err := io.Copy(f, tr); err != nil {
-			f.Close()
-			return err
-		}
-		fperm := os.FileMode(uint32(hdr.Mode))
-		if readonly {
-			fperm = 0444 | (fperm & 0555)
-		}
-		if err := f.Chmod(fperm); err != nil {
-			f.Close()
-			return err
-		}
-		f.Close()
+	zr, err := zip.NewReader(archive, archiveInfo.Size())
+	if err != nil {
+		return err
 	}
-	if readonly {
-		return filepath.Walk(outdir, func(path string, info os.FileInfo, err error) error {
+	for _, zf := range zr.File {
+		err := func(zf *zip.File) error {
+			fullpath := filepath.Join(outdir, zf.Name)
+			if err := os.MkdirAll(filepath.Dir(fullpath), os.ModePerm); err != nil {
+				return err
+			}
+			inFile, err := zf.Open()
 			if err != nil {
 				return err
 			}
-			if info.IsDir() {
-				return os.Chmod(path, 0555)
+			defer inFile.Close()
+			outFile, err := os.Create(fullpath)
+			if err != nil {
+				return err
+			}
+			defer outFile.Close()
+			if _, err := io.Copy(outFile, inFile); err != nil {
+				return err
+			}
+			if err := outFile.Chmod(zf.Mode()); err != nil {
+				return err
 			}
 			return nil
-		})
+		}(zf)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

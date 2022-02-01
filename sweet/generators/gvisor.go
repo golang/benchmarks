@@ -165,5 +165,6 @@ func (_ GVisor) Generate(cfg *common.GenConfig) error {
 	return fileutil.CopyDir(
 		filepath.Join(cfg.OutputDir, "startup", "rootfs"),
 		filepath.Join(cfg.AssetsDir, "startup", "rootfs"),
+		nil,
 	)
 }

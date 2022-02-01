@@ -145,6 +145,7 @@ func (_ Tile38) Generate(cfg *common.GenConfig) error {
 			err = fileutil.CopyDir(
 				filepath.Join(cfg.OutputDir, "data"),
 				tmpDataPath,
+				nil,
 			)
 		}
 	}()

@@ -19,9 +19,5 @@ func ValidateVersion(version string) error {
 }
 
 func VersionArchiveName(version string) string {
-	return fmt.Sprintf("%s.tar.gz", VersionDirName(version))
-}
-
-func VersionDirName(version string) string {
-	return fmt.Sprintf("assets-%s", version)
+	return fmt.Sprintf("assets-%s.zip", version)
 }
