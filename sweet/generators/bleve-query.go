@@ -22,7 +22,7 @@ import (
 )
 
 // documents is the number of documents to index.
-const documents = 100000
+const documents = 25000
 
 // wikiDumpPath is a path to the static asset from
 // which we'll build our index.
