@@ -52,7 +52,9 @@ type Config struct {
 func (c *Config) GoTool() *Go {
 	return &Go{
 		Tool: filepath.Join(c.GoRoot, "bin", "go"),
-		Env:  c.BuildEnv.Env,
+		// Update the GOROOT so the wrong one doesn't propagate from
+		// the environment.
+		Env: c.BuildEnv.Env.MustSet("GOROOT=" + c.GoRoot),
 	}
 }
 

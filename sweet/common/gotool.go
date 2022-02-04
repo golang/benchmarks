@@ -26,7 +26,7 @@ func SystemGoTool() (*Go, error) {
 	}
 	return &Go{
 		Tool: tool,
-		Env:  NewEnvFromEnviron(),
+		Env:  NewEnvFromEnviron().MustSet("GOROOT=" + filepath.Dir(filepath.Dir(tool))),
 	}, nil
 }
 
@@ -45,7 +45,7 @@ func (g *Go) List(args ...string) ([]byte, error) {
 	cmd := exec.Command(g.Tool, append([]string{"list"}, args...)...)
 	cmd.Env = g.Env.Collapse()
 	log.TraceCommand(cmd, false)
-	return cmd.CombinedOutput()
+	return cmd.Output()
 }
 
 func (g *Go) GOROOT() string {
