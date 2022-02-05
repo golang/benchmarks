@@ -109,7 +109,7 @@ func (_ Tile38) Generate(cfg *common.GenConfig) error {
 		for _, line := range strings.Split(buf.String(), "\n") {
 			log.Printf(line)
 		}
-		return fmt.Errorf("error: starting server: %v", err)
+		return fmt.Errorf("error: starting server: %w", err)
 	}
 
 	// Clean up the server process after we're done.
@@ -229,7 +229,7 @@ func launchServer(serverBin, dataPath string, out io.Writer) (*exec.Cmd, error) 
 	srvCmd.Stdout = out
 	srvCmd.Stderr = out
 	if err := srvCmd.Start(); err != nil {
-		return nil, fmt.Errorf("failed to start server: %v", err)
+		return nil, fmt.Errorf("failed to start server: %w", err)
 	}
 
 	// Poll until the server is ready to serve, up to 120 seconds.
@@ -244,7 +244,7 @@ func launchServer(serverBin, dataPath string, out io.Writer) (*exec.Cmd, error) 
 		}
 		time.Sleep(2 * time.Second)
 	}
-	return nil, fmt.Errorf("timeout trying to connect to server: %v", err)
+	return nil, fmt.Errorf("timeout trying to connect to server: %w", err)
 }
 
 // tsvScanner returns a bufio.Scanner that emits a cell in

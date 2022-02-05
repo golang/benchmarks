@@ -16,13 +16,13 @@ var ErrNotInCache = errors.New("not found in cache")
 func CachedAssets(cache, version string) (string, error) {
 	name := VersionArchiveName(version)
 	if err := os.MkdirAll(cache, os.ModePerm); err != nil {
-		return "", fmt.Errorf("failed to create cache directory: %v", err)
+		return "", fmt.Errorf("failed to create cache directory: %w", err)
 	}
 	cacheloc := filepath.Join(cache, name)
 	if _, err := os.Lstat(cacheloc); os.IsNotExist(err) {
 		return cacheloc, ErrNotInCache
 	} else if err != nil {
-		return "", fmt.Errorf("failed to check cache: %v", err)
+		return "", fmt.Errorf("failed to check cache: %w", err)
 	}
 	return cacheloc, nil
 }

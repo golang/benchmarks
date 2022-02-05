@@ -102,15 +102,15 @@ func (c *genCmd) Run(args []string) error {
 	var err error
 	c.assetsDir, err = filepath.Abs(c.assetsDir)
 	if err != nil {
-		return fmt.Errorf("creating absolute path from assets path: %v", err)
+		return fmt.Errorf("creating absolute path from assets path: %w", err)
 	}
 	c.sourceAssetsDir, err = filepath.Abs(c.sourceAssetsDir)
 	if err != nil {
-		return fmt.Errorf("creating absolute path from source assets path: %v", err)
+		return fmt.Errorf("creating absolute path from source assets path: %w", err)
 	}
 	c.outputDir, err = filepath.Abs(c.outputDir)
 	if err != nil {
-		return fmt.Errorf("creating absolute path from output path: %v", err)
+		return fmt.Errorf("creating absolute path from output path: %w", err)
 	}
 
 	// Make sure the assets directory is there.

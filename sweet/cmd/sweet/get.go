@@ -178,7 +178,7 @@ func checkAssetsHash(hash, hashfile, version string) error {
 
 func extractAssets(archive *os.File, outdir string) error {
 	if err := os.MkdirAll(outdir, os.ModePerm); err != nil {
-		return fmt.Errorf("create assets directory: %v", err)
+		return fmt.Errorf("create assets directory: %w", err)
 	}
 	archiveInfo, err := archive.Stat()
 	if err != nil {

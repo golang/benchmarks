@@ -22,7 +22,7 @@ type Go struct {
 func SystemGoTool() (*Go, error) {
 	tool, err := exec.LookPath("go")
 	if err != nil {
-		return nil, fmt.Errorf("looking for system Go: %v", err)
+		return nil, fmt.Errorf("looking for system Go: %w", err)
 	}
 	return &Go{
 		Tool: tool,
@@ -70,11 +70,11 @@ func (g *Go) BuildPath(path, out string) error {
 	}
 	cwd, err := os.Getwd()
 	if err != nil {
-		return fmt.Errorf("failed to get current working directory: %v", err)
+		return fmt.Errorf("failed to get current working directory: %w", err)
 	}
 	defer chdir(cwd)
 	if err := chdir(path); err != nil {
-		return fmt.Errorf("failed to enter build directory: %v", err)
+		return fmt.Errorf("failed to enter build directory: %w", err)
 	}
 	return g.Do("build", "-o", out)
 }

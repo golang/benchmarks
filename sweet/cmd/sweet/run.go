@@ -159,27 +159,27 @@ func (c *runCmd) Run(args []string) error {
 		// Create a temporary work tree for running the benchmarks.
 		c.workDir, err = ioutil.TempDir("", "gosweet")
 		if err != nil {
-			return fmt.Errorf("creating work root: %v", err)
+			return fmt.Errorf("creating work root: %w", err)
 		}
 	}
 	// Ensure all provided directories are absolute paths. This avoids problems with
 	// benchmarks potentially changing their current working directory.
 	c.workDir, err = filepath.Abs(c.workDir)
 	if err != nil {
-		return fmt.Errorf("creating absolute path from provided work root: %v", err)
+		return fmt.Errorf("creating absolute path from provided work root: %w", err)
 	}
 	c.benchDir, err = filepath.Abs(c.benchDir)
 	if err != nil {
-		return fmt.Errorf("creating absolute path from benchmarks path: %v", err)
+		return fmt.Errorf("creating absolute path from benchmarks path: %w", err)
 	}
 	c.resultsDir, err = filepath.Abs(c.resultsDir)
 	if err != nil {
-		return fmt.Errorf("creating absolute path from results path: %v", err)
+		return fmt.Errorf("creating absolute path from results path: %w", err)
 	}
 	if c.assetsDir != "" {
 		c.assetsDir, err = filepath.Abs(c.assetsDir)
 		if err != nil {
-			return fmt.Errorf("creating absolute path from assets path: %v", err)
+			return fmt.Errorf("creating absolute path from assets path: %w", err)
 		}
 		if info, err := os.Stat(c.assetsDir); os.IsNotExist(err) {
 			return fmt.Errorf("assets not found at %q: did you mean to specify assets-dir?", c.assetsDir)
@@ -195,7 +195,7 @@ func (c *runCmd) Run(args []string) error {
 		}
 		c.assetsCache, err = filepath.Abs(c.assetsCache)
 		if err != nil {
-			return fmt.Errorf("creating absolute path from assets cache path: %v", err)
+			return fmt.Errorf("creating absolute path from assets cache path: %w", err)
 		}
 		if info, err := os.Stat(c.assetsCache); os.IsNotExist(err) {
 			return fmt.Errorf("assets not found at %q: forgot to run `sweet get`?", c.assetsDir)

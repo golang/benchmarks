@@ -63,7 +63,7 @@ func NewStorageWriter(bucket, version string, auth AuthOption, force bool) (*sto
 	}
 	o := client.Bucket(bucket).Object(VersionArchiveName(version))
 	if _, err := o.Attrs(ctx); err != nil && err != storage.ErrObjectNotExist {
-		return nil, fmt.Errorf("checking if object exists: %v", err)
+		return nil, fmt.Errorf("checking if object exists: %w", err)
 	} else if err == nil && !force {
 		return nil, fmt.Errorf("assets object already exists for version %s", version)
 	}

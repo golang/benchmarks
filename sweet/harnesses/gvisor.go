@@ -51,7 +51,7 @@ func (h GVisor) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 	// See https://gvisor.dev/docs/user_guide/install/#install-directly
 	log.CommandPrintf("chmod 755 %s", bin)
 	if err := os.Chmod(bin, 0755); err != nil {
-		return fmt.Errorf("failed to set permissions on runsc: %v", err)
+		return fmt.Errorf("failed to set permissions on runsc: %w", err)
 	}
 	return nil
 }
