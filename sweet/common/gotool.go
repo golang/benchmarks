@@ -38,7 +38,12 @@ func (g *Go) Do(args ...string) error {
 		cmd.Stderr = os.Stderr
 	}
 	log.TraceCommand(cmd, false)
-	return cmd.Run()
+	if g.PassOutput {
+		return cmd.Run()
+	}
+	// Use cmd.Output to get an ExitError with Stderr populated.
+	_, err := cmd.Output()
+	return err
 }
 
 func (g *Go) List(args ...string) ([]byte, error) {
