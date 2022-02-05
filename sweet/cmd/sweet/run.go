@@ -313,7 +313,7 @@ func (c *runCmd) Run(args []string) error {
 				return err
 			}
 			errEncountered = true
-			log.Printf("error: %v\n", err)
+			log.Error(err)
 		}
 	}
 	if errEncountered {

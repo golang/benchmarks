@@ -13,6 +13,7 @@ import (
 	"unicode/utf8"
 
 	"golang.org/x/benchmarks/sweet/common"
+	"golang.org/x/benchmarks/sweet/common/log"
 )
 
 const (
@@ -128,7 +129,7 @@ func Run() int {
 	}
 	chosen.flags.Parse(os.Args[2:])
 	if err := chosen.Run(chosen.flags.Args()); err != nil {
-		fmt.Fprintf(out, "error: %v\n", err)
+		log.Error(err)
 		return 1
 	}
 	return 0

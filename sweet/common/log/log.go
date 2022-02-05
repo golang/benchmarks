@@ -118,4 +118,7 @@ func Print(args ...interface{}) {
 
 func Error(err error) {
 	actLog.Printf("error: %v", err)
+	if e, ok := err.(*exec.ExitError); ok {
+		actLog.Printf("output:\n%s", string(e.Stderr))
+	}
 }
