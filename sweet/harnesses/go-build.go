@@ -91,7 +91,8 @@ func (h GoBuild) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 		cmd := exec.Command(cfg.GoTool().Tool, "build")
 		cmd.Dir = filepath.Join(bcfg.BinDir, bench.name, bench.pkg)
 		log.TraceCommand(cmd, false)
-		if err := cmd.Run(); err != nil {
+		// Call Output here to get an *ExitError with a populated Stderr field.
+		if _, err := cmd.Output(); err != nil {
 			return err
 		}
 	}

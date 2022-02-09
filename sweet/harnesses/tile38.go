@@ -43,7 +43,8 @@ func (h Tile38) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 	cmd := exec.Command("make", "-C", bcfg.SrcDir)
 	cmd.Env = env.Collapse()
 	log.TraceCommand(cmd, false)
-	if err := cmd.Run(); err != nil {
+	// Call Output here to get an *ExitError with a populated Stderr field.
+	if _, err := cmd.Output(); err != nil {
 		return err
 	}
 	// Note that no matter what we do, the build script insists on putting the

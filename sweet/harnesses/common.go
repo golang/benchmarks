@@ -16,18 +16,20 @@ import (
 func gitShallowClone(dir, url, ref string) error {
 	cmd := exec.Command("git", "clone", "--depth", "1", "-b", ref, url, dir)
 	log.TraceCommand(cmd, false)
-	return cmd.Run()
+	_, err := cmd.Output()
+	return err
 }
 
 func gitCloneToCommit(dir, url, branch, hash string) error {
 	cloneCmd := exec.Command("git", "clone", "-b", branch, url, dir)
 	log.TraceCommand(cloneCmd, false)
-	if err := cloneCmd.Run(); err != nil {
+	if _, err := cloneCmd.Output(); err != nil {
 		return err
 	}
 	checkoutCmd := exec.Command("git", "-C", dir, "checkout", hash)
 	log.TraceCommand(checkoutCmd, false)
-	return checkoutCmd.Run()
+	_, err := checkoutCmd.Output()
+	return err
 }
 
 func copyFile(dst, src string) error {
