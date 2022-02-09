@@ -44,9 +44,11 @@ func sweet(tcs []*toolchain) (err error) {
 		return fmt.Errorf("error creating temporary directory: %w", err)
 	}
 	defer func() {
-		err = removeAllIncludingReadonly(tmpDir)
-		if err != nil {
-			err = fmt.Errorf("error removing temporary directory: %w", err)
+		r := removeAllIncludingReadonly(tmpDir)
+		if err == nil && r != nil {
+			err = fmt.Errorf("error removing temporary directory: %w", r)
+		} else if err != nil && r != nil {
+			log.Printf("failed to clean up sweet temporary directory: %v", r)
 		}
 	}()
 	log.Printf("Sweet temporary directory: %s", tmpDir)
