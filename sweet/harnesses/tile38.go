@@ -35,8 +35,10 @@ func (h Tile38) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 
 	// Add the Go tool to PATH, since tile38's Makefile doesn't provide enough
 	// visibility into how tile38 is built to allow us to pass this information
-	// directly.
+	// directly. Also set the GOROOT explicitly because it might have propagated
+	// differently from the environment.
 	env = env.Prefix("PATH", filepath.Join(cfg.GoRoot, "bin")+":")
+	env = env.MustSet("GOROOT=" + cfg.GoRoot)
 
 	cmd := exec.Command("make", "-C", bcfg.SrcDir)
 	cmd.Env = env.Collapse()
