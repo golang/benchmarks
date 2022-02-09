@@ -88,11 +88,9 @@ func (h GoBuild) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 		}
 
 		// Build the benchmark once, pulling in any requisite packages.
-		cmd := exec.Command(cfg.GoTool().Tool, "build")
-		cmd.Dir = filepath.Join(bcfg.BinDir, bench.name, bench.pkg)
-		log.TraceCommand(cmd, false)
-		// Call Output here to get an *ExitError with a populated Stderr field.
-		if _, err := cmd.Output(); err != nil {
+		pkgPath := filepath.Join(bcfg.BinDir, bench.name, bench.pkg)
+		dummyBin := filepath.Join(bcfg.BinDir, "dummy")
+		if err := cfg.GoTool().BuildPath(pkgPath, dummyBin); err != nil {
 			return err
 		}
 	}

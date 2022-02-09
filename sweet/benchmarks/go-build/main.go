@@ -16,6 +16,7 @@ import (
 	"github.com/google/pprof/profile"
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/cgroups"
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/driver"
+	"golang.org/x/benchmarks/sweet/common"
 )
 
 var (
@@ -80,6 +81,7 @@ func run(pkgPath string) error {
 		baseCmd = exec.Command(goTool, cmdArgs...)
 	}
 	baseCmd.Dir = pkgPath
+	baseCmd.Env = common.NewEnvFromEnviron().MustSet("GOROOT=" + filepath.Dir(filepath.Dir(goTool))).Collapse()
 	cmd, err := cgroups.WrapCommand(baseCmd, "test.scope")
 	if err != nil {
 		return err
