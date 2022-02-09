@@ -114,9 +114,19 @@ func sweet(tcs []*toolchain) (err error) {
 	)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("error running sweet run: %w", err)
-	}
+
+	// Don't fail immediately. Let's try to dump whatever results we have first.
+	sweetErr := cmd.Run()
+	defer func() {
+		// Any sweet errors take precendence over errors encountered in printing
+		// results.
+		if sweetErr != nil {
+			if err != nil {
+				log.Printf("error dumping results: %v", err)
+			}
+			err = fmt.Errorf("error running sweet run: %w", sweetErr)
+		}
+	}()
 
 	// Dump results to stdout.
 	for _, tc := range tcs {
