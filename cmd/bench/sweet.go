@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"golang.org/x/benchmarks/sweet/common"
 )
@@ -136,6 +137,12 @@ func sweet(tcs []*toolchain) (err error) {
 		}
 		fmt.Printf("toolchain: %s\n", tc.Name)
 		for _, match := range matches {
+			// Print pkg and shortname tags because Sweet won't do it.
+			benchName := filepath.Base(filepath.Dir(match))
+			fmt.Printf("pkg: golang.org/x/benchmarks/sweet/benchmarks/%s\n", benchName)
+			fmt.Printf("shortname: sweet_%s\n", strings.ReplaceAll(benchName, "-", "_"))
+
+			// Dump results file.
 			f, err := os.Open(match)
 			if err != nil {
 				return fmt.Errorf("opening result %s: %v", match, err)
