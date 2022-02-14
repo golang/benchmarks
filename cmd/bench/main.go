@@ -21,7 +21,12 @@ import (
 	"golang.org/x/benchmarks/sweet/common"
 )
 
-var wait = flag.Bool("wait", true, "wait for system idle before starting benchmarking")
+var (
+	wait             = flag.Bool("wait", true, "wait for system idle before starting benchmarking")
+	gorootExperiment = flag.String("goroot", "", "GOROOT to test (default $GOROOT or 'go env GOROOT')")
+	gorootBaseline   = flag.String("goroot-baseline", "", "baseline GOROOT to test against (optional) (default $BENCH_BASELINE_GOROOT)")
+	goBranch         = flag.String("go-branch", "", "git branch of the commits we're testing against (default $BENCH_BRANCH or unknown)")
+)
 
 func determineGOROOT() (string, error) {
 	g, ok := os.LookupEnv("GOROOT")
@@ -90,24 +95,34 @@ func main() {
 	}
 
 	// Find the toolchain under test.
-	gorootExperiment, err := determineGOROOT()
-	if err != nil {
-		log.Fatalf("Unable to determine GOROOT: %v", err)
+	gorootExperiment := *gorootExperiment
+	if gorootExperiment == "" {
+		var err error
+		gorootExperiment, err = determineGOROOT()
+		if err != nil {
+			log.Fatalf("Unable to determine GOROOT: %v", err)
+		}
 	}
 	toolchains := []*toolchain{toolchainFromGOROOT("experiment", gorootExperiment)}
 
 	// Find the baseline toolchain, if applicable.
-	gorootBaseline := os.Getenv("BENCH_BASELINE_GOROOT")
+	gorootBaseline := *gorootBaseline
+	if gorootBaseline == "" {
+		gorootBaseline = os.Getenv("BENCH_BASELINE_GOROOT")
+	}
 	if gorootBaseline != "" {
 		toolchains = append(toolchains, toolchainFromGOROOT("baseline", gorootBaseline))
 	}
 
 	// Try to identify the Go branch. If we can't, just make sure we say so explicitly.
-	branch := os.Getenv("BENCH_BRANCH")
-	if branch == "" {
-		branch = "unknown"
+	goBranch := *goBranch
+	if goBranch == "" {
+		goBranch = os.Getenv("BENCH_BRANCH")
 	}
-	fmt.Printf("branch: %s\n", branch)
+	if goBranch == "" {
+		goBranch = "unknown"
+	}
+	fmt.Printf("branch: %s\n", goBranch)
 
 	// Run benchmarks against the toolchains.
 	if err := run(toolchains); err != nil {
