@@ -102,6 +102,13 @@ func main() {
 		toolchains = append(toolchains, toolchainFromGOROOT("baseline", gorootBaseline))
 	}
 
+	// Try to identify the Go branch. If we can't, just make sure we say so explicitly.
+	branch := os.Getenv("BENCH_BRANCH")
+	if branch == "" {
+		branch = "unknown"
+	}
+	fmt.Printf("branch: %s\n", branch)
+
 	// Run benchmarks against the toolchains.
 	if err := run(toolchains); err != nil {
 		log.Print("FAIL")
