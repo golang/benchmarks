@@ -25,8 +25,8 @@ if [ "x$y" = "x" ] ; then
 	echo "Can get optargorder command with 'go get github.com/dr2chase/optargorder'"
 else
 	optargorder "$1" > $tmp
-	# has format nFunctions,argumentError,tooManyPieces,missingSource,wrongOrder,missingDwarf,1-totalErrors/nFunctions
-	argsquality=`tail -1 $tmp | awk 'BEGIN {FS=","} {print $7}'`
+	# has format nFunctions,argumentError,mixedRegMem,regReuse,tooManyPieces,missingSource,wrongOrder,missingDwarf,duplicated,1-totalErrors/nFunctions
+	argsquality=`tail -1 $tmp | awk 'BEGIN {FS=","} {print $10}'`
 	echo "tmp dwarf args quality wc = " `wc -l $tmp`
 	bench=yes
 fi
@@ -52,13 +52,16 @@ if [ ${bench} = "yes" ] ; then
 	echo "goos: $GOOS"
 	echo "goarch: $GOARCH"
 	echo "pkg:" # Erase any inherited pkg if files are concatenated
-	if [ "x$x" != "x" ] ; then
+    if echo $inputsquality | egrep -q '[.0-9]+' ; then
+    	echo Unit inputs-quality assume=exact
 		echo "Benchmark${2}_dwarf_input_goodness" 1 ${inputsquality} inputs-quality
 	fi
-	if [ "x$y" != "x" ] ; then
+    if echo $argsquality | egrep -q '[.0-9]+' ; then
+    	echo Unit args-quality assume=exact
 		echo "Benchmark${2}_dwarf_args_goodness" 1 ${argsquality} args-quality
 	fi
-	if [ "x$z" != "x" ] ; then
+    if echo $stmtquality | egrep -q '[.0-9]+' ; then
+    	echo Unit stmts-quality assume=exact
 		echo "Benchmark${2}_dwarf_stmt_goodness" 1 ${stmtquality} stmts-quality
 		# echo "Benchmark${2}_dwarf_stmt_goodness_kind" 1 ${stmtkindquality} stmts-quality
 	fi

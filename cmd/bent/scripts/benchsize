@@ -33,6 +33,11 @@ zdebug_abbrev=`grep zdebug_abbrev $tmp | awk -Wposix "$awkcommand"`
 zdebug_pubname=`grep zdebug_pubname $tmp | awk -Wposix "$awkcommand"`
 zdebug_pubtype=`grep zdebug_pubtype $tmp | awk -Wposix "$awkcommand"`
 
+zdebug_info=${zdebug_info:-0}
+zdebug_loc=${zdebug_loc:-0}
+zdebug_line=${zdebug_line:-0}
+zdebug_ranges=${zdebug_ranges:-0}
+zdebug_frame=${zdebug_frame:-0}
 zdebug_abbrev=${zdebug_abbrev:-0}
 zdebug_pubname=${zdebug_pubname:-0}
 zdebug_pubtype=${zdebug_pubtype:-0}
@@ -40,15 +45,38 @@ zdebug_pubtype=${zdebug_pubtype:-0}
 echo "goos: $GOOS"
 echo "goarch: $GOARCH"
 echo "pkg:" # Erase any inherited pkg if files are concatenated
-echo "Benchmark${2}_total" 1 ${total} total-bytes
-echo "Benchmark${2}_text" 1 ${text} text-bytes
-echo "Benchmark${2}_data" 1 ${data} data-bytes
-echo "Benchmark${2}_rodata" 1 ${rodata} rodata-bytes
-echo "Benchmark${2}_pclntab" 1 ${gopclntab} pclntab-bytes
+
+if echo $total | egrep -q '[0-9]+' ; then
+	echo Unit total-bytes assume=exact
+	echo "Benchmark${2}_total" 1 ${total} total-bytes
+fi
+
+if echo $text | egrep -q '[0-9]+' ; then
+	echo Unit text-bytes assume=exact
+	echo "Benchmark${2}_text" 1 ${text} text-bytes
+fi
+
+if echo $data | egrep -q '[0-9]+' ; then
+	echo Unit data-bytes assume=exact
+	echo "Benchmark${2}_data" 1 ${data} data-bytes
+fi
+
+if echo $rodata | egrep -q '[0-9]+' ; then
+	echo Unit rodata-bytes assume=exact
+	echo "Benchmark${2}_rodata" 1 ${rodata} rodata-bytes
+fi
+
+if echo $gopclntab | egrep -q '[0-9]+' ; then
+	echo Unit pclntab-bytes assume=exact
+	echo "Benchmark${2}_pclntab" 1 ${gopclntab} pclntab-bytes
+fi
 
 zdebug=`expr ${zdebug_info} + ${zdebug_loc} + ${zdebug_line} + ${zdebug_ranges} + ${zdebug_frame} + ${zdebug_abbrev} + ${zdebug_pubname} + ${zdebug_pubtype}`
 
-echo "Benchmark${2}_zdebug_total" 1 ${zdebug} zdebug-bytes
+if echo $zdebug | egrep -q '[0-9]+' ; then
+	echo Unit zdebug-bytes assume=exact
+	echo "Benchmark${2}_zdebug_total" 1 ${zdebug} zdebug-bytes
+fi
 
 # echo "Benchmark${2}_zdebug_info" 1 ${zdebug_info} zdebugbytes
 # echo "Benchmark${2}_zdebug_loc" 1 ${zdebug_loc} zdebugbytes
