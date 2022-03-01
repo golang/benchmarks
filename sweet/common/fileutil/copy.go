@@ -73,7 +73,7 @@ func CopyFile(dst, src string, sfinfo fs.FileInfo, srcFS fs.FS) error {
 // CopyDir recursively copies the directory at path src to
 // a new directory at path dst. If a symlink is encountered
 // along the way, its link is copied verbatim and installed
-// in the destination directory heirarchy, as in CopySymlink.
+// in the destination directory hierarchy, as in CopySymlink.
 //
 // If srcFS != nil, then src is assumed to be a path within
 // srcFS.

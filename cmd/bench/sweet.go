@@ -119,7 +119,7 @@ func sweet(tcs []*toolchain) (err error) {
 	// Don't fail immediately. Let's try to dump whatever results we have first.
 	sweetErr := cmd.Run()
 	defer func() {
-		// Any sweet errors take precendence over errors encountered in printing
+		// Any sweet errors take precedence over errors encountered in printing
 		// results.
 		if sweetErr != nil {
 			if err != nil {
