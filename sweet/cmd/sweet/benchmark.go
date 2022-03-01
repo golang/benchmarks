@@ -199,7 +199,7 @@ func (b *benchmark) execute(cfgs []*common.Config, r *runCfg) error {
 	// Perform a setup step for each config for the benchmark.
 	setups := make([]common.RunConfig, 0, len(cfgs))
 	for _, cfg := range cfgs {
-		// Create directory heirarchy for benchmarks.
+		// Create directory hierarchy for benchmarks.
 		workDir := filepath.Join(topDir, cfg.Name)
 		binDir := filepath.Join(workDir, "bin")
 		tmpDir := filepath.Join(workDir, "tmp")
