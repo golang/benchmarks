@@ -43,6 +43,11 @@ func (g *Go) Do(args ...string) error {
 	}
 	// Use cmd.Output to get an ExitError with Stderr populated.
 	_, err := cmd.Output()
+	if ee, ok := err.(*exec.ExitError); ok {
+		// ExitError includes stderr, but doesn't inclue it in Error.
+		// Create a new error that does display stderr.
+		return fmt.Errorf("%w. stderr:\n%s", err, ee.Stderr)
+	}
 	return err
 }
 
