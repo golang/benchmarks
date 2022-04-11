@@ -1092,13 +1092,13 @@ func asCommandLine(cwd string, cmd *exec.Cmd) string {
 }
 
 // checkAndSetUpFileSystem does a number of tasks to ensure that the tests will
-// run properly. It:
+// run properly.
 //
-//   - Makes sure we're not going to accidentally overwrite previous results
-//   - if shouldInit is true, we:
-//     - Create a Dockerfile.
-//     - Create all the configuration files.
-//     - Exit
+// First, it makes sure we're not going to accidentally overwrite previous results.
+// Then, it shouldInit is true, it:
+//   - Creates a Dockerfile.
+//   - Creates all the configuration files.
+//   - Exits.
 func checkAndSetUpFileSystem(shouldInit bool) error {
 	// To avoid bad surprises, look for pkg and bin, if they exist, refuse to run
 	_, derr := os.Stat("Dockerfile")

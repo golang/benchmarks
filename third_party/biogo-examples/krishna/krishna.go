@@ -57,7 +57,6 @@ func New(seqPath, tmpDir string, params Params) (*Krishna, error) {
 	return &Krishna{params, target, pa}, nil
 }
 
-//
 // Returns a cleanup function, and an error. The cleanup function should be
 // called before program exit, if not nil.
 func (k *Krishna) Run(writer *pals.Writer) error {

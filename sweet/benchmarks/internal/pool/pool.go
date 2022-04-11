@@ -3,16 +3,16 @@
 // license that can be found in the LICENSE file.
 
 /*
-	This package provides a facility to run a heterogeneous pool of workers.
+This package provides a facility to run a heterogeneous pool of workers.
 
-	Each worker is defined by an interface, and the pool execute's each worker's
-	Run method repeatedly concurrently. The worker may exit early by returning
-	the Done error. Each worker's Run method accepts a context.Context which is
-	passed to it through the pool. If this context is cancelled, it may cancel
-	workers and will always cancel the pool.
+Each worker is defined by an interface, and the pool execute's each worker's
+Run method repeatedly concurrently. The worker may exit early by returning
+the Done error. Each worker's Run method accepts a context.Context which is
+passed to it through the pool. If this context is cancelled, it may cancel
+workers and will always cancel the pool.
 
-	Each worker is guaranteed to start immediately when the pool's Run method is
-	called and not any sooner.
+Each worker is guaranteed to start immediately when the pool's Run method is
+called and not any sooner.
 */
 package pool
 

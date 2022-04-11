@@ -8,8 +8,8 @@
 // benchmark function can do one of two things when invoked:
 //  1. Do whatever it wants, fill and return Result object.
 //  2. Call Benchmark helper function and provide benchmarking function
-//  func(N uint64), similar to standard testing benchmarks. The rest is handled
-//  by the driver.
+//     func(N uint64), similar to standard testing benchmarks. The rest is handled
+//     by the driver.
 package driver // import "golang.org/x/benchmarks/driver"
 
 import (
