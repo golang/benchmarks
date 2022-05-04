@@ -5,7 +5,9 @@ By default the test/benchmark is run in a Docker container to provide some safet
 a mess on the benchmark-running machine.
 
 Installation:
-```go get github.com/dr2chase/bent```
+```
+go install golang.org/x/benchmarks/cmd/bent@latest
+```
 
 Depends on burntsushi/toml, and expects that Docker is installed and available on the command line.
 You can avoid the need for Docker with the `-U` command line flag, if you're okay with running benchmarks outside containers.
@@ -23,7 +25,7 @@ cd scratch
 bent -I
 cp configurations-sample.toml configurations.toml
 nano configurations.toml # or use your favorite editor
-bent -v # will run default set of ~50 benchmarks using supplied configuration(s)
+bent -v -N 10 # will run default set of ~50 benchmarks 10 times using supplied configuration(s)
 ```
 
 Bent now comes with several shell scripts to automate common uses.
