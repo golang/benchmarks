@@ -264,6 +264,11 @@
   Version = "@v1.8.1"
 
 [[Suites]]
+  Name = "benhoyt_goawk_1_18"
+  Repo = "github.com/benhoyt/goawk/interp"
+  Version = "@v1.18.0"
+
+[[Suites]]
   Name = "ericlagergren_decimal"
   Repo = "github.com/ericlagergren/decimal/benchmarks"
   Version = "@v0.0.0-20210307182354-5f8425a47c58"

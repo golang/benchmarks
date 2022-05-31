@@ -163,6 +163,10 @@
   Benchmarks = "BenchmarkR"
 
 [[Benchmarks]]
+  Name = "benhoyt_goawk_1_18"
+  Benchmarks = "BenchmarkR"
+
+[[Benchmarks]]
   Name = "ericlagergren_decimal"
   Benchmarks = "BenchmarkPi/foo=.*/prec=100"
 
