@@ -239,14 +239,30 @@ func launchServer(cfg *config, out io.Writer) (*exec.Cmd, error) {
 		return nil, fmt.Errorf("failed to start server: %v", err)
 	}
 
+	testConnection := func() error {
+		c, err := redis.Dial("tcp", fmt.Sprintf("%s:%d", cfg.host, cfg.port))
+		if err != nil {
+			return err
+		}
+		defer c.Close()
+
+		// Starting in 1.26.1, Tile38 accepts connections before
+		// loading data, allowing commands OUTPUT, PING, and ECHO, but
+		// returning errors for all other commands until data finishes
+		// loading.
+		//
+		// We test a command that requires loaded data to ensure the
+		// server is truly ready.
+		_, err = c.Do("SERVER")
+		return err
+	}
+
 	// Poll until the server is ready to serve, up to 120 seconds.
 	var err error
 	start := time.Now()
 	for time.Now().Sub(start) < 120*time.Second {
-		var c redis.Conn
-		c, err = redis.Dial("tcp", fmt.Sprintf("%s:%d", cfg.host, cfg.port))
+		err = testConnection()
 		if err == nil {
-			c.Close()
 			return srvCmd, nil
 		}
 		time.Sleep(2 * time.Second)
