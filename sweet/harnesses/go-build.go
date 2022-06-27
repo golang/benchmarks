@@ -5,6 +5,7 @@
 package harnesses
 
 import (
+	"fmt"
 	"os/exec"
 	"path/filepath"
 
@@ -91,10 +92,14 @@ func (h GoBuild) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 		pkgPath := filepath.Join(bcfg.BinDir, bench.name, bench.pkg)
 		dummyBin := filepath.Join(bcfg.BinDir, "dummy")
 		if err := cfg.GoTool().BuildPath(pkgPath, dummyBin); err != nil {
-			return err
+			return fmt.Errorf("error building %s %s: %w", bench.name, bench.pkg, err)
 		}
 	}
-	return cfg.GoTool().BuildPath(bcfg.BenchDir, filepath.Join(bcfg.BinDir, "go-build-bench"))
+
+	if err := cfg.GoTool().BuildPath(bcfg.BenchDir, filepath.Join(bcfg.BinDir, "go-build-bench")); err != nil {
+		return fmt.Errorf("error building go-build tool: %w", err)
+	}
+	return nil
 }
 
 func (h GoBuild) Run(cfg *common.Config, rcfg *common.RunConfig) error {
