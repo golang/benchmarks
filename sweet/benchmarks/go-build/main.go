@@ -82,6 +82,8 @@ func run(pkgPath string) error {
 	}
 	baseCmd.Dir = pkgPath
 	baseCmd.Env = common.NewEnvFromEnviron().MustSet("GOROOT=" + filepath.Dir(filepath.Dir(goTool))).Collapse()
+	baseCmd.Stdout = os.Stdout
+	baseCmd.Stderr = os.Stderr
 	cmd, err := cgroups.WrapCommand(baseCmd, "test.scope")
 	if err != nil {
 		return err
