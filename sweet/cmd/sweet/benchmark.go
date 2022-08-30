@@ -98,13 +98,14 @@ var allBenchmarksMap = func() map[string]*benchmark {
 	return m
 }()
 
-var benchmarkGroups = map[string][]*benchmark{
-	"default": {
+var benchmarkGroups = func() map[string][]*benchmark {
+	m := make(map[string][]*benchmark)
+
+	m["default"] = []*benchmark{
 		allBenchmarksMap["biogo-igor"],
 		allBenchmarksMap["biogo-krishna"],
 		allBenchmarksMap["bleve-index"],
 		allBenchmarksMap["bleve-query"],
-		allBenchmarksMap["fogleman-fauxgl"],
 		allBenchmarksMap["fogleman-pt"],
 		allBenchmarksMap["go-build"],
 		allBenchmarksMap["gopher-lua"],
@@ -112,19 +113,30 @@ var benchmarkGroups = map[string][]*benchmark{
 		// allBenchmarksMap["gvisor"],
 		allBenchmarksMap["markdown"],
 		allBenchmarksMap["tile38"],
-	},
-	"all": func() (b []*benchmark) {
-		for i := range allBenchmarks {
-			if allBenchmarks[i].name == "gvisor" {
-				// TODO(go.dev/issue/51445): Include in "all"
-				// once gVisor builds with Go 1.19.
+	}
+	if runtime.GOARCH != "arm64" {
+		// TODO(go.dev/issue/54760): fogleman-fauxgl hangs on arm64.
+		m["default"] = append(m["default"], allBenchmarksMap["fogleman-fauxgl"])
+	}
+
+	for i := range allBenchmarks {
+		switch allBenchmarks[i].name {
+		case "fogleman-fauxgl":
+			if runtime.GOARCH == "arm64" {
+				// TODO(go.dev/issue/54760): fogleman-fauxgl
+				// hangs on arm64.
 				continue
 			}
-			b = append(b, &allBenchmarks[i])
+		case "gvisor":
+			// TODO(go.dev/issue/51445): Include in "all"
+			// once gVisor builds with Go 1.19.
+			continue
 		}
-		return
-	}(),
-}
+		m["all"] = append(m["all"], &allBenchmarks[i])
+	}
+
+	return m
+}()
 
 func benchmarkNames(b []*benchmark) (s []string) {
 	for _, bench := range b {
