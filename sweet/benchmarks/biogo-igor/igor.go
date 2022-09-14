@@ -10,8 +10,8 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 	"runtime"
 
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/driver"
@@ -41,7 +41,7 @@ func main() {
 		log.Fatal("error: input GFF file required")
 	}
 
-	data, err := ioutil.ReadFile(flag.Arg(0))
+	data, err := os.ReadFile(flag.Arg(0))
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}

@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
@@ -157,7 +156,7 @@ func (c *runCmd) Run(args []string) error {
 	var err error
 	if c.workDir == "" {
 		// Create a temporary work tree for running the benchmarks.
-		c.workDir, err = ioutil.TempDir("", "gosweet")
+		c.workDir, err = os.MkdirTemp("", "gosweet")
 		if err != nil {
 			return fmt.Errorf("creating work root: %w", err)
 		}
@@ -238,7 +237,7 @@ func (c *runCmd) Run(args []string) error {
 		configDir := filepath.Dir(configFile)
 
 		// Read and parse the configuration file.
-		b, err := ioutil.ReadFile(configFile)
+		b, err := os.ReadFile(configFile)
 		if err != nil {
 			return fmt.Errorf("failed to read %q: %v", configFile, err)
 		}

@@ -15,7 +15,6 @@ import (
 	"flag"
 	"fmt"
 	"io/fs"
-	"io/ioutil"
 	"math/rand"
 	"os"
 	"os/exec"
@@ -226,17 +225,17 @@ results will also appear in 'bench'.
 	}
 
 	todo := &Todo{}
-	blobB, err := ioutil.ReadFile(benchFile)
+	blobB, err := os.ReadFile(benchFile)
 	if err != nil {
 		fmt.Printf("There was an error opening or reading file %s: %v\n", benchFile, err)
 		os.Exit(1)
 	}
-	blobC, err := ioutil.ReadFile(confFile)
+	blobC, err := os.ReadFile(confFile)
 	if err != nil {
 		fmt.Printf("There was an error opening or reading file %s: %v\n", confFile, err)
 		os.Exit(1)
 	}
-	blobS, err := ioutil.ReadFile(suiteFile)
+	blobS, err := os.ReadFile(suiteFile)
 	if err != nil {
 		fmt.Printf("There was an error opening or reading file %s: %v\n", suiteFile, err)
 		os.Exit(1)
@@ -1130,7 +1129,7 @@ func checkAndSetUpFileSystem(shouldInit bool) error {
 			copyAsset(configs, "configs", s)
 		}
 
-		err := ioutil.WriteFile("Dockerfile",
+		err := os.WriteFile("Dockerfile",
 			[]byte(`
 FROM ubuntu
 ADD . /
@@ -1172,7 +1171,7 @@ func copyAsset(fs embed.FS, dir, file string) {
 		fmt.Printf("Error reading asset %s\n", file)
 		os.Exit(1)
 	}
-	err = ioutil.WriteFile(file, bytes, 0664)
+	err = os.WriteFile(file, bytes, 0664)
 	if err != nil {
 		fmt.Printf("Error writing %s\n", file)
 		os.Exit(1)
