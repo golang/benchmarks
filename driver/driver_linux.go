@@ -11,7 +11,6 @@ import (
 	"bufio"
 	"bytes"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -105,7 +104,7 @@ func Size(file string) string {
 }
 
 func getVMPeak() uint64 {
-	data, err := ioutil.ReadFile("/proc/self/status")
+	data, err := os.ReadFile("/proc/self/status")
 	if err != nil {
 		log.Printf("Failed to read /proc/self/status: %v", err)
 		return 0

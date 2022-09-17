@@ -9,7 +9,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -68,7 +67,7 @@ func (_ Tile38) Generate(cfg *common.GenConfig) error {
 
 	// Create a temporary directory where we can put the Tile38
 	// source and build it.
-	tmpDir, err := ioutil.TempDir("", "tile38-gen")
+	tmpDir, err := os.MkdirTemp("", "tile38-gen")
 	if err != nil {
 		return err
 	}
@@ -292,7 +291,7 @@ func storeGeoObj(c redis.Conn, g *geoObj) error {
 // storeGeoJSON writes an entire GeoJSON object (which may contain many polygons)
 // to a Tile38 database.
 func storeGeoJSON(c redis.Conn, jsonFile string) error {
-	b, err := ioutil.ReadFile(jsonFile)
+	b, err := os.ReadFile(jsonFile)
 	if err != nil {
 		return err
 	}

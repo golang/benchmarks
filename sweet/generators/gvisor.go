@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -67,7 +66,7 @@ func (_ GVisor) Generate(cfg *common.GenConfig) error {
 	// copy of runsc. Get and build it from the harness.
 	//
 	// Create a temporary directory where we can put the gVisor source.
-	tmpDir, err := ioutil.TempDir("", "gvisor-gen")
+	tmpDir, err := os.MkdirTemp("", "gvisor-gen")
 	if err != nil {
 		return err
 	}

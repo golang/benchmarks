@@ -7,8 +7,8 @@ package driver
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -72,7 +72,7 @@ func RunAndCollectSysStats(cmd *exec.Cmd, res *Result, N uint64, prefix string) 
 }
 
 func procCPUTime() (uint64, error) {
-	b, err := ioutil.ReadFile("/dev/cputime")
+	b, err := os.ReadFile("/dev/cputime")
 	if err != nil {
 		return 0, err
 	}

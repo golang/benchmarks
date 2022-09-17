@@ -6,7 +6,6 @@ package driver
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"strconv"
@@ -20,7 +19,7 @@ var (
 )
 
 func readStat(pid int, r *regexp.Regexp) (uint64, error) {
-	b, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/status", pid))
+	b, err := os.ReadFile(fmt.Sprintf("/proc/%d/status", pid))
 	if err != nil {
 		return 0, err
 	}

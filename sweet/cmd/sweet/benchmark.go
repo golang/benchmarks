@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -157,7 +156,7 @@ func copyDirContents(dst, src string) error {
 
 func rmDirContents(dir string) error {
 	log.CommandPrintf("rm -rf %s/*", dir)
-	fs, err := ioutil.ReadDir(dir)
+	fs, err := os.ReadDir(dir)
 	if err != nil {
 		return err
 	}

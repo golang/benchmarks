@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -18,7 +17,7 @@ import (
 )
 
 func run(mddir string) error {
-	files, err := ioutil.ReadDir(mddir)
+	files, err := os.ReadDir(mddir)
 	if err != nil {
 		return err
 	}
@@ -26,7 +25,7 @@ func run(mddir string) error {
 	contents := make([][]byte, 0, len(files))
 	for _, file := range files {
 		if !file.IsDir() && filepath.Ext(file.Name()) == ".md" {
-			content, err := ioutil.ReadFile(filepath.Join(mddir, file.Name()))
+			content, err := os.ReadFile(filepath.Join(mddir, file.Name()))
 			if err != nil {
 				return err
 			}

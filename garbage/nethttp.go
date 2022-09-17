@@ -22,7 +22,7 @@ var src = `
 // 		// handle error
 // 	}
 // 	defer resp.Body.Close()
-// 	body, err := ioutil.ReadAll(resp.Body)
+// 	body, err := io.ReadAll(resp.Body)
 // 	// ...
 //
 // For control over HTTP client headers, redirect policy, and other
@@ -90,7 +90,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"mime"
 	"mime/multipart"
@@ -469,7 +468,7 @@ func (c *Client) doFollowingRedirects(ireq *Request, shouldRedirect func(int) bo
 			// No need to check for errors: if it fails, Transport won't reuse it anyway.
 			const maxBodySlurpSize = 2 << 10
 			if resp.ContentLength == -1 || resp.ContentLength <= maxBodySlurpSize {
-				io.CopyN(ioutil.Discard, resp.Body, maxBodySlurpSize)
+				io.CopyN(io.Discard, resp.Body, maxBodySlurpSize)
 			}
 			resp.Body.Close()
 			if urlStr = resp.Header.Get("Location"); urlStr == "" {
@@ -2495,7 +2494,7 @@ func NewRequest(method, urlStr string, body io.Reader) (*Request, error) {
 	}
 	rc, ok := body.(io.ReadCloser)
 	if !ok && body != nil {
-		rc = ioutil.NopCloser(body)
+		rc = io.NopCloser(body)
 	}
 	req := &Request{
 		Method:     method,
@@ -2744,7 +2743,7 @@ func parsePostForm(r *Request) (vs url.Values, err error) {
 			maxFormSize = int64(10 << 20)
 			reader = io.LimitReader(r.Body, maxFormSize+1)
 		}
-		b, e := ioutil.ReadAll(reader)
+		b, e := io.ReadAll(reader)
 		if e != nil {
 			if err == nil {
 				err = e
@@ -4011,7 +4010,7 @@ func (cw *chunkWriter) writeHeader(p []byte) {
 		}
 
 		if discard {
-			_, err := io.CopyN(ioutil.Discard, w.req.Body, maxPostHandlerReadBytes+1)
+			_, err := io.CopyN(io.Discard, w.req.Body, maxPostHandlerReadBytes+1)
 			switch err {
 			case nil:
 
@@ -5190,7 +5189,7 @@ func (globalOptionsHandler) ServeHTTP(w ResponseWriter, r *Request) {
 	if r.ContentLength != 0 {
 
 		mb := MaxBytesReader(w, r.Body, 4<<10)
-		io.Copy(ioutil.Discard, mb)
+		io.Copy(io.Discard, mb)
 	}
 }
 
@@ -5207,7 +5206,7 @@ var eofReader = &struct {
 	io.Closer
 }{
 	eofReaderWithWriteTo{},
-	ioutil.NopCloser(nil),
+	io.NopCloser(nil),
 }
 
 // Verify that an io.Copy from an eofReader won't require a buffer.
@@ -5813,7 +5812,7 @@ func (t *transferWriter) WriteBody(w io.Writer) error {
 				return err
 			}
 			var nextra int64
-			nextra, err = io.Copy(ioutil.Discard, t.Body)
+			nextra, err = io.Copy(io.Discard, t.Body)
 			ncopy += nextra
 		}
 		if err != nil {
@@ -6301,7 +6300,7 @@ func (b *body) Close() error {
 		} else {
 			var n int64
 
-			n, err = io.CopyN(ioutil.Discard, bodyLocked{b}, maxPostHandlerReadBytes)
+			n, err = io.CopyN(io.Discard, bodyLocked{b}, maxPostHandlerReadBytes)
 			if err == io.EOF {
 				err = nil
 			}
@@ -6311,7 +6310,7 @@ func (b *body) Close() error {
 		}
 	default:
 
-		_, err = io.Copy(ioutil.Discard, bodyLocked{b})
+		_, err = io.Copy(io.Discard, bodyLocked{b})
 	}
 	b.closed = true
 	return err
