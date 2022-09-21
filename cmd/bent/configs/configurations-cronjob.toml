@@ -1,18 +1,18 @@
 [[Configurations]]
-  Name = "Base"
+  Name = "baseline"
   Root = "$ROOT/${BASE}"
   AfterBuild = [ "benchsize", "benchdwarf" ]
   GcEnv = ["GOARCH=${BENTARCH}"]
 
 [[Configurations]]
-  Name = "Tip"
+  Name = "experiment"
   Root = "$ROOT/go-tip/"
   AfterBuild = [ "benchsize", "benchdwarf" ]
   GcEnv = ["GOARCH=${BENTARCH}"]
   RunEnv = ["GOARCH=${BENTARCH}"]
 
 [[Configurations]]
-  Name = "Base-prof"
+  Name = "baseline-prof"
   Root = "$ROOT/${BASE}"
   RunWrapper = ["cpuprofile"]
   GcEnv = ["GOARCH=${BENTARCH}"]
@@ -20,7 +20,7 @@
   Disabled = true
 
 [[Configurations]]
-  Name = "Tip-prof"
+  Name = "experiment-prof"
   Root = "$ROOT/go-tip/"
   RunWrapper = ["cpuprofile"]
   GcEnv = ["GOARCH=${BENTARCH}"]
@@ -28,7 +28,7 @@
   Disabled = true
 
 [[Configurations]]
-  Name = "Tip-prof-nopreempt"
+  Name = "experiment-prof-nopreempt"
   Root = "$ROOT/go-tip/"
   RunWrapper = ["cpuprofile"]
   RunEnv = ["GODEBUG=asyncpreemptoff=1", "GOARCH=${BENTARCH}"]
@@ -36,7 +36,7 @@
   Disabled = true
 
 [[Configurations]]
-  Name = "BaseNl"
+  Name = "baseline-Nl"
   GcFlags = "-N -l"
   Root = "$ROOT/${BASE}"
   AfterBuild = [ "benchsize", "benchdwarf" ]
@@ -45,7 +45,7 @@
   Disabled = true
 
 [[Configurations]]
-  Name = "TipNl"
+  Name = "experiment-Nl"
   GcFlags = "-N -l"
   Root = "$ROOT/go-tip/"
   AfterBuild = [ "benchsize", "benchdwarf" ]
@@ -54,7 +54,7 @@
   Disabled = true
 
 [[Configurations]]
-  Name = "Basel"
+  Name = "baseline-l"
   GcFlags = "-l"
   Root = "$ROOT/${BASE}"
   AfterBuild = [ "benchsize", "benchdwarf" ]
@@ -63,7 +63,7 @@
   Disabled = true
 
 [[Configurations]]
-  Name = "Tipl"
+  Name = "experiment-l"
   GcFlags = "-l"
   Root = "$ROOT/go-tip/"
   AfterBuild = [ "benchsize", "benchdwarf" ]

@@ -76,7 +76,7 @@ base=`git log -n 1 --format='%h'`
 cd "${ROOT}"
 # For arm64 big.little, might need to prefix with something like:
 # GOMAXPROCS=4 numactl -C 2-5 -- ...
-GOARCH="${BENTARCH}" ${NUMACTL} ${PERFLOCK} bent -v -N=${N} -a=${B} -L=bentjobs.log -C=configurations-cronjob.toml -c Base,Tip "$@"
+GOARCH="${BENTARCH}" ${NUMACTL} ${PERFLOCK} bent -v -N=${N} -a=${B} -L=bentjobs.log -C=configurations-cronjob.toml -c baseline,experiment "$@"
 RUN=`tail -1 bentjobs.log | awk -c '{print $1}'`
 runstamp="$RUN"
 bentstamp="$RUN"
@@ -99,31 +99,38 @@ export STAMP
 append () {
     c=`eval echo $\`echo $1\``
 	echo "$1: $c" >> ${STAMP}
+	if [ x$2 != x ] ; then
+		echo "$2: $c" >> ${STAMP}
+	fi
+}
+
+append_tags () {
+	append bentstamp
+	append numerator_branch
+	append numerator_hash experiment-commit
+	append numerator_stamp
+	append denominator_branch
+	append denominator_hash baseline-commit
+	append builder_id
+	append builder_type
+	append runstamp
 }
 
 echo "suite: ${SUITE}" >> ${STAMP}
-append bentstamp
-# new stuff for better benchmarking
-append numerator_branch
-append numerator_hash
-append numerator_stamp
-append denominator_branch
-append denominator_hash
-append builder_id
-append builder_type
-append runstamp
+
+append_tags
 
 SFX="${RUN}"
 
 cp ${STAMP} ${BASE}-opt.${SFX}
 cp ${STAMP} ${tip}-opt.${SFX}
 
-cat ${RUN}.Base.build >> ${BASE}-opt.${SFX}
-cat ${RUN}.Tip.build >> ${tip}-opt.${SFX}
-egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.Base.stdout >> ${BASE}-opt.${SFX}
-egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.Tip.stdout >> ${tip}-opt.${SFX}
-cat ${RUN}.Base.{benchsize,benchdwarf} >> ${BASE}-opt.${SFX}
-cat ${RUN}.Tip.{benchsize,benchdwarf} >> ${tip}-opt.${SFX}
+cat ${RUN}.baseline.build >> ${BASE}-opt.${SFX}
+cat ${RUN}.experiment.build >> ${tip}-opt.${SFX}
+egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.baseline.stdout >> ${BASE}-opt.${SFX}
+egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.experiment.stdout >> ${tip}-opt.${SFX}
+cat ${RUN}.baseline.{benchsize,benchdwarf} >> ${BASE}-opt.${SFX}
+cat ${RUN}.experiment.{benchsize,benchdwarf} >> ${tip}-opt.${SFX}
 benchsave ${BASE}-opt.${SFX} ${tip}-opt.${SFX}
 rm "${STAMP}"
 
@@ -138,7 +145,7 @@ fi
 # Debugging build
 
 cd "${ROOT}"
-GOARCH="${BENTARCH}" ${NUMACTL} ${PERFLOCK} bent -v -N=${NNl} -a=${BNl} -L=bentjobsNl.log -C=configurations-cronjob.toml -c BaseNl,TipNl
+GOARCH="${BENTARCH}" ${NUMACTL} ${PERFLOCK} bent -v -N=${NNl} -a=${BNl} -L=bentjobsNl.log -C=configurations-cronjob.toml -c baseline-Nl,experiment-Nl "$@"
 RUN=`tail -1 bentjobsNl.log | awk -c '{print $1}'`
 runstamp="$RUN"
 bentstamp="$RUN"
@@ -148,36 +155,26 @@ STAMP="stamp-$$"
 export STAMP
 
 echo "suite: ${SUITE}-Nl" >> ${STAMP}
-
-append bentstamp
-# new stuff for better benchmarking
-append numerator_branch
-append numerator_hash
-append numerator_stamp
-append denominator_branch
-append denominator_hash
-append builder_id
-append builder_type
-append runstamp
+append_tags
 
 SFX="${RUN}"
 
 cp ${STAMP} ${BASE}-Nl.${SFX}
 cp ${STAMP} ${tip}-Nl.${SFX}
 
-cat ${RUN}.BaseNl.build >> ${BASE}-Nl.${SFX}
-cat ${RUN}.TipNl.build >> ${tip}-Nl.${SFX}
-egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.BaseNl.stdout >> ${BASE}-Nl.${SFX}
-egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.TipNl.stdout >> ${tip}-Nl.${SFX}
-cat ${RUN}.BaseNl.{benchsize,benchdwarf} >> ${BASE}-Nl.${SFX}
-cat ${RUN}.TipNl.{benchsize,benchdwarf} >> ${tip}-Nl.${SFX}
+cat ${RUN}.baseline-Nl.build >> ${BASE}-Nl.${SFX}
+cat ${RUN}.experiment-Nl.build >> ${tip}-Nl.${SFX}
+egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.baseline-Nl.stdout >> ${BASE}-Nl.${SFX}
+egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.experiment-Nl.stdout >> ${tip}-Nl.${SFX}
+cat ${RUN}.baseline-Nl.{benchsize,benchdwarf} >> ${BASE}-Nl.${SFX}
+cat ${RUN}.experiment-Nl.{benchsize,benchdwarf} >> ${tip}-Nl.${SFX}
 benchsave ${BASE}-Nl.${SFX} ${tip}-Nl.${SFX}
 rm "${STAMP}"
 
 # No-inline build
 
 cd "${ROOT}"
-${NUMACTL} ${PERFLOCK} bent -v -N=${Nl} -a=${Bl} -L=bentjobsl.log -C=configurations-cronjob.toml -c Basel,Tipl
+${NUMACTL} ${PERFLOCK} bent -v -N=${Nl} -a=${Bl} -L=bentjobsl.log -C=configurations-cronjob.toml -c baseline-l,experiment-l "$@"
 RUN=`tail -1 bentjobsl.log | awk -c '{print $1}'`
 runstamp="$RUN"
 bentstamp="$RUN"
@@ -186,27 +183,18 @@ cd bench
 STAMP="stamp-$$"
 export STAMP
 echo "suite: ${SUITE}-l" >> ${STAMP}
-append bentstamp
-# new stuff for better benchmarking
-append numerator_branch
-append numerator_hash
-append numerator_stamp
-append denominator_branch
-append denominator_hash
-append builder_id
-append builder_type
-append runstamp
+append_tags
 
 SFX="${RUN}"
 
 cp ${STAMP} ${BASE}-l.${SFX}
 cp ${STAMP} ${tip}-l.${SFX}
 
-cat ${RUN}.Basel.build >> ${BASE}-l.${SFX}
-cat ${RUN}.Tipl.build >> ${tip}-l.${SFX}
-egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.Basel.stdout >> ${BASE}-l.${SFX}
-egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.Tipl.stdout >> ${tip}-l.${SFX}
-cat ${RUN}.Basel.{benchsize,benchdwarf} >> ${BASE}-l.${SFX}
-cat ${RUN}.Tipl.{benchsize,benchdwarf} >> ${tip}-l.${SFX}
+cat ${RUN}.baseline-l.build >> ${BASE}-l.${SFX}
+cat ${RUN}.experiment-l.build >> ${tip}-l.${SFX}
+egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.baseline-l.stdout >> ${BASE}-l.${SFX}
+egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.experiment-l.stdout >> ${tip}-l.${SFX}
+cat ${RUN}.baseline-l.{benchsize,benchdwarf} >> ${BASE}-l.${SFX}
+cat ${RUN}.experiment-l.{benchsize,benchdwarf} >> ${tip}-l.${SFX}
 benchsave ${BASE}-l.${SFX} ${tip}-l.${SFX}
 rm "${STAMP}"
