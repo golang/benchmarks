@@ -153,15 +153,15 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 
 	if explicitAll != 1 { // clear cache unless "-a[=1]" which requests -a on compilation.
 		cmd := exec.Command(gocmd, "clean", "-cache")
-		cmd.Env = defaultEnv
+		cmd.Env = DefaultEnv()
 		if !bench.NotSandboxed {
 			cmd.Env = replaceEnv(cmd.Env, "GOOS", "linux")
 		}
 		if root != "" {
 			cmd.Env = replaceEnv(cmd.Env, "GOROOT", root)
 		}
-		cmd.Env = replaceEnvs(cmd.Env, bench.GcEnv)
-		cmd.Env = replaceEnvs(cmd.Env, config.GcEnv)
+		cmd.Env = replaceEnvs(cmd.Env, sliceExpandEnv(bench.GcEnv, cmd.Env))
+		cmd.Env = replaceEnvs(cmd.Env, sliceExpandEnv(config.GcEnv, cmd.Env))
 		cmd.Dir = gopath // Only want the cache-cleaning effect, not the binary-deleting effect. It's okay to clean gopath.
 		s, _ := config.runBinary("", cmd, true)
 		if s != "" {
@@ -172,7 +172,8 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 	cmd := exec.Command(gocmd, "test", "-vet=off", "-c")
 	compileTo := path.Join(dirs.wd, dirs.testBinDir, config.benchName(bench))
 
-	cmd.Env = defaultEnv
+	cmd.Env = DefaultEnv()
+
 	if !bench.NotSandboxed {
 		cmd.Env = replaceEnv(cmd.Env, "GOOS", "linux")
 	}
@@ -241,15 +242,16 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 	// Report and record build stats to testbin
 
 	buf := new(bytes.Buffer)
-
 	var s string
 	if configGoArch != runtime.GOARCH && configGoArch != "" {
-		s := fmt.Sprintf("goarch: %s-%s\n", runtime.GOARCH, configGoArch)
-		if verbose > 0 {
-			fmt.Print(s)
-		}
-		buf.WriteString(s)
+		s = fmt.Sprintf("goarch: %s-%s\n", runtime.GOARCH, configGoArch)
+	} else {
+		s = fmt.Sprintf("goarch: %s\n", runtime.GOARCH)
 	}
+	if verbose > 0 {
+		fmt.Print(s)
+	}
+	buf.WriteString(s)
 	s = fmt.Sprintf("Benchmark%s 1 %d build-real-ns/op %d build-user-ns/op %d build-sys-ns/op\n",
 		strings.Title(bench.Name), bs.RealTime.Nanoseconds(), bs.UserTime.Nanoseconds(), bs.SysTime.Nanoseconds())
 	if verbose > 0 {
