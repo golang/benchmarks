@@ -99,7 +99,7 @@ func (config *Configuration) createFilesForLater() {
 	}
 }
 
-func (config *Configuration) runOtherBenchmarks(b *Benchmark, cwd string) {
+func (config *Configuration) runOtherBenchmarks(b *Benchmark, cwd string, cmdEnv []string) {
 	// Run various other "benchmark" commands on the built binaries, e.g., size, quality of debugging information.
 	if config.Disabled {
 		return
@@ -122,13 +122,10 @@ func (config *Configuration) runOtherBenchmarks(b *Benchmark, cwd string) {
 		testBinaryName := config.benchName(b)
 		c := exec.Command(cmd, path.Join(cwd, dirs.testBinDir, testBinaryName), b.Name)
 
-		c.Env = defaultEnv
+		c.Env = cmdEnv
 		if !b.NotSandboxed {
 			c.Env = replaceEnv(c.Env, "GOOS", "linux")
 		}
-		// Match the build environment here.
-		c.Env = replaceEnvs(c.Env, b.GcEnv)
-		c.Env = replaceEnvs(c.Env, config.GcEnv)
 
 		if verbose > 0 {
 			fmt.Println(asCommandLine(cwd, c))
@@ -174,19 +171,7 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 
 	cmd := exec.Command(gocmd, "test", "-vet=off", "-c")
 	compileTo := path.Join(dirs.wd, dirs.testBinDir, config.benchName(bench))
-	cmd.Args = append(cmd.Args, "-o", compileTo)
-	cmd.Args = append(cmd.Args, bench.BuildFlags...)
-	// Do not normally need -a because cache was emptied first and std was -a installed with these flags.
-	// But for -a=1, do it anyway
-	if explicitAll == 1 {
-		cmd.Args = append(cmd.Args, "-a")
-	}
-	cmd.Args = append(cmd.Args, config.BuildFlags...)
-	if config.GcFlags != "" {
-		cmd.Args = append(cmd.Args, "-gcflags="+config.GcFlags)
-	}
-	cmd.Args = append(cmd.Args, bench.Repo)
-	cmd.Dir = bench.BuildDir // use module-mode
+
 	cmd.Env = defaultEnv
 	if !bench.NotSandboxed {
 		cmd.Env = replaceEnv(cmd.Env, "GOOS", "linux")
@@ -194,8 +179,32 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 	if root != "" {
 		cmd.Env = replaceEnv(cmd.Env, "GOROOT", root)
 	}
-	cmd.Env = replaceEnvs(cmd.Env, bench.GcEnv)
-	cmd.Env = replaceEnvs(cmd.Env, config.GcEnv)
+	cmd.Env = append(cmd.Env, "BENT_BENCH="+bench.Name)
+	cmd.Env = append(cmd.Env, "BENT_CONFIG="+config.Name)
+	cmd.Env = append(cmd.Env, "BENT_I="+fmt.Sprintf("%d", count))
+	cmd.Env = replaceEnvs(cmd.Env, sliceExpandEnv(bench.GcEnv, cmd.Env))
+	cmd.Env = replaceEnvs(cmd.Env, sliceExpandEnv(config.GcEnv, cmd.Env))
+	configGoArch := getenv(cmd.Env, "GOARCH")
+
+	cmdEnv := append([]string{}, cmd.Env...) // for after-build
+	if configGoArch == "" {
+		// inject a default, since the after-build may not be a go program
+		cmdEnv = append(cmdEnv, "GOARCH="+runtime.GOARCH)
+	}
+
+	cmd.Args = append(cmd.Args, "-o", compileTo)
+	cmd.Args = append(cmd.Args, sliceExpandEnv(bench.BuildFlags, cmd.Env)...)
+	// Do not normally need -a because cache was emptied first and std was -a installed with these flags.
+	// But for -a=1, do it anyway
+	if explicitAll == 1 {
+		cmd.Args = append(cmd.Args, "-a")
+	}
+	cmd.Args = append(cmd.Args, sliceExpandEnv(config.BuildFlags, cmd.Env)...)
+	if config.GcFlags != "" {
+		cmd.Args = append(cmd.Args, "-gcflags="+expandEnv(config.GcFlags, cmd.Env))
+	}
+	cmd.Args = append(cmd.Args, bench.Repo)
+	cmd.Dir = bench.BuildDir // use module-mode
 
 	if verbose > 0 {
 		fmt.Println(asCommandLine(cwd, cmd))
@@ -232,7 +241,8 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 	// Report and record build stats to testbin
 
 	buf := new(bytes.Buffer)
-	configGoArch := getenv(config.GcEnv, "GOARCH")
+
+	var s string
 	if configGoArch != runtime.GOARCH && configGoArch != "" {
 		s := fmt.Sprintf("goarch: %s-%s\n", runtime.GOARCH, configGoArch)
 		if verbose > 0 {
@@ -240,7 +250,7 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 		}
 		buf.WriteString(s)
 	}
-	s := fmt.Sprintf("Benchmark%s 1 %d build-real-ns/op %d build-user-ns/op %d build-sys-ns/op\n",
+	s = fmt.Sprintf("Benchmark%s 1 %d build-real-ns/op %d build-user-ns/op %d build-sys-ns/op\n",
 		strings.Title(bench.Name), bs.RealTime.Nanoseconds(), bs.UserTime.Nanoseconds(), bs.SysTime.Nanoseconds())
 	if verbose > 0 {
 		fmt.Print(s)
@@ -267,7 +277,7 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 
 	// Do this here before any cleanup.
 	if count == 0 {
-		config.runOtherBenchmarks(bench, cwd)
+		config.runOtherBenchmarks(bench, cwd, cmdEnv)
 	}
 
 	return ""

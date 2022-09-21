@@ -338,18 +338,10 @@ results will also appear in 'bench'.
 			// TODO(jfaller): I don't think we need this "/" anymore... investigate.
 			todo.Configurations[i].Root = os.ExpandEnv(root) + "/"
 		}
-		for j, s := range trial.GcEnv {
-			trial.GcEnv[j] = os.ExpandEnv(s)
-		}
-		for j, s := range trial.RunEnv {
-			trial.RunEnv[j] = os.ExpandEnv(s)
-		}
-		todo.Configurations[i].GcFlags = os.ExpandEnv(trial.GcFlags)
-		for j, s := range trial.RunFlags {
-			trial.RunFlags[j] = os.ExpandEnv(s)
-		}
-		for j, s := range trial.RunWrapper {
-			trial.RunWrapper[j] = os.ExpandEnv(s)
+		if len(trial.RunWrapper) > 0 {
+			// Args will be expanded later with BENT_ environment variables injected.
+			// TODO should it use concatenation of os env and configuration env?
+			trial.RunWrapper[0] = os.ExpandEnv(trial.RunWrapper[0])
 		}
 	}
 	for b, v := range configurations {
@@ -377,9 +369,6 @@ results will also appear in 'bench'.
 			if present {
 				benchmarks[bench.Name] = false
 			}
-		}
-		for j, s := range bench.GcEnv {
-			bench.GcEnv[j] = os.ExpandEnv(s)
 		}
 		// Trim possible trailing slash, do not want
 		if '/' == bench.Repo[len(bench.Repo)-1] {
@@ -479,6 +468,12 @@ results will also appear in 'bench'.
 	defaultEnv = replaceEnv(defaultEnv, "GOOS", runtime.GOOS)
 	defaultEnv = replaceEnv(defaultEnv, "GOARCH", runtime.GOARCH)
 	defaultEnv = ifMissingAddEnv(defaultEnv, "GO111MODULE", "auto")
+
+	envRoot := os.Getenv("ROOT")
+	if envRoot == "" {
+		envRoot = os.Getenv("PWD")
+	}
+	defaultEnv = append(defaultEnv, "ROOT="+envRoot)
 
 	var needSandbox bool    // true if any benchmark needs a sandbox
 	var needNotSandbox bool // true if any benchmark needs to be not sandboxed
@@ -976,10 +971,17 @@ benchmarks_loop:
 					return x
 				}
 
+				testBinaryName := config.benchName(&b)
+
+				runEnv := []string{}
+				runEnv = append(runEnv, "BENT_CONFIG="+config.Name)
+				runEnv = append(runEnv, "BENT_BENCH="+b.Name)
+				runEnv = append(runEnv, "BENT_I="+strconv.FormatInt(int64(i), 10))
+				runEnv = append(runEnv, "BENT_BINARY="+testBinaryName)
+
 				configWrapper := wrapperFor(config.RunWrapper)
 				benchWrapper := wrapperFor(b.RunWrapper)
 
-				testBinaryName := config.benchName(&b)
 				var s string
 				var rc int
 
@@ -1007,13 +1009,15 @@ benchmarks_loop:
 					if root != "" {
 						cmd.Env = replaceEnv(cmd.Env, "GOROOT", root)
 					}
-					cmd.Env = replaceEnvs(cmd.Env, config.RunEnv)
 					cmd.Env = append(cmd.Env, "BENT_DIR="+dirs.wd)
 					cmd.Env = append(cmd.Env, "BENT_PROFILES="+path.Join(dirs.wd, config.thingBenchName("profiles")))
-					cmd.Env = append(cmd.Env, "BENT_BINARY="+testBinaryName)
-					cmd.Env = append(cmd.Env, "BENT_I="+strconv.FormatInt(int64(i), 10))
+
+					cmd.Env = append(cmd.Env, runEnv...)
+					cmd.Env = append(cmd.Env, sliceExpandEnv(config.RunEnv, cmd.Env)...)
+
 					cmd.Args = append(cmd.Args, config.RunFlags...)
 					cmd.Args = append(cmd.Args, moreArgs...)
+					cmd.Args = sliceExpandEnv(cmd.Args, cmd.Env)
 
 					config.say("shortname: " + b.Name + "\n")
 					config.say("toolchain: " + config.Name + "\n")
@@ -1021,23 +1025,29 @@ benchmarks_loop:
 				} else {
 					// docker run --net=none -e GOROOT=... -w /src/github.com/minio/minio/cmd $D /testbin/cmd_Config.test -test.short -test.run=Nope -test.v -test.bench=Benchmark'(Get|Put|List)'
 					// TODO(jfaller): I don't think we need either of these "/" below, investigate...
+
+					// TODO this all very undertested right now.
+
 					bin := "/" + path.Join(dirs.testBinDir, testBinaryName)
 					wrappersAndBin = append(wrappersAndBin, bin)
 
 					cmd := exec.Command("docker", "run", "--net=none", "-w", b.RunDir)
-					for _, e := range config.RunEnv {
+
+					for _, e := range runEnv {
 						cmd.Args = append(cmd.Args, "-e", e)
 					}
+
 					cmd.Args = append(cmd.Args, "-e", "BENT_DIR=/") // TODO this is not going to work well
 					cmd.Args = append(cmd.Args, "-e", "BENT_PROFILES="+path.Join(dirs.wd, config.thingBenchName("profiles")))
-					cmd.Args = append(cmd.Args, "-e", "BENT_BINARY="+testBinaryName)
-					cmd.Args = append(cmd.Args, "-e", "BENT_I="+strconv.FormatInt(int64(i), 10))
 					cmd.Args = append(cmd.Args, container)
 					cmd.Args = append(cmd.Args, wrappersAndBin...)
 					cmd.Args = append(cmd.Args, "-test.run="+b.Tests)
 					cmd.Args = append(cmd.Args, "-test.bench="+b.Benchmarks)
+
 					cmd.Args = append(cmd.Args, config.RunFlags...)
 					cmd.Args = append(cmd.Args, moreArgs...)
+					cmd.Args = sliceExpandEnv(cmd.Args, runEnv)
+
 					config.say("shortname: " + b.Name + "\n")
 					config.say("toolchain: " + config.Name + "\n")
 					s, rc = todo.Configurations[j].runBinary(dirs.wd, cmd, false)
@@ -1238,6 +1248,33 @@ func getenv(env []string, ev string) string {
 		}
 	}
 	return ""
+}
+
+func expandEnv(s string, env []string) string {
+	expand := func(s string) string {
+		return getenv(env, s)
+	}
+	return os.Expand(s, expand)
+}
+
+func sliceExpandEnv(slice, env []string) []string {
+	result := slice
+	changed := false
+	expand := func(s string) string {
+		return getenv(env, s)
+	}
+	for j, s := range slice {
+		v := os.Expand(s, expand)
+		if !changed {
+			if v == s {
+				continue
+			}
+			changed = true
+			result = append([]string{}, slice[0:j]...)
+		}
+		result = append(result, v)
+	}
+	return result
 }
 
 // replaceEnv returns a new environment derived from env
