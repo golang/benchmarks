@@ -120,8 +120,8 @@ cp ${STAMP} ${tip}-opt.${SFX}
 
 cat ${RUN}.Base.build >> ${BASE}-opt.${SFX}
 cat ${RUN}.Tip.build >> ${tip}-opt.${SFX}
-egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.Base.stdout >> ${BASE}-opt.${SFX}
-egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.Tip.stdout >> ${tip}-opt.${SFX}
+grep -E '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.Base.stdout >> ${BASE}-opt.${SFX}
+grep -E '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.Tip.stdout >> ${tip}-opt.${SFX}
 cat ${RUN}.Base.{benchsize,benchdwarf} >> ${BASE}-opt.${SFX}
 cat ${RUN}.Tip.{benchsize,benchdwarf} >> ${tip}-opt.${SFX}
 benchsave ${BASE}-opt.${SFX} ${tip}-opt.${SFX}
@@ -167,8 +167,8 @@ cp ${STAMP} ${tip}-Nl.${SFX}
 
 cat ${RUN}.BaseNl.build >> ${BASE}-Nl.${SFX}
 cat ${RUN}.TipNl.build >> ${tip}-Nl.${SFX}
-egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.BaseNl.stdout >> ${BASE}-Nl.${SFX}
-egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.TipNl.stdout >> ${tip}-Nl.${SFX}
+grep -E '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.BaseNl.stdout >> ${BASE}-Nl.${SFX}
+grep -E '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.TipNl.stdout >> ${tip}-Nl.${SFX}
 cat ${RUN}.BaseNl.{benchsize,benchdwarf} >> ${BASE}-Nl.${SFX}
 cat ${RUN}.TipNl.{benchsize,benchdwarf} >> ${tip}-Nl.${SFX}
 benchsave ${BASE}-Nl.${SFX} ${tip}-Nl.${SFX}
@@ -204,8 +204,8 @@ cp ${STAMP} ${tip}-l.${SFX}
 
 cat ${RUN}.Basel.build >> ${BASE}-l.${SFX}
 cat ${RUN}.Tipl.build >> ${tip}-l.${SFX}
-egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.Basel.stdout >> ${BASE}-l.${SFX}
-egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.Tipl.stdout >> ${tip}-l.${SFX}
+grep -E '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.Basel.stdout >> ${BASE}-l.${SFX}
+grep -E '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.Tipl.stdout >> ${tip}-l.${SFX}
 cat ${RUN}.Basel.{benchsize,benchdwarf} >> ${BASE}-l.${SFX}
 cat ${RUN}.Tipl.{benchsize,benchdwarf} >> ${tip}-l.${SFX}
 benchsave ${BASE}-l.${SFX} ${tip}-l.${SFX}

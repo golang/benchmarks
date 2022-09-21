@@ -104,8 +104,8 @@ newlog="new-${newtag}"
 
 cat ${RUN}.Old.build > ${oldlog}
 cat ${RUN}.New.build > ${newlog}
-egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.Old.stdout >> ${oldlog}
-egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.New.stdout >> ${newlog}
+grep -E '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.Old.stdout >> ${oldlog}
+grep -E '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.New.stdout >> ${newlog}
 cat ${RUN}.Old.{benchsize,benchdwarf} >> ${oldlog}
 cat ${RUN}.New.{benchsize,benchdwarf} >> ${newlog}
 benchsave -header "${STAMP}" "${oldlog}" "${newlog}"

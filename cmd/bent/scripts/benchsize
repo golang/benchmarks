@@ -17,12 +17,12 @@ fi
 
 
 # note total is different -- always $2
-total=`egrep -i '^total' $tmp | awk -Wposix '{print $2}'`
+total=`grep -E -i '^total' $tmp | awk -Wposix '{print $2}'`
 
-text=`egrep [^a-z]text[^a-z] $tmp | awk -Wposix "$awkcommand"`
+text=`grep -E [^a-z]text[^a-z] $tmp | awk -Wposix "$awkcommand"`
 gopclntab=`grep gopclntab $tmp | awk -Wposix "$awkcommand"`
 rodata=`grep rodata $tmp | awk -Wposix "$awkcommand"`
-data=`egrep [^a-z]data[^a-z._] $tmp | awk -Wposix "$awkcommand"`
+data=`grep -E [^a-z]data[^a-z._] $tmp | awk -Wposix "$awkcommand"`
 
 zdebug_info=`grep zdebug_info $tmp | awk -Wposix "$awkcommand"`
 zdebug_loc=`grep zdebug_loc $tmp | awk -Wposix "$awkcommand"`
@@ -46,34 +46,34 @@ echo "goos: $GOOS"
 echo "goarch: $GOARCH"
 echo "pkg:" # Erase any inherited pkg if files are concatenated
 
-if echo $total | egrep -q '[0-9]+' ; then
+if echo $total | grep -E -q '[0-9]+' ; then
 	echo Unit total-bytes assume=exact
 	echo "Benchmark${2}_total" 1 ${total} total-bytes
 fi
 
-if echo $text | egrep -q '[0-9]+' ; then
+if echo $text | grep -E -q '[0-9]+' ; then
 	echo Unit text-bytes assume=exact
 	echo "Benchmark${2}_text" 1 ${text} text-bytes
 fi
 
-if echo $data | egrep -q '[0-9]+' ; then
+if echo $data | grep -E -q '[0-9]+' ; then
 	echo Unit data-bytes assume=exact
 	echo "Benchmark${2}_data" 1 ${data} data-bytes
 fi
 
-if echo $rodata | egrep -q '[0-9]+' ; then
+if echo $rodata | grep -E -q '[0-9]+' ; then
 	echo Unit rodata-bytes assume=exact
 	echo "Benchmark${2}_rodata" 1 ${rodata} rodata-bytes
 fi
 
-if echo $gopclntab | egrep -q '[0-9]+' ; then
+if echo $gopclntab | grep -E -q '[0-9]+' ; then
 	echo Unit pclntab-bytes assume=exact
 	echo "Benchmark${2}_pclntab" 1 ${gopclntab} pclntab-bytes
 fi
 
 zdebug=`expr ${zdebug_info} + ${zdebug_loc} + ${zdebug_line} + ${zdebug_ranges} + ${zdebug_frame} + ${zdebug_abbrev} + ${zdebug_pubname} + ${zdebug_pubtype}`
 
-if echo $zdebug | egrep -q '[0-9]+' ; then
+if echo $zdebug | grep -E -q '[0-9]+' ; then
 	echo Unit zdebug-bytes assume=exact
 	echo "Benchmark${2}_zdebug_total" 1 ${zdebug} zdebug-bytes
 fi

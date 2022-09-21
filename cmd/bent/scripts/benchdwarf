@@ -52,15 +52,15 @@ if [ ${bench} = "yes" ] ; then
 	echo "goos: $GOOS"
 	echo "goarch: $GOARCH"
 	echo "pkg:" # Erase any inherited pkg if files are concatenated
-    if echo $inputsquality | egrep -q '[.0-9]+' ; then
+    if echo $inputsquality | grep -E -q '[.0-9]+' ; then
     	echo Unit inputs-quality assume=exact
 		echo "Benchmark${2}_dwarf_input_goodness" 1 ${inputsquality} inputs-quality
 	fi
-    if echo $argsquality | egrep -q '[.0-9]+' ; then
+    if echo $argsquality | grep -E -q '[.0-9]+' ; then
     	echo Unit args-quality assume=exact
 		echo "Benchmark${2}_dwarf_args_goodness" 1 ${argsquality} args-quality
 	fi
-    if echo $stmtquality | egrep -q '[.0-9]+' ; then
+    if echo $stmtquality | grep -E -q '[.0-9]+' ; then
     	echo Unit stmts-quality assume=exact
 		echo "Benchmark${2}_dwarf_stmt_goodness" 1 ${stmtquality} stmts-quality
 		# echo "Benchmark${2}_dwarf_stmt_goodness_kind" 1 ${stmtkindquality} stmts-quality
