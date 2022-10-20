@@ -26,7 +26,7 @@ func (h Tile38) Get(srcDir string) error {
 	return gitShallowClone(
 		srcDir,
 		"https://github.com/tidwall/tile38",
-		"1.25.3",
+		"1.29.1",
 	)
 }
 
