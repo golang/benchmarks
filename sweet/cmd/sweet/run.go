@@ -12,6 +12,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"unicode/utf8"
@@ -19,8 +20,10 @@ import (
 	"golang.org/x/benchmarks/sweet/cli/bootstrap"
 	"golang.org/x/benchmarks/sweet/common"
 	"golang.org/x/benchmarks/sweet/common/log"
+	sprofile "golang.org/x/benchmarks/sweet/common/profile"
 
 	"github.com/BurntSushi/toml"
+	"github.com/google/pprof/profile"
 )
 
 type csvFlag []string
@@ -41,6 +44,8 @@ files.`
 `
 )
 
+const pgoCountDefaultMax = 5
+
 type runCfg struct {
 	count       int
 	resultsDir  string
@@ -53,6 +58,8 @@ type runCfg struct {
 	memProfile  bool
 	perf        bool
 	perfFlags   string
+	pgo         bool
+	pgoCount    int
 	short       bool
 
 	assetsFS fs.FS
@@ -65,6 +72,14 @@ func (r *runCfg) logCopyDirCommand(fromRelDir, toDir string) {
 	} else {
 		log.CommandPrintf("cp -r %s/* %s", filepath.Join(r.assetsDir, fromRelDir), toDir)
 	}
+}
+
+func (r *runCfg) benchmarkResultsDir(b *benchmark) string {
+	return filepath.Join(r.resultsDir, b.name)
+}
+
+func (r *runCfg) runProfilesDir(b *benchmark, c *common.Config) string {
+	return filepath.Join(r.benchmarkResultsDir(b), fmt.Sprintf("%s.debug", c.Name))
 }
 
 type runCmd struct {
@@ -135,6 +150,8 @@ func (c *runCmd) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&c.runCfg.memProfile, "memprofile", false, "whether to dump a memory profile for each benchmark (ensures all executions do the same amount of work")
 	f.BoolVar(&c.runCfg.perf, "perf", false, "whether to run each benchmark under Linux perf and dump the results")
 	f.StringVar(&c.runCfg.perfFlags, "perf-flags", "", "the flags to pass to Linux perf if -perf is set")
+	f.BoolVar(&c.pgo, "pgo", false, "perform PGO testing; for each config, collect profiles from a baseline run which are used to feed into a generated PGO config")
+	f.IntVar(&c.runCfg.pgoCount, "pgo-count", 0, "the number of times to run profiling runs for -pgo; defaults to the value of -count if <=5, or 5 if higher")
 	f.IntVar(&c.runCfg.count, "count", 25, "the number of times to run each benchmark")
 
 	f.BoolVar(&c.quiet, "quiet", false, "whether to suppress activity output on stderr (no effect on -shell)")
@@ -152,6 +169,13 @@ func (c *runCmd) Run(args []string) error {
 
 	log.SetCommandTrace(c.printCmd)
 	log.SetActivityLog(!c.quiet)
+
+	if c.runCfg.pgoCount == 0 {
+		c.runCfg.pgoCount = c.runCfg.count
+		if c.runCfg.pgoCount > pgoCountDefaultMax {
+			c.runCfg.pgoCount = pgoCountDefaultMax
+		}
+	}
 
 	var err error
 	if c.workDir == "" {
@@ -271,6 +295,14 @@ func (c *runCmd) Run(args []string) error {
 			if config.ExecEnv.Env == nil {
 				config.ExecEnv.Env = common.NewEnvFromEnviron()
 			}
+			if config.PGOFiles == nil {
+				config.PGOFiles = make(map[string]string)
+			}
+			for k := range config.PGOFiles {
+				if _, ok := allBenchmarksMap[k]; !ok {
+					return fmt.Errorf("config %q in %q pgofiles references unknown benchmark %q", config.Name, configFile, k)
+				}
+			}
 			configs = append(configs, config)
 		}
 	}
@@ -308,6 +340,14 @@ func (c *runCmd) Run(args []string) error {
 		}
 	}
 
+	// Collect profiles from baseline runs and create new PGO'd configs.
+	if c.pgo {
+		configs, err = c.preparePGO(configs, benchmarks)
+		if err != nil {
+			return fmt.Errorf("error preparing PGO profiles: %w", err)
+		}
+	}
+
 	// Execute each benchmark for all configs.
 	var errEncountered bool
 	for _, b := range benchmarks {
@@ -323,6 +363,87 @@ func (c *runCmd) Run(args []string) error {
 		return fmt.Errorf("failed to execute benchmarks, see log for details")
 	}
 	return nil
+}
+
+func (c *runCmd) preparePGO(configs []*common.Config, benchmarks []*benchmark) ([]*common.Config, error) {
+	profileConfigs := make([]*common.Config, 0, len(configs))
+	for _, c := range configs {
+		cc := c.Copy()
+		cc.Name += ".profile"
+		profileConfigs = append(profileConfigs, cc)
+	}
+
+	profileRunCfg := c.runCfg
+	profileRunCfg.cpuProfile = true
+	profileRunCfg.count = profileRunCfg.pgoCount
+
+	log.Printf("Running profile collection runs")
+
+	// Execute benchmarks to collect profiles.
+	var errEncountered bool
+	for _, b := range benchmarks {
+		if err := b.execute(profileConfigs, &profileRunCfg); err != nil {
+			if c.stopOnError {
+				return nil, err
+			}
+			errEncountered = true
+			log.Error(err)
+		}
+	}
+	if errEncountered {
+		return nil, fmt.Errorf("failed to execute profile collection benchmarks, see log for details")
+	}
+
+	// Merge all the profiles and add new PGO configs.
+	newConfigs := configs
+	for i := range configs {
+		origConfig := configs[i]
+		profileConfig := profileConfigs[i]
+		pgoConfig := origConfig.Copy()
+		pgoConfig.Name += ".pgo"
+		pgoConfig.PGOFiles = make(map[string]string)
+
+		for _, b := range benchmarks {
+			p, err := mergeCPUProfiles(profileRunCfg.runProfilesDir(b, profileConfig))
+			if err != nil {
+				return nil, fmt.Errorf("error merging profiles for %s/%s: %w", b.name, profileConfig.Name, err)
+			}
+			pgoConfig.PGOFiles[b.name] = p
+		}
+
+		newConfigs = append(newConfigs, pgoConfig)
+	}
+
+	return newConfigs, nil
+}
+
+var cpuProfileRe = regexp.MustCompile(`^.*\.cpu[0-9]+$`)
+
+func mergeCPUProfiles(dir string) (string, error) {
+	profiles, err := sprofile.ReadDir(dir, func(name string) bool {
+		return cpuProfileRe.FindString(name) != ""
+	})
+	if err != nil {
+		return "", fmt.Errorf("error reading dir %q: %w", dir, err)
+	}
+	if len(profiles) == 0 {
+		return "", fmt.Errorf("no profiles found in %q", dir)
+	}
+
+	p, err := profile.Merge(profiles)
+	if err != nil {
+		return "", fmt.Errorf("error merging profiles: %w", err)
+	}
+
+	out := filepath.Join(dir, "merged.cpu")
+	f, err := os.Create(out)
+	defer f.Close()
+
+	if err := p.Write(f); err != nil {
+		return "", fmt.Errorf("error writing merged profile: %w", err)
+	}
+
+	return out, nil
 }
 
 func canonicalizePath(path, base string) string {

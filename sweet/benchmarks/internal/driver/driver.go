@@ -547,15 +547,6 @@ func ProfilingEnabled(typ ProfileType) bool {
 	panic("bad profile type")
 }
 
-func ReadProfile(filename string) (*profile.Profile, error) {
-	f, err := os.Open(filename)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	return profile.Parse(f)
-}
-
 func WriteProfile(prof *profile.Profile, typ ProfileType, pattern string) error {
 	if !ProfilingEnabled(typ) {
 		return fmt.Errorf("this type of profile is not currently enabled")

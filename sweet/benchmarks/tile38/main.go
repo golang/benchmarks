@@ -22,6 +22,7 @@ import (
 
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/driver"
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/pool"
+	"golang.org/x/benchmarks/sweet/common/profile"
 
 	"github.com/gomodule/redigo/redis"
 )
@@ -307,7 +308,7 @@ func runOne(bench benchmark, cfg *config) (err error) {
 		// Copy it over.
 		for _, typ := range []driver.ProfileType{driver.ProfileCPU, driver.ProfileMem} {
 			if driver.ProfilingEnabled(typ) {
-				p, r := driver.ReadProfile(cfg.profilePath(typ))
+				p, r := profile.Read(cfg.profilePath(typ))
 				if r != nil {
 					err = r
 					return

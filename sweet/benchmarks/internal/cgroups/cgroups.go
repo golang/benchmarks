@@ -110,4 +110,3 @@ func (c *Cmd) RSSFunc() func() (uint64, error) {
 		return strconv.ParseUint(strings.TrimSpace(string(data)), 10, 64)
 	}
 }
-

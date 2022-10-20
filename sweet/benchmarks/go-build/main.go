@@ -17,6 +17,7 @@ import (
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/cgroups"
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/driver"
 	"golang.org/x/benchmarks/sweet/common"
+	sprofile "golang.org/x/benchmarks/sweet/common/profile"
 )
 
 var (
@@ -131,7 +132,9 @@ func run(pkgPath string) error {
 }
 
 func mergeProfiles(dir, prefix string) (*profile.Profile, error) {
-	profiles, err := collectProfiles(dir, prefix)
+	profiles, err := sprofile.ReadDir(dir, func(name string) bool {
+		return strings.HasPrefix(name, prefix)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +142,10 @@ func mergeProfiles(dir, prefix string) (*profile.Profile, error) {
 }
 
 func copyProfiles(dir, bin string, typ driver.ProfileType, finalPrefix string) error {
-	profiles, err := collectProfiles(dir, profilePrefix(bin, typ))
+	prefix := profilePrefix(bin, typ)
+	profiles, err := sprofile.ReadDir(dir, func(name string) bool {
+		return strings.HasPrefix(name, prefix)
+	})
 	if err != nil {
 		return err
 	}
@@ -149,34 +155,6 @@ func copyProfiles(dir, bin string, typ driver.ProfileType, finalPrefix string) e
 		}
 	}
 	return nil
-}
-
-func collectProfiles(dir, prefix string) ([]*profile.Profile, error) {
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		return nil, err
-	}
-	var profiles []*profile.Profile
-	for _, entry := range entries {
-		name := entry.Name()
-		path := filepath.Join(tmpDir, name)
-		if info, err := entry.Info(); err != nil {
-			return nil, err
-		} else if info.Size() == 0 {
-			// Skip zero-sized files, otherwise the pprof package
-			// will call it a parsing error.
-			continue
-		}
-		if strings.HasPrefix(name, prefix) {
-			p, err := driver.ReadProfile(path)
-			if err != nil {
-				return nil, err
-			}
-			profiles = append(profiles, p)
-			continue
-		}
-	}
-	return profiles, nil
 }
 
 func profilePrefix(bin string, typ driver.ProfileType) string {

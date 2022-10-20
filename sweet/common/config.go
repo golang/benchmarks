@@ -43,10 +43,11 @@ type ConfigFile struct {
 }
 
 type Config struct {
-	Name     string    `toml:"name"`
-	GoRoot   string    `toml:"goroot"`
-	BuildEnv ConfigEnv `toml:"envbuild"`
-	ExecEnv  ConfigEnv `toml:"envexec"`
+	Name     string            `toml:"name"`
+	GoRoot   string            `toml:"goroot"`
+	BuildEnv ConfigEnv         `toml:"envbuild"`
+	ExecEnv  ConfigEnv         `toml:"envexec"`
+	PGOFiles map[string]string `toml:"pgofiles"`
 }
 
 func (c *Config) GoTool() *Go {
@@ -58,6 +59,14 @@ func (c *Config) GoTool() *Go {
 	}
 }
 
+// Copy returns a deep copy of Config.
+func (c *Config) Copy() *Config {
+	// Currently, all fields in Config are immutable, so a simply copy is
+	// sufficient.
+	cc := *c
+	return &cc
+}
+
 func ConfigFileMarshalTOML(c *ConfigFile) ([]byte, error) {
 	// Unfortunately because the github.com/BurntSushi/toml
 	// package at v1.0.0 doesn't correctly support Marshaler
@@ -67,10 +76,11 @@ func ConfigFileMarshalTOML(c *ConfigFile) ([]byte, error) {
 	// on Config and use dummy types that have a straightforward
 	// mapping that *does* work.
 	type config struct {
-		Name     string   `toml:"name"`
-		GoRoot   string   `toml:"goroot"`
-		BuildEnv []string `toml:"envbuild"`
-		ExecEnv  []string `toml:"envexec"`
+		Name     string            `toml:"name"`
+		GoRoot   string            `toml:"goroot"`
+		BuildEnv []string          `toml:"envbuild"`
+		ExecEnv  []string          `toml:"envexec"`
+		PGOFiles map[string]string `toml:"pgofiles"`
 	}
 	type configFile struct {
 		Configs []*config `toml:"config"`
@@ -82,6 +92,7 @@ func ConfigFileMarshalTOML(c *ConfigFile) ([]byte, error) {
 		cfg.GoRoot = c.GoRoot
 		cfg.BuildEnv = c.BuildEnv.Collapse()
 		cfg.ExecEnv = c.ExecEnv.Collapse()
+		cfg.PGOFiles = c.PGOFiles
 
 		cfgs.Configs = append(cfgs.Configs, &cfg)
 	}
