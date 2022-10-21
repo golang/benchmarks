@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 
 	"golang.org/x/benchmarks/sweet/common"
+	"golang.org/x/benchmarks/sweet/common/fileutil"
 	"golang.org/x/benchmarks/sweet/common/log"
 )
 
@@ -72,12 +73,30 @@ func (h GoBuild) Get(srcDir string) error {
 	return nil
 }
 
-func (h GoBuild) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
+func (h GoBuild) Build(pcfg *common.Config, bcfg *common.BuildConfig) error {
+	// Local copy of config for updating GOROOT.
+	cfg := pcfg.Copy()
+
 	benchmarks := buildBenchmarks
 	if bcfg.Short {
 		// Do only the pkgsite benchmark.
 		benchmarks = []*buildBenchmark{buildBenchmarks[2]}
 	}
+
+	// cfg.GoRoot is our source toolchain. We need to rebuild cmd/compile
+	// and cmd/link with cfg.BuildEnv to apply any configured build options
+	// (e.g., PGO).
+	//
+	// Do so by `go install`ing them into a copied GOROOT.
+	goroot := filepath.Join(bcfg.BinDir, "goroot")
+	if err := fileutil.CopyDir(goroot, cfg.GoRoot, nil); err != nil {
+		return fmt.Errorf("error copying GOROOT: %v", err)
+	}
+	cfg.GoRoot = goroot
+	if err := cfg.GoTool().Do("install", "cmd/compile", "cmd/link"); err != nil {
+		return fmt.Errorf("error building cmd/compile and cmd/link: %v", err)
+	}
+
 	for _, bench := range benchmarks {
 		// Generate a symlink to the repository and put it in bin.
 		// It's not a binary, but it's the only place we can put it
@@ -89,9 +108,14 @@ func (h GoBuild) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 		}
 
 		// Build the benchmark once, pulling in any requisite packages.
+		//
+		// Run the go tool with ExecEnv, as that is what we will use
+		// when benchmarking.
 		pkgPath := filepath.Join(bcfg.BinDir, bench.name, bench.pkg)
 		dummyBin := filepath.Join(bcfg.BinDir, "dummy")
-		if err := cfg.GoTool().BuildPath(pkgPath, dummyBin); err != nil {
+		goTool := cfg.GoTool()
+		goTool.Env = cfg.ExecEnv.MustSet("GOROOT=" + cfg.GoRoot)
+		if err := goTool.BuildPath(pkgPath, dummyBin); err != nil {
 			return fmt.Errorf("error building %s %s: %w", bench.name, bench.pkg, err)
 		}
 	}
@@ -102,7 +126,11 @@ func (h GoBuild) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 	return nil
 }
 
-func (h GoBuild) Run(cfg *common.Config, rcfg *common.RunConfig) error {
+func (h GoBuild) Run(pcfg *common.Config, rcfg *common.RunConfig) error {
+	// Local copy of config for updating GOROOT.
+	cfg := pcfg.Copy()
+	cfg.GoRoot = filepath.Join(rcfg.BinDir, "goroot") // see Build, above.
+
 	benchmarks := buildBenchmarks
 	if rcfg.Short {
 		// Do only the pkgsite benchmark.
