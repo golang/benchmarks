@@ -258,6 +258,9 @@
   Repo = "github.com/ajstarks/deck/generate"
   Version = "@v0.0.0-20211012005819-a09e9c2a9a29"
 
+# Turns out having benchmarks w/ overlapping packages makes for noisy results.
+# Do not use this until we deal with that problem.  It is, however, an interesting
+# collection of code, so don't forget about it.
 [[Suites]]
   Name = "benhoyt_goawk"
   Repo = "github.com/benhoyt/goawk/interp"

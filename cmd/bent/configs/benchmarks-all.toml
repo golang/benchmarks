@@ -187,7 +187,7 @@
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
-  Name = "benhoyt_goawk"
+  Name = "benhoyt_goawk_1_18"
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]

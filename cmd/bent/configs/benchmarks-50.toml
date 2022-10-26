@@ -159,10 +159,6 @@
   Benchmarks = "Benchmark(Polygon|Arc)"
 
 [[Benchmarks]]
-  Name = "benhoyt_goawk"
-  Benchmarks = "BenchmarkR"
-
-[[Benchmarks]]
   Name = "benhoyt_goawk_1_18"
   Benchmarks = "BenchmarkR"
 
