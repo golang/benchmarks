@@ -242,8 +242,12 @@ func (c *runCmd) Run(args []string) error {
 			return fmt.Errorf("failed to read %q: %v", configFile, err)
 		}
 		var fconfigs common.ConfigFile
-		if err := toml.Unmarshal(b, &fconfigs); err != nil {
+		md, err := toml.Decode(string(b), &fconfigs)
+		if err != nil {
 			return fmt.Errorf("failed to parse %q: %v", configFile, err)
+		}
+		if len(md.Undecoded()) != 0 {
+			return fmt.Errorf("unexpected keys in %q: %+v", configFile, md.Undecoded())
 		}
 		// Validate each config and append to central list.
 		for _, config := range fconfigs.Configs {
