@@ -54,13 +54,8 @@ $ go build ./cmd/sweet
 ### Getting Assets
 
 ```sh
-$ ./sweet get -auth=app-default
+$ ./sweet get
 ```
-
-Note: make sure you run `gcloud auth application-default login` before you run
-the above command! 
-
-TODO(mknyszek): Make it so authentication isn't necessary in the future.
 
 ### Running the benchmarks
 
