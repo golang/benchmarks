@@ -20,15 +20,6 @@ import (
 )
 
 func TestSweetEndToEnd(t *testing.T) {
-	t.Run("standard", func(t *testing.T) {
-		testSweetEndToEnd(t, false)
-	})
-	t.Run("pgo", func(t *testing.T) {
-		testSweetEndToEnd(t, true)
-	})
-}
-
-func testSweetEndToEnd(t *testing.T, pgo bool) {
 	if runtime.GOOS != "linux" || runtime.GOARCH != "amd64" {
 		t.Skip("Sweet is currently only fully supported on linux/amd64")
 	}
@@ -48,16 +39,12 @@ func testSweetEndToEnd(t *testing.T, pgo bool) {
 		Env:  common.NewEnvFromEnviron(),
 	}
 
-	if pgo {
-		cmd := exec.Command(goTool.Tool, "help", "build")
-		out, err := cmd.Output()
-		if err != nil {
-			t.Fatalf("error running go help build: %v", err)
-		}
-		if !strings.Contains(string(out), "-pgo") {
-			t.Skip("toolchain missing -pgo support")
-		}
+	cmd := exec.Command(goTool.Tool, "help", "build")
+	out, err := cmd.Output()
+	if err != nil {
+		t.Fatalf("error running go help build: %v", err)
 	}
+	hasPGO := strings.Contains(string(out), "-pgo")
 
 	// Build sweet.
 	wd, err := os.Getwd()
@@ -134,8 +121,8 @@ func testSweetEndToEnd(t *testing.T, pgo bool) {
 			"-work-dir", workDir,
 			"-short",
 		}
-		if pgo {
-			args = append(args, "-pgo")
+		if hasPGO {
+			args = append(args, "-pgo", "-pgo-count", "1")
 		}
 		args = append(args, cfgPath)
 		runCmd := exec.Command(sweetBin, args...)
@@ -208,7 +195,7 @@ func makeConfigFile(t *testing.T, goRoot string) string {
 	defer f.Close()
 	cfg := common.ConfigFile{
 		Configs: []*common.Config{
-			&common.Config{
+			{
 				Name:   "go",
 				GoRoot: goRoot,
 			},
