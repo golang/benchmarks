@@ -12,15 +12,11 @@ a versioned release and note the version in the release.
 
 ### Supported Platforms
 
-* Linux
-* TODO(mknyszek): Support more.
+* linux/amd64
 
 ### Dependencies
 
 The `sweet` tool only depends on having a stable version of Go and `git`.
-If you're testing out a development version of Go with Sweet, don't build sweet
-itself with it! Use what's installed on your system instead, or some known-stable
-version.
 
 Some benchmarks, however, have various requirements for building. Notably
 they are:
@@ -78,14 +74,23 @@ Benchmark results will appear in the `results` directory.
 `-shell` will cause the tool to print each action it performs as a shell
 command. Note that while the shell commands are valid for many systems, they
 may depend on tools being available on your system that `sweet` does not
-require (e.g. `git`).
+require.
+
+Note that by default `sweet run` expects to be executed in
+`/path/to/x/benchmarks/sweet`, that is, the root of the Sweet subdirectory in
+the `x/benchmarks` repository.
+To execute it from somewhere else, point `-bench-dir` at
+`/path/to/x/benchmarks/sweet/benchmarks`.
 
 ## Tips and Rules of Thumb
 
+* If you're not confident if your experimental Go toolchain will work with all
+  the benchmarks, try the `-short` flag to run to get much faster feedback on
+  whether each benchmark builds and runs.
 * You can expect the benchmarks to take a few hours to run with the default
   settings on a somewhat sizable Linux box.
 * If a benchmark fails to build, run with `-shell` and copy and re-run the
-  command to get output.
+  last command to get full output.
   TODO(mknyszek): Dump the output to the terminal.
 * If a benchmark fails to run, the output should have been captured in the
   corresponding results file (e.g. if biogo-igor failed, check
@@ -97,7 +102,7 @@ require (e.g. `git`).
 
 These benchmarks generally try to stress the Go runtime in interesting ways, and
 some may end up with very large heaps. Therefore, it's recommended to run the
-suite on a system with at least 30 GiB of RAM available to minimize the chance
+suite on a system with at least 16 GiB of RAM available to minimize the chance
 that results are lost due to an out-of-memory error.
 
 ## Configuration Format
@@ -144,7 +149,7 @@ This benchmark suite tries to keep noise low in measurements where possible.
 
 ### Tips for Reducing Noise
 
-* Sweet should be run on a system where a [perflock
+* Sweet should be run on a dedicated machine where a [perflock
   daemon](https://github.com/aclements/perflock) is running (to avoid noise due
   to CPU throttling).
 * Avoid running these benchmarks in cloud environments if possible. Generally
@@ -153,14 +158,3 @@ This benchmark suite tries to keep noise low in measurements where possible.
   for more details. Try to use dedicated hardware instead.
 
 *Do not* compare results produced by separate invocations of the `sweet` tool.
-
-### Caveats
-
-With the current release there are a few notable caveats when it comes to the
-results and the noisiness of the benchmarks that will addressed with future
-releases. Notably:
-
-* Time for the tile38 benchmarks is quite noisy, but at least consistent.
-* RSS numbers for the gopher-lua and biogo-igor benchmarks are quite noisy.
-* Peak RSS is currently not very reliable.
-* The gVisor startup benchmarks are very noisy.

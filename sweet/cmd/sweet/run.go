@@ -6,6 +6,7 @@ package main
 
 import (
 	"archive/zip"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -39,12 +40,15 @@ func (c *csvFlag) Set(input string) error {
 
 const (
 	runLongDesc = `Execute benchmarks in the suite against GOROOTs provided in TOML configuration
-files.`
+files. Note: by default, this command expects to run from /path/to/x/benchmarks/sweet.`
 	runUsage = `Usage: %s run [flags] <config> [configs...]
 `
 )
 
-const pgoCountDefaultMax = 5
+const (
+	countDefault       = 10
+	pgoCountDefaultMax = 5
+)
 
 type runCfg struct {
 	count       int
@@ -142,7 +146,7 @@ func (*runCmd) PrintUsage(w io.Writer, base string) {
 func (c *runCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.runCfg.resultsDir, "results", "./results", "location to write benchmark results to")
 	f.StringVar(&c.runCfg.benchDir, "bench-dir", "./benchmarks", "the benchmarks directory in the sweet source")
-	f.StringVar(&c.runCfg.assetsDir, "assets-dir", "", "the directory containing uncompressed assets for sweet benchmarks (overrides -cache)")
+	f.StringVar(&c.runCfg.assetsDir, "assets-dir", "", "a directory containing uncompressed assets for sweet benchmarks, usually for debugging Sweet (overrides -cache)")
 	f.StringVar(&c.runCfg.workDir, "work-dir", "", "work directory for benchmarks (default: temporary directory)")
 	f.StringVar(&c.runCfg.assetsCache, "cache", bootstrap.CacheDefault(), "cache location for assets")
 	f.BoolVar(&c.runCfg.dumpCore, "dump-core", false, "whether to dump core files for each benchmark process when it completes a benchmark")
@@ -152,12 +156,12 @@ func (c *runCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.runCfg.perfFlags, "perf-flags", "", "the flags to pass to Linux perf if -perf is set")
 	f.BoolVar(&c.pgo, "pgo", false, "perform PGO testing; for each config, collect profiles from a baseline run which are used to feed into a generated PGO config")
 	f.IntVar(&c.runCfg.pgoCount, "pgo-count", 0, "the number of times to run profiling runs for -pgo; defaults to the value of -count if <=5, or 5 if higher")
-	f.IntVar(&c.runCfg.count, "count", 10, "the number of times to run each benchmark")
+	f.IntVar(&c.runCfg.count, "count", 0, fmt.Sprintf("the number of times to run each benchmark (default %d)", countDefault))
 
 	f.BoolVar(&c.quiet, "quiet", false, "whether to suppress activity output on stderr (no effect on -shell)")
 	f.BoolVar(&c.printCmd, "shell", false, "whether to print the commands being executed to stdout")
 	f.BoolVar(&c.stopOnError, "stop-on-error", false, "whether to stop running benchmarks if an error occurs or a benchmark fails")
-	f.BoolVar(&c.short, "short", false, "whether to run a short version of the benchmarks for testing")
+	f.BoolVar(&c.short, "short", false, "whether to run a short version of the benchmarks for testing (changes -count to 1)")
 	f.Var(&c.toRun, "run", "benchmark group or comma-separated list of benchmarks to run")
 }
 
@@ -170,6 +174,13 @@ func (c *runCmd) Run(args []string) error {
 	log.SetCommandTrace(c.printCmd)
 	log.SetActivityLog(!c.quiet)
 
+	if c.runCfg.count == 0 {
+		if c.short {
+			c.runCfg.count = 1
+		} else {
+			c.runCfg.count = countDefault
+		}
+	}
 	if c.runCfg.pgoCount == 0 {
 		c.runCfg.pgoCount = c.runCfg.count
 		if c.runCfg.pgoCount > pgoCountDefaultMax {
@@ -189,23 +200,23 @@ func (c *runCmd) Run(args []string) error {
 	// benchmarks potentially changing their current working directory.
 	c.workDir, err = filepath.Abs(c.workDir)
 	if err != nil {
-		return fmt.Errorf("creating absolute path from provided work root: %w", err)
+		return fmt.Errorf("creating absolute path from provided work root (-work-dir): %w", err)
 	}
 	c.benchDir, err = filepath.Abs(c.benchDir)
 	if err != nil {
-		return fmt.Errorf("creating absolute path from benchmarks path: %w", err)
+		return fmt.Errorf("creating absolute path from benchmarks path (-bench-dir): %w", err)
 	}
 	c.resultsDir, err = filepath.Abs(c.resultsDir)
 	if err != nil {
-		return fmt.Errorf("creating absolute path from results path: %w", err)
+		return fmt.Errorf("creating absolute path from results path (-results): %w", err)
 	}
 	if c.assetsDir != "" {
 		c.assetsDir, err = filepath.Abs(c.assetsDir)
 		if err != nil {
-			return fmt.Errorf("creating absolute path from assets path: %w", err)
+			return fmt.Errorf("creating absolute path from assets path (-assets-dir): %w", err)
 		}
 		if info, err := os.Stat(c.assetsDir); os.IsNotExist(err) {
-			return fmt.Errorf("assets not found at %q: did you mean to specify assets-dir?", c.assetsDir)
+			return fmt.Errorf("assets not found at %q: did you forget to run `sweet get`?", c.assetsDir)
 		} else if err != nil {
 			return fmt.Errorf("stat assets %q: %v", c.assetsDir, err)
 		} else if info.Mode()&os.ModeDir == 0 {
@@ -214,18 +225,18 @@ func (c *runCmd) Run(args []string) error {
 		c.assetsFS = os.DirFS(c.assetsDir)
 	} else {
 		if c.assetsCache == "" {
-			return fmt.Errorf("missing assets cache and assets directory: cannot proceed without assets")
+			return fmt.Errorf("missing assets cache (-cache) and assets directory (-assets-dir): cannot proceed without assets")
 		}
 		c.assetsCache, err = filepath.Abs(c.assetsCache)
 		if err != nil {
-			return fmt.Errorf("creating absolute path from assets cache path: %w", err)
+			return fmt.Errorf("creating absolute path from assets cache path (-cache): %w", err)
 		}
 		if info, err := os.Stat(c.assetsCache); os.IsNotExist(err) {
-			return fmt.Errorf("assets not found at %q: forgot to run `sweet get`?", c.assetsDir)
+			return fmt.Errorf("assets not found at %q (-assets-dir): did you forget to run `sweet get`?", c.assetsDir)
 		} else if err != nil {
 			return fmt.Errorf("stat assets %q: %v", c.assetsDir, err)
 		} else if info.Mode()&os.ModeDir == 0 {
-			return fmt.Errorf("%q is not a directory", c.assetsDir)
+			return fmt.Errorf("%q (-assets-dir) is not a directory", c.assetsDir)
 		}
 		assetsFile, err := bootstrap.CachedAssets(c.assetsCache, common.Version)
 		if err == bootstrap.ErrNotInCache {
@@ -245,6 +256,26 @@ func (c *runCmd) Run(args []string) error {
 		c.assetsFS, err = zip.NewReader(f, fi.Size())
 		if err != nil {
 			return err
+		}
+	}
+	// Validate c.benchDir and provide helpful error messages..
+	if fi, err := os.Stat(c.benchDir); errors.Is(err, fs.ErrNotExist) {
+		return fmt.Errorf("benchmarks directory (-bench-dir) does not exist; did you mean to run this command from x/benchmarks/sweet?")
+	} else if err != nil {
+		return fmt.Errorf("checking benchmarks directory (-bench-dir): %w", err)
+	} else {
+		if !fi.IsDir() {
+			return fmt.Errorf("-bench-dir is not a directory; did you mean to run this command from x/benchmarks/sweet?")
+		}
+		var missing []string
+		for _, b := range allBenchmarks {
+			fi, err := os.Stat(filepath.Join(c.benchDir, b.name))
+			if err != nil || !fi.IsDir() {
+				missing = append(missing, b.name)
+			}
+		}
+		if len(missing) != 0 {
+			return fmt.Errorf("benchmarks directory (-bench-dir) is missing benchmarks (%s); did you mean to run this command from x/benchmarks/sweet?", strings.Join(missing, ", "))
 		}
 	}
 	log.Printf("Work directory: %s", c.workDir)
@@ -331,7 +362,12 @@ func (c *runCmd) Run(args []string) error {
 	if len(unknown) != 0 {
 		return fmt.Errorf("unknown benchmarks: %s", strings.Join(unknown, ", "))
 	}
-	log.Printf("Benchmarks: %s", strings.Join(benchmarkNames(benchmarks), " "))
+	countString := fmt.Sprintf("%d runs", c.runCfg.count)
+	if c.pgo {
+		countString += fmt.Sprintf(", %d pgo runs", c.runCfg.pgoCount)
+	}
+	countString += fmt.Sprintf(" per config (%d)", len(configs))
+	log.Printf("Benchmarks: %s (%s)", strings.Join(benchmarkNames(benchmarks), " "), countString)
 
 	// Check prerequisites for each benchmark.
 	for _, b := range benchmarks {
