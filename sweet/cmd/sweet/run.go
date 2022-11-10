@@ -152,7 +152,7 @@ func (c *runCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.runCfg.perfFlags, "perf-flags", "", "the flags to pass to Linux perf if -perf is set")
 	f.BoolVar(&c.pgo, "pgo", false, "perform PGO testing; for each config, collect profiles from a baseline run which are used to feed into a generated PGO config")
 	f.IntVar(&c.runCfg.pgoCount, "pgo-count", 0, "the number of times to run profiling runs for -pgo; defaults to the value of -count if <=5, or 5 if higher")
-	f.IntVar(&c.runCfg.count, "count", 25, "the number of times to run each benchmark")
+	f.IntVar(&c.runCfg.count, "count", 10, "the number of times to run each benchmark")
 
 	f.BoolVar(&c.quiet, "quiet", false, "whether to suppress activity output on stderr (no effect on -shell)")
 	f.BoolVar(&c.printCmd, "shell", false, "whether to print the commands being executed to stdout")
