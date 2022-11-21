@@ -156,24 +156,6 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 	gocmd := config.goCommandCopy()
 	gopath := path.Join(cwd, "gopath")
 
-	if explicitAll != 1 { // clear cache unless "-a[=1]" which requests -a on compilation.
-		cmd := exec.Command(gocmd, "clean", "-cache")
-		cmd.Env = DefaultEnv()
-		if !bench.NotSandboxed {
-			cmd.Env = replaceEnv(cmd.Env, "GOOS", "linux")
-		}
-		if root != "" {
-			cmd.Env = replaceEnv(cmd.Env, "GOROOT", root)
-		}
-		cmd.Env = replaceEnvs(cmd.Env, sliceExpandEnv(bench.GcEnv, cmd.Env))
-		cmd.Env = replaceEnvs(cmd.Env, sliceExpandEnv(config.GcEnv, cmd.Env))
-		cmd.Dir = gopath // Only want the cache-cleaning effect, not the binary-deleting effect. It's okay to clean gopath.
-		s, _ := config.runBinary("", cmd, true)
-		if s != "" {
-			fmt.Println("Error running go clean -cache, ", s)
-		}
-	}
-
 	cmd := exec.Command(gocmd, "test", "-vet=off", "-c")
 	compileTo := path.Join(dirs.wd, dirs.testBinDir, config.benchName(bench))
 
@@ -200,11 +182,8 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 
 	cmd.Args = append(cmd.Args, "-o", compileTo)
 	cmd.Args = append(cmd.Args, sliceExpandEnv(bench.BuildFlags, cmd.Env)...)
-	// Do not normally need -a because cache was emptied first and std was -a installed with these flags.
-	// But for -a=1, do it anyway
-	if explicitAll == 1 {
-		cmd.Args = append(cmd.Args, "-a")
-	}
+	// Instead of cleaning the cache, specify -a; cache use changed with 1.20, which made builds take much longer.
+	cmd.Args = append(cmd.Args, "-a")
 	cmd.Args = append(cmd.Args, sliceExpandEnv(config.BuildFlags, cmd.Env)...)
 	if config.GcFlags != "" {
 		cmd.Args = append(cmd.Args, "-gcflags="+expandEnv(config.GcFlags, cmd.Env))
