@@ -26,12 +26,12 @@ A simple example configuration might look like:
 
 [[config]]
   name = "original"
-  goroot = "~/work/go"
+  goroot = "/path/to/go"
   envexec = ["GODEBUG=gctrace=1"]
 
 [[config]]
   name = "improved"
-  goroot = "~/work/go-but-better"
+  goroot = "/path/to/go-but-better"
   envexec = ["GODEBUG=gctrace=1"]
 
 Note that because 'config' is an array field, one may have multiple
