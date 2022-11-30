@@ -23,11 +23,13 @@ import (
 )
 
 var (
-	wait             = flag.Bool("wait", true, "wait for system idle before starting benchmarking")
-	gorootExperiment = flag.String("goroot", "", "GOROOT to test (default $GOROOT or 'go env GOROOT')")
-	gorootBaseline   = flag.String("goroot-baseline", "", "baseline GOROOT to test against (optional) (default $BENCH_BASELINE_GOROOT)")
-	branch           = flag.String("branch", "", "branch of the commits we're testing against (default $BENCH_BRANCH or unknown)")
-	repository       = flag.String("repository", "", "repository name of the commits we're testing against (default $BENCH_REPOSITORY or 'go')")
+	wait              = flag.Bool("wait", true, "wait for system idle before starting benchmarking")
+	gorootExperiment  = flag.String("goroot", "", "GOROOT to test (default $GOROOT or 'go env GOROOT')")
+	gorootBaseline    = flag.String("goroot-baseline", "", "baseline GOROOT to test against (optional) (default $BENCH_BASELINE_GOROOT)")
+	branch            = flag.String("branch", "", "branch of the commits we're testing against (default $BENCH_BRANCH or unknown)")
+	repository        = flag.String("repository", "", "repository name of the commits we're testing against (default $BENCH_REPOSITORY or 'go')")
+	subRepoExperiment = flag.String("subrepo", "", "Sub-repo dir to test (default $BENCH_SUBREPO_PATH)")
+	subRepoBaseline   = flag.String("subrepo-baseline", "", "Sub-repo baseline to test against (default $BENCH_SUBREPO_BASELINE_PATH)")
 )
 
 func determineGOROOT() (string, error) {
@@ -141,11 +143,24 @@ func main() {
 	}
 	fmt.Printf("branch: %s\n", branch)
 
-	if repository != "go" {
-		// TODO(go.dev/issue/53538): Support other repositories.
-		log.Fatalf("Unknown repository %q", repository)
+	subRepoExperiment := *subRepoExperiment
+	if subRepoExperiment == "" {
+		subRepoExperiment = os.Getenv("BENCH_SUBREPO_PATH")
 	}
+	subRepoBaseline := *subRepoBaseline
+	if subRepoBaseline == "" {
+		subRepoBaseline = os.Getenv("BENCH_SUBREPO_BASELINE_PATH")
+	}
+	dirs := []string{subRepoExperiment, subRepoBaseline}
 
+	if repository != "go" {
+		toolchain := toolchainFromGOROOT("baseline", gorootBaseline)
+		if err := goTestSubrepo(toolchain, repository, dirs); err != nil {
+			log.Print("FAIL")
+			os.Exit(1)
+		}
+		return
+	}
 	// Run benchmarks against the toolchains.
 	if err := run(toolchains); err != nil {
 		log.Print("FAIL")

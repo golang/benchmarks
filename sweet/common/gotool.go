@@ -30,8 +30,11 @@ func SystemGoTool() (*Go, error) {
 	}, nil
 }
 
-func (g *Go) Do(args ...string) error {
+func (g *Go) Do(dir string, args ...string) error {
 	cmd := exec.Command(g.Tool, args...)
+	if dir != "" {
+		cmd.Dir = dir
+	}
 	cmd.Env = g.Env.Collapse()
 	if g.PassOutput {
 		cmd.Stdout = os.Stdout
@@ -66,7 +69,7 @@ func (g *Go) BuildPackage(pkg, out string) error {
 	if pkg[0] == '/' || pkg[0] == '.' {
 		return fmt.Errorf("path used as package in go build")
 	}
-	return g.Do("build", "-o", out, pkg)
+	return g.Do("", "build", "-o", out, pkg)
 }
 
 func (g *Go) BuildPath(path, out string) error {
@@ -81,7 +84,7 @@ func (g *Go) BuildPath(path, out string) error {
 	if err := chdir(path); err != nil {
 		return fmt.Errorf("failed to enter build directory: %w", err)
 	}
-	return g.Do("build", "-o", out)
+	return g.Do("", "build", "-o", out)
 }
 
 func chdir(path string) error {
