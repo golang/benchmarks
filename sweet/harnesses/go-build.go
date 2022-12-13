@@ -93,7 +93,7 @@ func (h GoBuild) Build(pcfg *common.Config, bcfg *common.BuildConfig) error {
 		return fmt.Errorf("error copying GOROOT: %v", err)
 	}
 	cfg.GoRoot = goroot
-	if err := cfg.GoTool().Do("install", "cmd/compile", "cmd/link"); err != nil {
+	if err := cfg.GoTool().Do("", "install", "cmd/compile", "cmd/link"); err != nil {
 		return fmt.Errorf("error building cmd/compile and cmd/link: %v", err)
 	}
 
