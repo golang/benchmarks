@@ -7,6 +7,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"path/filepath"
 )
 
 func goTest(tcs []*toolchain) error {
@@ -28,7 +29,7 @@ func goTestSubrepo(tc *toolchain, subRepo string, dirs []string) error {
 		fmt.Printf("toolchain: %s\n", tc.Name)
 
 		for _, dir := range dirs {
-			err := tc.Do(dir, "test", "-v", "-bench=.", "./gopls/internal/regtest/bench/", "-count=5")
+			err := tc.Do(filepath.Join(dir, "gopls"), "test", "-v", "-bench=.", "./internal/regtest/bench/", "-count=5")
 			if err != nil {
 				log.Printf("Error: %v", err)
 				return fmt.Errorf("error running sub-repo %s benchmark with toolchain %s in dir %s: %w", subRepo, tc.Name, dir, err)
