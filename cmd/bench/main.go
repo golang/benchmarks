@@ -151,11 +151,10 @@ func main() {
 	if subRepoBaseline == "" {
 		subRepoBaseline = os.Getenv("BENCH_SUBREPO_BASELINE_PATH")
 	}
-	dirs := []string{subRepoExperiment, subRepoBaseline}
 
 	if repository != "go" {
 		toolchain := toolchainFromGOROOT("baseline", gorootBaseline)
-		if err := goTestSubrepo(toolchain, repository, dirs); err != nil {
+		if err := goTestSubrepo(toolchain, repository, subRepoBaseline, subRepoExperiment); err != nil {
 			log.Print("FAIL")
 			os.Exit(1)
 		}

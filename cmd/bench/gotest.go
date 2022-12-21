@@ -22,18 +22,23 @@ func goTest(tcs []*toolchain) error {
 	return nil
 }
 
-func goTestSubrepo(tc *toolchain, subRepo string, dirs []string) error {
+func goTestSubrepo(tc *toolchain, subRepo, baselineDir, experimentDir string) error {
 	switch subRepo {
 	case "tools":
 		log.Printf("Running sub-repo benchmarks for %s", subRepo)
-		fmt.Printf("toolchain: %s\n", tc.Name)
 
-		for _, dir := range dirs {
-			err := tc.Do(filepath.Join(dir, "gopls"), "test", "-v", "-bench=BenchmarkGoToDefinition", "./internal/regtest/bench/", "-count=5")
-			if err != nil {
-				log.Printf("Error: %v", err)
-				return fmt.Errorf("error running sub-repo %s benchmark with toolchain %s in dir %s: %w", subRepo, tc.Name, dir, err)
-			}
+		fmt.Println("toolchain: baseline")
+		err := tc.Do(filepath.Join(baselineDir, "gopls"), "test", "-v", "-bench=BenchmarkGoToDefinition", "./internal/regtest/bench/", "-count=5")
+		if err != nil {
+			log.Printf("Error: %v", err)
+			return fmt.Errorf("error running sub-repo %s benchmark with toolchain %s in dir %s: %w", subRepo, tc.Name, baselineDir, err)
+		}
+
+		fmt.Println("toolchain: experiment")
+		err = tc.Do(filepath.Join(experimentDir, "gopls"), "test", "-v", "-bench=BenchmarkGoToDefinition", "./internal/regtest/bench/", "-count=5")
+		if err != nil {
+			log.Printf("Error: %v", err)
+			return fmt.Errorf("error running sub-repo %s benchmark with toolchain %s in dir %s: %w", subRepo, tc.Name, experimentDir, err)
 		}
 	default:
 		return fmt.Errorf("unsupported subrepo %s", subRepo)
