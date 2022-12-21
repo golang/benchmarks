@@ -279,24 +279,15 @@ func (b *benchmark) execute(cfgs []*common.Config, r *runCfg) error {
 			mkdirAll(resultsBinDir)
 			copyDirContents(resultsBinDir, binDir)
 		}
-		if r.cpuProfile || r.memProfile || r.perf {
+		if !cfg.Diagnostics.Empty() {
 			// Create a directory for any profile files to live in.
 			resultsProfilesDir := r.runProfilesDir(b, cfg)
 			mkdirAll(resultsProfilesDir)
 
 			// We need to pass arguments to the benchmark binary to generate
 			// profiles. See benchmarks/internal/driver for details.
-			if r.cpuProfile {
-				args = append(args, "-cpuprofile", resultsProfilesDir)
-			}
-			if r.memProfile {
-				args = append(args, "-memprofile", resultsProfilesDir)
-			}
-			if r.perf {
-				args = append(args, "-perf", resultsProfilesDir)
-				if r.perfFlags != "" {
-					args = append(args, "-perf-flags", r.perfFlags)
-				}
+			for _, d := range cfg.Diagnostics.ToSlice() {
+				args = append(args, d.DriverArgs(resultsProfilesDir)...)
 			}
 		}
 

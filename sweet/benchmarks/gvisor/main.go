@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/driver"
+	"golang.org/x/benchmarks/sweet/common/diagnostics"
 )
 
 type config struct {
@@ -66,12 +67,12 @@ func main1() error {
 			}
 			return err
 		}
-		for _, typ := range driver.ProfileTypes {
-			if !driver.ProfilingEnabled(typ) {
+		for _, typ := range diagnostics.Types() {
+			if !driver.DiagnosticEnabled(typ) {
 				continue
 			}
 			// runscCmd ensures these are created if necessary.
-			if err := driver.CopyProfile(cliCfg.profilePath(typ), typ, bench.name()); err != nil {
+			if err := driver.CopyDiagnosticData(cliCfg.profilePath(typ), typ, bench.name()); err != nil {
 				return err
 			}
 		}

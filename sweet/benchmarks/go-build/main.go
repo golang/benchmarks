@@ -17,6 +17,7 @@ import (
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/cgroups"
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/driver"
 	"golang.org/x/benchmarks/sweet/common"
+	"golang.org/x/benchmarks/sweet/common/diagnostics"
 	sprofile "golang.org/x/benchmarks/sweet/common/profile"
 )
 
@@ -67,7 +68,7 @@ func run(pkgPath string) error {
 		"-bench-name", name,
 	}
 	flag.CommandLine.Visit(func(f *flag.Flag) {
-		if f.Name == "go" || f.Name == "bench-name" {
+		if f.Name == "go" || f.Name == "bench-name" || strings.HasPrefix(f.Name, "perf") {
 			// No need to pass this along.
 			return
 		}
@@ -76,8 +77,12 @@ func run(pkgPath string) error {
 
 	cmdArgs = append(cmdArgs, "-toolexec", strings.Join(selfCmd, " "))
 	var baseCmd *exec.Cmd
-	if driver.ProfilingEnabled(driver.ProfilePerf) {
-		baseCmd = exec.Command("perf", append([]string{"record", "-o", filepath.Join(tmpDir, "perf.data"), goTool}, cmdArgs...)...)
+	if driver.DiagnosticEnabled(diagnostics.Perf) {
+		perfArgs := []string{"record", "-o", filepath.Join(tmpDir, "perf.data")}
+		perfArgs = append(perfArgs, driver.PerfFlags()...)
+		perfArgs = append(perfArgs, goTool)
+		perfArgs = append(perfArgs, cmdArgs...)
+		baseCmd = exec.Command("perf", perfArgs...)
 	} else {
 		baseCmd = exec.Command(goTool, cmdArgs...)
 	}
@@ -98,41 +103,55 @@ func run(pkgPath string) error {
 
 	// Handle any CPU profiles produced, and merge them.
 	// Then, write them out to the canonical profiles above.
-	if driver.ProfilingEnabled(driver.ProfileCPU) {
-		compileProfile, err := mergeProfiles(tmpDir, profilePrefix("compile", driver.ProfileCPU))
+	if driver.DiagnosticEnabled(diagnostics.CPUProfile) {
+		compileProfile, err := mergePprofProfiles(tmpDir, profilePrefix("compile", diagnostics.CPUProfile))
 		if err != nil {
 			return err
 		}
-		if err := driver.WriteProfile(compileProfile, driver.ProfileCPU, name+"Compile"); err != nil {
+		if err := driver.WritePprofProfile(compileProfile, diagnostics.CPUProfile, name+"Compile"); err != nil {
 			return err
 		}
 
-		linkProfile, err := mergeProfiles(tmpDir, profilePrefix("link", driver.ProfileCPU))
+		linkProfile, err := mergePprofProfiles(tmpDir, profilePrefix("link", diagnostics.CPUProfile))
 		if err != nil {
 			return err
 		}
-		if err := driver.WriteProfile(linkProfile, driver.ProfileCPU, name+"Link"); err != nil {
+		if err := driver.WritePprofProfile(linkProfile, diagnostics.CPUProfile, name+"Link"); err != nil {
 			return err
 		}
 	}
-	if driver.ProfilingEnabled(driver.ProfileMem) {
-		if err := copyProfiles(tmpDir, "compile", driver.ProfileMem, name+"Compile"); err != nil {
+	if driver.DiagnosticEnabled(diagnostics.MemProfile) {
+		if err := copyPprofProfiles(tmpDir, "compile", diagnostics.MemProfile, name+"Compile"); err != nil {
 			return err
 		}
-		if err := copyProfiles(tmpDir, "link", driver.ProfileMem, name+"Link"); err != nil {
+		if err := copyPprofProfiles(tmpDir, "link", diagnostics.MemProfile, name+"Link"); err != nil {
 			return err
 		}
 	}
-	if driver.ProfilingEnabled(driver.ProfilePerf) {
-		if err := driver.CopyProfile(filepath.Join(tmpDir, "perf.data"), driver.ProfilePerf, name); err != nil {
+	if driver.DiagnosticEnabled(diagnostics.Perf) {
+		if err := driver.CopyDiagnosticData(filepath.Join(tmpDir, "perf.data"), diagnostics.Perf, name); err != nil {
 			return err
+		}
+	}
+	if driver.DiagnosticEnabled(diagnostics.Trace) {
+		entries, err := os.ReadDir(tmpDir)
+		if err != nil {
+			return err
+		}
+		for _, entry := range entries {
+			if !strings.HasPrefix(entry.Name(), profilePrefix("compile", diagnostics.Trace)) {
+				continue
+			}
+			if err := driver.CopyDiagnosticData(filepath.Join(tmpDir, entry.Name()), diagnostics.Trace, name+"Compile"); err != nil {
+				return err
+			}
 		}
 	}
 	return printOtherResults(tmpResultsDir())
 }
 
-func mergeProfiles(dir, prefix string) (*profile.Profile, error) {
-	profiles, err := sprofile.ReadDir(dir, func(name string) bool {
+func mergePprofProfiles(dir, prefix string) (*profile.Profile, error) {
+	profiles, err := sprofile.ReadDirPprof(dir, func(name string) bool {
 		return strings.HasPrefix(name, prefix)
 	})
 	if err != nil {
@@ -141,23 +160,23 @@ func mergeProfiles(dir, prefix string) (*profile.Profile, error) {
 	return profile.Merge(profiles)
 }
 
-func copyProfiles(dir, bin string, typ driver.ProfileType, finalPrefix string) error {
+func copyPprofProfiles(dir, bin string, typ diagnostics.Type, finalPrefix string) error {
 	prefix := profilePrefix(bin, typ)
-	profiles, err := sprofile.ReadDir(dir, func(name string) bool {
+	profiles, err := sprofile.ReadDirPprof(dir, func(name string) bool {
 		return strings.HasPrefix(name, prefix)
 	})
 	if err != nil {
 		return err
 	}
 	for _, profile := range profiles {
-		if err := driver.WriteProfile(profile, typ, finalPrefix); err != nil {
+		if err := driver.WritePprofProfile(profile, typ, finalPrefix); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func profilePrefix(bin string, typ driver.ProfileType) string {
+func profilePrefix(bin string, typ diagnostics.Type) string {
 	return bin + "-prof." + string(typ)
 }
 
@@ -200,15 +219,23 @@ func runToolexec() error {
 		return cmd.Run()
 	}
 	var extraFlags []string
-	for _, typ := range []driver.ProfileType{driver.ProfileCPU, driver.ProfileMem} {
-		if driver.ProfilingEnabled(typ) {
+	for _, typ := range []diagnostics.Type{diagnostics.CPUProfile, diagnostics.MemProfile, diagnostics.Trace} {
+		if driver.DiagnosticEnabled(typ) {
+			if bin == "link" && typ == diagnostics.Trace {
+				// TODO(mknyszek): Traces are not supported for the linker.
+				continue
+			}
 			// Stake a claim for a filename.
 			f, err := os.CreateTemp(tmpDir, profilePrefix(bin, typ))
 			if err != nil {
 				return err
 			}
 			f.Close()
-			extraFlags = append(extraFlags, "-"+string(typ)+"profile", f.Name())
+			flag := "-" + string(typ)
+			if typ == diagnostics.Trace {
+				flag += "profile" // The compiler flag is -traceprofile.
+			}
+			extraFlags = append(extraFlags, flag, f.Name())
 		}
 	}
 	cmd := exec.Command(flag.Args()[0], append(extraFlags, flag.Args()[1:]...)...)

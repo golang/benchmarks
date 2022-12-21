@@ -13,6 +13,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime/pprof"
+	"runtime/trace"
 	"sort"
 	"strconv"
 	"strings"
@@ -20,23 +21,17 @@ import (
 	"time"
 
 	"github.com/google/pprof/profile"
+	"golang.org/x/benchmarks/sweet/common/diagnostics"
 )
 
 var (
-	coreDumpDir   string
-	cpuProfileDir string
-	memProfileDir string
-	perfDir       string
-	perfFlags     string
-	short         bool
+	coreDumpDir string
+	diag        map[diagnostics.Type]*diagnostics.DriverConfig
 )
 
 func SetFlags(f *flag.FlagSet) {
 	f.StringVar(&coreDumpDir, "dump-cores", "", "dump a core file to the given directory after every benchmark run")
-	f.StringVar(&cpuProfileDir, "cpuprofile", "", "write a CPU profile to the given directory after every benchmark run")
-	f.StringVar(&memProfileDir, "memprofile", "", "write a memory profile to the given directory after every benchmark run")
-	f.StringVar(&perfDir, "perf", "", "write a Linux perf data file to the given directory after every benchmark run")
-	f.StringVar(&perfFlags, "perf-flags", "", "pass the following additional flags to Linux perf")
+	diag = diagnostics.SetFlagsForDriver(f)
 }
 
 const (
@@ -88,19 +83,25 @@ func DoCoreDump(v bool) RunOption {
 
 func DoCPUProfile(v bool) RunOption {
 	return func(b *B) {
-		b.doProfile[ProfileCPU] = v
+		b.collectDiag[diagnostics.CPUProfile] = v
 	}
 }
 
 func DoMemProfile(v bool) RunOption {
 	return func(b *B) {
-		b.doProfile[ProfileMem] = v
+		b.collectDiag[diagnostics.MemProfile] = v
 	}
 }
 
 func DoPerf(v bool) RunOption {
 	return func(b *B) {
-		b.doProfile[ProfilePerf] = v
+		b.collectDiag[diagnostics.Perf] = v
+	}
+}
+
+func DoTrace(v bool) RunOption {
+	return func(b *B) {
+		b.collectDiag[diagnostics.Trace] = v
 	}
 }
 
@@ -108,9 +109,10 @@ func BenchmarkPID(pid int) RunOption {
 	return func(b *B) {
 		b.pid = pid
 		if pid != os.Getpid() {
-			b.doProfile[ProfileCPU] = false
-			b.doProfile[ProfileMem] = false
-			b.doProfile[ProfilePerf] = false
+			b.collectDiag[diagnostics.CPUProfile] = false
+			b.collectDiag[diagnostics.MemProfile] = false
+			b.collectDiag[diagnostics.Perf] = false
+			b.collectDiag[diagnostics.Trace] = false
 		}
 	}
 }
@@ -136,6 +138,7 @@ var InProcessMeasurementOptions = []RunOption{
 	DoCPUProfile(true),
 	DoMemProfile(true),
 	DoPerf(true),
+	DoTrace(true),
 }
 
 type B struct {
@@ -148,13 +151,13 @@ type B struct {
 	doPeakRSS     bool
 	doPeakVM      bool
 	doCoreDump    bool
-	doProfile     map[ProfileType]bool
+	collectDiag   map[diagnostics.Type]bool
 	rssFunc       func() (uint64, error)
 	statsMu       sync.Mutex
 	stats         map[string]uint64
 	ops           int
 	wg            sync.WaitGroup
-	profiles      map[ProfileType]*os.File
+	diagnostics   map[diagnostics.Type]*os.File
 	resultsWriter io.Writer
 	perfProcess   *os.Process
 }
@@ -163,13 +166,13 @@ func newB(name string) *B {
 	b := &B{
 		pid:  os.Getpid(),
 		name: name,
-		doProfile: map[ProfileType]bool{
-			ProfileCPU: false,
-			ProfileMem: false,
+		collectDiag: map[diagnostics.Type]bool{
+			diagnostics.CPUProfile: false,
+			diagnostics.MemProfile: false,
 		},
-		stats:    make(map[string]uint64),
-		ops:      1,
-		profiles: make(map[ProfileType]*os.File),
+		stats:       make(map[string]uint64),
+		ops:         1,
+		diagnostics: make(map[diagnostics.Type]*os.File),
 	}
 	return b
 }
@@ -180,15 +183,19 @@ func (b *B) setStat(name string, value uint64) {
 	b.stats[name] = value
 }
 
-func (b *B) shouldProfile(typ ProfileType) bool {
-	return b.doProfile[typ] && ProfilingEnabled(typ)
+func (b *B) shouldCollectDiag(typ diagnostics.Type) bool {
+	return b.collectDiag[typ] && DiagnosticEnabled(typ)
+}
+
+func (b *B) Name() string {
+	return b.name
 }
 
 func (b *B) StartTimer() {
-	if b.shouldProfile(ProfileCPU) {
-		pprof.StartCPUProfile(b.profiles[ProfileCPU])
+	if b.shouldCollectDiag(diagnostics.CPUProfile) {
+		pprof.StartCPUProfile(b.diagnostics[diagnostics.CPUProfile])
 	}
-	if b.shouldProfile(ProfilePerf) {
+	if b.shouldCollectDiag(diagnostics.Perf) {
 		if err := b.startPerf(); err != nil {
 			warningf("failed to start perf: %v", err)
 		}
@@ -197,18 +204,18 @@ func (b *B) StartTimer() {
 }
 
 func (b *B) ResetTimer() {
-	if b.shouldProfile(ProfileCPU) {
+	if b.shouldCollectDiag(diagnostics.CPUProfile) {
 		pprof.StopCPUProfile()
-		if err := b.truncateProfile(ProfileCPU); err != nil {
+		if err := b.truncateDiagnosticData(diagnostics.CPUProfile); err != nil {
 			warningf("failed to truncate CPU profile: %v", err)
 		}
-		pprof.StartCPUProfile(b.profiles[ProfileCPU])
+		pprof.StartCPUProfile(b.diagnostics[diagnostics.CPUProfile])
 	}
-	if b.shouldProfile(ProfilePerf) {
+	if b.shouldCollectDiag(diagnostics.Perf) {
 		if err := b.stopPerf(); err != nil {
 			warningf("failed to stop perf: %v", err)
 		}
-		if err := b.truncateProfile(ProfilePerf); err != nil {
+		if err := b.truncateDiagnosticData(diagnostics.Perf); err != nil {
 			warningf("failed to truncate perf data file: %v", err)
 		}
 		if err := b.startPerf(); err != nil {
@@ -221,8 +228,8 @@ func (b *B) ResetTimer() {
 	b.dur = 0
 }
 
-func (b *B) truncateProfile(typ ProfileType) error {
-	f := b.profiles[typ]
+func (b *B) truncateDiagnosticData(typ diagnostics.Type) error {
+	f := b.diagnostics[typ]
 	_, err := f.Seek(0, 0)
 	if err != nil {
 		return err
@@ -238,10 +245,10 @@ func (b *B) StopTimer() {
 	b.dur += end.Sub(b.start)
 	b.start = time.Time{}
 
-	if b.shouldProfile(ProfileCPU) {
+	if b.shouldCollectDiag(diagnostics.CPUProfile) {
 		pprof.StopCPUProfile()
 	}
-	if b.shouldProfile(ProfilePerf) {
+	if b.shouldCollectDiag(diagnostics.Perf) {
 		if err := b.stopPerf(); err != nil {
 			warningf("failed to stop perf: %v", err)
 		}
@@ -402,8 +409,8 @@ func (b *B) startPerf() error {
 	if b.perfProcess != nil {
 		panic("perf process already started")
 	}
-	args := []string{"record", "-o", b.profiles[ProfilePerf].Name(), "-p", strconv.Itoa(b.pid)}
-	if perfFlags != "" {
+	args := []string{"record", "-o", b.diagnostics[diagnostics.Perf].Name(), "-p", strconv.Itoa(b.pid)}
+	if perfFlags := diag[diagnostics.Perf].Flags; perfFlags != "" {
 		args = append(args, strings.Split(perfFlags, " ")...)
 	}
 	cmd := exec.Command("perf", args...)
@@ -439,13 +446,19 @@ func RunBenchmark(name string, f func(*B) error, opts ...RunOption) error {
 	stop := b.startRSSSampler()
 
 	// Make sure profile file(s) are created if necessary.
-	for _, typ := range ProfileTypes {
-		if b.shouldProfile(typ) {
-			f, err := newProfileFile(typ, b.name)
+	for _, typ := range diagnostics.Types() {
+		if b.shouldCollectDiag(typ) {
+			f, err := newDiagnosticDataFile(typ, b.name)
 			if err != nil {
 				return err
 			}
-			b.profiles[typ] = f
+			b.diagnostics[typ] = f
+		}
+	}
+
+	if b.shouldCollectDiag(diagnostics.Trace) {
+		if err := trace.Start(b.diagnostics[diagnostics.Trace]); err != nil {
+			return err
 		}
 	}
 
@@ -507,11 +520,14 @@ func RunBenchmark(name string, f func(*B) error, opts ...RunOption) error {
 	b.wg.Wait()
 
 	// Finalize all the profile files we're handling ourselves.
-	for typ, f := range b.profiles {
-		if typ == ProfileMem {
+	for typ, f := range b.diagnostics {
+		if typ == diagnostics.MemProfile {
 			if err := pprof.Lookup("heap").WriteTo(f, 0); err != nil {
 				return err
 			}
+		}
+		if typ == diagnostics.Trace {
+			trace.Stop()
 		}
 		f.Close()
 	}
@@ -521,37 +537,22 @@ func RunBenchmark(name string, f func(*B) error, opts ...RunOption) error {
 	return nil
 }
 
-type ProfileType string
-
-const (
-	ProfileCPU  ProfileType = "cpu"
-	ProfileMem  ProfileType = "mem"
-	ProfilePerf ProfileType = "perf"
-)
-
-var ProfileTypes = []ProfileType{
-	ProfileCPU,
-	ProfileMem,
-	ProfilePerf,
+func DiagnosticEnabled(typ diagnostics.Type) bool {
+	cfg, ok := diag[typ]
+	if !ok {
+		panic("bad profile type")
+	}
+	return cfg.Dir != ""
 }
 
-func ProfilingEnabled(typ ProfileType) bool {
-	switch typ {
-	case ProfileCPU:
-		return cpuProfileDir != ""
-	case ProfileMem:
-		return memProfileDir != ""
-	case ProfilePerf:
-		return perfDir != ""
+func WritePprofProfile(prof *profile.Profile, typ diagnostics.Type, pattern string) error {
+	if !typ.IsPprof() {
+		return fmt.Errorf("this type of diagnostic doesn't use the pprof format")
 	}
-	panic("bad profile type")
-}
-
-func WriteProfile(prof *profile.Profile, typ ProfileType, pattern string) error {
-	if !ProfilingEnabled(typ) {
-		return fmt.Errorf("this type of profile is not currently enabled")
+	if !DiagnosticEnabled(typ) {
+		return fmt.Errorf("this type of diagnostic is not currently enabled")
 	}
-	f, err := newProfileFile(typ, pattern)
+	f, err := newDiagnosticDataFile(typ, pattern)
 	if err != nil {
 		return err
 	}
@@ -559,13 +560,13 @@ func WriteProfile(prof *profile.Profile, typ ProfileType, pattern string) error 
 	return prof.Write(f)
 }
 
-func CopyProfile(profilePath string, typ ProfileType, pattern string) error {
-	inF, err := os.Open(profilePath)
+func CopyDiagnosticData(diagPath string, typ diagnostics.Type, pattern string) error {
+	inF, err := os.Open(diagPath)
 	if err != nil {
 		return err
 	}
 	defer inF.Close()
-	outF, err := newProfileFile(typ, pattern)
+	outF, err := newDiagnosticDataFile(typ, pattern)
 	if err != nil {
 		return err
 	}
@@ -574,21 +575,17 @@ func CopyProfile(profilePath string, typ ProfileType, pattern string) error {
 	return err
 }
 
-func newProfileFile(typ ProfileType, pattern string) (*os.File, error) {
-	if !ProfilingEnabled(typ) {
+func PerfFlags() []string {
+	if !DiagnosticEnabled(diagnostics.Perf) {
+		panic("perf not enabled")
+	}
+	return strings.Split(diag[diagnostics.Perf].Flags, " ")
+}
+
+func newDiagnosticDataFile(typ diagnostics.Type, pattern string) (*os.File, error) {
+	cfg, ok := diag[typ]
+	if !ok || cfg.Dir == "" {
 		return nil, fmt.Errorf("this type of profile is not currently enabled")
 	}
-	var outDir, patternSuffix string
-	switch typ {
-	case ProfileCPU:
-		outDir = cpuProfileDir
-		patternSuffix = ".cpu"
-	case ProfileMem:
-		outDir = memProfileDir
-		patternSuffix = ".mem"
-	case ProfilePerf:
-		outDir = perfDir
-		patternSuffix = ".perf"
-	}
-	return os.CreateTemp(outDir, pattern+patternSuffix)
+	return os.CreateTemp(cfg.Dir, pattern+"."+string(typ))
 }

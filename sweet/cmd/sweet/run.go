@@ -20,6 +20,7 @@ import (
 
 	"golang.org/x/benchmarks/sweet/cli/bootstrap"
 	"golang.org/x/benchmarks/sweet/common"
+	"golang.org/x/benchmarks/sweet/common/diagnostics"
 	"golang.org/x/benchmarks/sweet/common/log"
 	sprofile "golang.org/x/benchmarks/sweet/common/profile"
 
@@ -58,10 +59,6 @@ type runCfg struct {
 	workDir     string
 	assetsCache string
 	dumpCore    bool
-	cpuProfile  bool
-	memProfile  bool
-	perf        bool
-	perfFlags   string
 	pgo         bool
 	pgoCount    int
 	short       bool
@@ -150,10 +147,6 @@ func (c *runCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.runCfg.workDir, "work-dir", "", "work directory for benchmarks (default: temporary directory)")
 	f.StringVar(&c.runCfg.assetsCache, "cache", bootstrap.CacheDefault(), "cache location for assets")
 	f.BoolVar(&c.runCfg.dumpCore, "dump-core", false, "whether to dump core files for each benchmark process when it completes a benchmark")
-	f.BoolVar(&c.runCfg.cpuProfile, "cpuprofile", false, "whether to dump a CPU profile for each benchmark (ensures all benchmarks do the same amount of work)")
-	f.BoolVar(&c.runCfg.memProfile, "memprofile", false, "whether to dump a memory profile for each benchmark (ensures all executions do the same amount of work")
-	f.BoolVar(&c.runCfg.perf, "perf", false, "whether to run each benchmark under Linux perf and dump the results")
-	f.StringVar(&c.runCfg.perfFlags, "perf-flags", "", "the flags to pass to Linux perf if -perf is set")
 	f.BoolVar(&c.pgo, "pgo", false, "perform PGO testing; for each config, collect profiles from a baseline run which are used to feed into a generated PGO config")
 	f.IntVar(&c.runCfg.pgoCount, "pgo-count", 0, "the number of times to run profiling runs for -pgo; defaults to the value of -count if <=5, or 5 if higher")
 	f.IntVar(&c.runCfg.count, "count", 0, fmt.Sprintf("the number of times to run each benchmark (default %d)", countDefault))
@@ -362,11 +355,12 @@ func (c *runCmd) Run(args []string) error {
 	if len(unknown) != 0 {
 		return fmt.Errorf("unknown benchmarks: %s", strings.Join(unknown, ", "))
 	}
-	countString := fmt.Sprintf("%d runs", c.runCfg.count)
+
+	// Print an indication of how many runs will be done.
+	countString := fmt.Sprintf("%d runs", c.runCfg.count*len(configs))
 	if c.pgo {
-		countString += fmt.Sprintf(", %d pgo runs", c.runCfg.pgoCount)
+		countString += fmt.Sprintf(", %d pgo runs", c.runCfg.pgoCount*len(configs))
 	}
-	countString += fmt.Sprintf(" per config (%d)", len(configs))
 	log.Printf("Benchmarks: %s (%s)", strings.Join(benchmarkNames(benchmarks), " "), countString)
 
 	// Check prerequisites for each benchmark.
@@ -406,11 +400,11 @@ func (c *runCmd) preparePGO(configs []*common.Config, benchmarks []*benchmark) (
 	for _, c := range configs {
 		cc := c.Copy()
 		cc.Name += ".profile"
+		cc.Diagnostics.Set(diagnostics.Config{Type: diagnostics.CPUProfile})
 		profileConfigs = append(profileConfigs, cc)
 	}
 
 	profileRunCfg := c.runCfg
-	profileRunCfg.cpuProfile = true
 	profileRunCfg.count = profileRunCfg.pgoCount
 
 	log.Printf("Running profile collection runs")
@@ -453,10 +447,10 @@ func (c *runCmd) preparePGO(configs []*common.Config, benchmarks []*benchmark) (
 	return newConfigs, nil
 }
 
-var cpuProfileRe = regexp.MustCompile(`^.*\.cpu[0-9]+$`)
+var cpuProfileRe = regexp.MustCompile(`^.*\.cpuprofile[0-9]+$`)
 
 func mergeCPUProfiles(dir string) (string, error) {
-	profiles, err := sprofile.ReadDir(dir, func(name string) bool {
+	profiles, err := sprofile.ReadDirPprof(dir, func(name string) bool {
 		return cpuProfileRe.FindString(name) != ""
 	})
 	if err != nil {

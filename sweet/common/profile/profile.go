@@ -12,7 +12,7 @@ import (
 	"github.com/google/pprof/profile"
 )
 
-func Read(filename string) (*profile.Profile, error) {
+func ReadPprof(filename string) (*profile.Profile, error) {
 	f, err := os.Open(filename)
 	if err != nil {
 		return nil, err
@@ -21,8 +21,8 @@ func Read(filename string) (*profile.Profile, error) {
 	return profile.Parse(f)
 }
 
-// ReadDir reads all profiles in dir whose name matches match(name).
-func ReadDir(dir string, match func(string) bool) ([]*profile.Profile, error) {
+// ReadDir reads all pprof profiles in dir whose name matches match(name).
+func ReadDirPprof(dir string, match func(string) bool) ([]*profile.Profile, error) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, err
@@ -39,7 +39,7 @@ func ReadDir(dir string, match func(string) bool) ([]*profile.Profile, error) {
 			continue
 		}
 		if match(name) {
-			p, err := Read(path)
+			p, err := ReadPprof(path)
 			if err != nil {
 				return nil, err
 			}

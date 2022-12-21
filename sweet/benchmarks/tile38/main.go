@@ -11,17 +11,20 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"sort"
 	"strconv"
+	"sync"
 	"sync/atomic"
 	"time"
 
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/driver"
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/pool"
+	"golang.org/x/benchmarks/sweet/common/diagnostics"
 	"golang.org/x/benchmarks/sweet/common/profile"
 
 	"github.com/gomodule/redigo/redis"
@@ -39,15 +42,17 @@ type config struct {
 	short       bool
 }
 
-func (c *config) profilePath(typ driver.ProfileType) string {
+func (c *config) diagnosticDataPath(typ diagnostics.Type) string {
 	var fname string
 	switch typ {
-	case driver.ProfileCPU:
+	case diagnostics.CPUProfile:
 		fname = "cpu.prof"
-	case driver.ProfileMem:
+	case diagnostics.MemProfile:
 		fname = "mem.prof"
-	case driver.ProfilePerf:
+	case diagnostics.Perf:
 		fname = "perf.data"
+	case diagnostics.Trace:
+		fname = "runtime.trace"
 	default:
 		panic("unsupported profile type " + string(typ))
 	}
@@ -58,7 +63,7 @@ var cliCfg config
 
 func init() {
 	driver.SetFlags(flag.CommandLine)
-	flag.StringVar(&cliCfg.host, "host", "", "hostname of tile38 server")
+	flag.StringVar(&cliCfg.host, "host", "127.0.0.1", "hostname of tile38 server")
 	flag.IntVar(&cliCfg.port, "port", 9851, "port for tile38 server")
 	flag.Int64Var(&cliCfg.seed, "seed", 0, "seed for PRNG")
 	flag.StringVar(&cliCfg.serverBin, "server", "", "path to tile38 server binary")
@@ -219,13 +224,14 @@ func launchServer(cfg *config, out io.Writer) (*exec.Cmd, error) {
 	// Set up arguments.
 	srvArgs := []string{
 		"-d", cfg.dataPath,
-		"-h", "127.0.0.1",
-		"-p", "9851",
+		"-h", cfg.host,
+		"-p", strconv.Itoa(cfg.port),
 		"-threads", strconv.Itoa(cfg.serverProcs),
+		"-pprofport", strconv.Itoa(pprofPort),
 	}
-	for _, typ := range []driver.ProfileType{driver.ProfileCPU, driver.ProfileMem} {
-		if driver.ProfilingEnabled(typ) {
-			srvArgs = append(srvArgs, "-"+string(typ)+"profile", cfg.profilePath(typ))
+	for _, typ := range []diagnostics.Type{diagnostics.CPUProfile, diagnostics.MemProfile} {
+		if driver.DiagnosticEnabled(typ) {
+			srvArgs = append(srvArgs, "-"+string(typ), cfg.diagnosticDataPath(typ))
 		}
 	}
 
@@ -271,6 +277,26 @@ func launchServer(cfg *config, out io.Writer) (*exec.Cmd, error) {
 	return nil, fmt.Errorf("timeout trying to connect to server: %v", err)
 }
 
+const pprofPort = 12345
+
+func (cfg *config) readTrace(benchName string) (int64, error) {
+	f, err := os.Create(cfg.diagnosticDataPath(diagnostics.Trace))
+	if err != nil {
+		return 0, err
+	}
+	defer f.Close()
+	resp, err := http.Get(fmt.Sprintf("http://%s:%d/debug/pprof/trace", cfg.host, pprofPort))
+	if err != nil {
+		return 0, err
+	}
+	defer resp.Body.Close()
+	n, err := io.Copy(f, resp.Body)
+	if err != nil {
+		return 0, err
+	}
+	return n, driver.CopyDiagnosticData(cfg.diagnosticDataPath(diagnostics.Trace), diagnostics.Trace, benchName)
+}
+
 func runOne(bench benchmark, cfg *config) (err error) {
 	var buf bytes.Buffer
 
@@ -306,14 +332,14 @@ func runOne(bench benchmark, cfg *config) (err error) {
 
 		// Now that the server is done, the profile should be complete and flushed.
 		// Copy it over.
-		for _, typ := range []driver.ProfileType{driver.ProfileCPU, driver.ProfileMem} {
-			if driver.ProfilingEnabled(typ) {
-				p, r := profile.Read(cfg.profilePath(typ))
+		for _, typ := range []diagnostics.Type{diagnostics.CPUProfile, diagnostics.MemProfile} {
+			if driver.DiagnosticEnabled(typ) {
+				p, r := profile.ReadPprof(cfg.diagnosticDataPath(typ))
 				if r != nil {
 					err = r
 					return
 				}
-				if r := driver.WriteProfile(p, typ, bench.name()); r != nil {
+				if r := driver.WritePprofProfile(p, typ, bench.name()); r != nil {
 					err = r
 					return
 				}
@@ -329,12 +355,46 @@ func runOne(bench benchmark, cfg *config) (err error) {
 		driver.DoCoreDump(true),
 		driver.BenchmarkPID(srvCmd.Process.Pid),
 		driver.DoPerf(true),
+		driver.DoTrace(true),
 	}
 	iters := 20 * 50000
 	if cfg.short {
 		iters = 1000
 	}
 	return driver.RunBenchmark(bench.name(), func(d *driver.B) error {
+		if driver.DiagnosticEnabled(diagnostics.Trace) {
+			// Handle execution tracing.
+			//
+			// TODO(mknyszek): This is kind of a hack. We really should find a way to just
+			// enable tracing at a lower level for the entire server run.
+			var traceStop chan struct{}
+			var traceWg sync.WaitGroup
+			var traceBytes uint64
+			traceWg.Add(1)
+			traceStop = make(chan struct{})
+			go func() {
+				defer traceWg.Done()
+				for {
+					select {
+					case <-traceStop:
+						return
+					default:
+					}
+					n, err := cfg.readTrace(bench.name())
+					if err != nil {
+						fmt.Fprintf(os.Stderr, "failed to read trace: %v", err)
+						return
+					}
+					traceBytes += uint64(n)
+				}
+			}()
+			defer func() {
+				// Stop the trace loop.
+				close(traceStop)
+				traceWg.Wait()
+				d.Report("trace-bytes", traceBytes)
+			}()
+		}
 		return bench.run(d, cfg.host, cfg.port, cfg.serverProcs, iters)
 	}, opts...)
 }
@@ -345,8 +405,8 @@ func main() {
 		fmt.Fprintf(os.Stderr, "error: unexpected args\n")
 		os.Exit(1)
 	}
-	for _, typ := range driver.ProfileTypes {
-		cliCfg.isProfiling = cliCfg.isProfiling || driver.ProfilingEnabled(typ)
+	for _, typ := range diagnostics.Types() {
+		cliCfg.isProfiling = cliCfg.isProfiling || driver.DiagnosticEnabled(typ)
 	}
 	benchmarks := benchmarks
 	if cliCfg.short {
