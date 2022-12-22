@@ -65,8 +65,6 @@ func toolchainFromGOROOT(name, goroot string) *toolchain {
 }
 
 func run(tcs []*toolchain) error {
-	fmt.Printf("runstamp: %s\n", time.Now().In(time.UTC).Format(time.RFC3339Nano))
-
 	// Because each of the functions below is responsible for running
 	// benchmarks under each toolchain itself, it is also responsible
 	// for ensuring that the benchmark tag "toolchain" is printed.
@@ -151,6 +149,8 @@ func main() {
 	if subRepoBaseline == "" {
 		subRepoBaseline = os.Getenv("BENCH_SUBREPO_BASELINE_PATH")
 	}
+
+	fmt.Printf("runstamp: %s\n", time.Now().In(time.UTC).Format(time.RFC3339Nano))
 
 	if repository != "go" {
 		toolchain := toolchainFromGOROOT("baseline", gorootBaseline)
