@@ -948,6 +948,11 @@ benchmarks_loop:
 
 	maxrc := 0
 
+	if verbose == 0 {
+		// Terminate any "...." printed before so that benchmarking info will have a new line.
+		fmt.Println()
+	}
+
 	// N repetitions for each configurationm, run all the benchmarks.
 	// TODO randomize the benchmarks and configurations, like for builds.
 	for i := 0; i < N; i++ {
@@ -1028,6 +1033,7 @@ benchmarks_loop:
 					cmd.Args = append(cmd.Args, moreArgs...)
 					cmd.Args = sliceExpandEnv(cmd.Args, cmd.Env)
 
+					config.say("\n") // force a newline, there may have been loggy-gunk before this.
 					config.say("shortname: " + b.Name + "\n")
 					config.say("toolchain: " + config.Name + "\n")
 					s, rc = todo.Configurations[j].runBinary(dirs.wd, cmd, false)
@@ -1057,6 +1063,7 @@ benchmarks_loop:
 					cmd.Args = append(cmd.Args, moreArgs...)
 					cmd.Args = sliceExpandEnv(cmd.Args, runEnv)
 
+					config.say("\n") // force a newline, there may have been loggy-gunk before this.
 					config.say("shortname: " + b.Name + "\n")
 					config.say("toolchain: " + config.Name + "\n")
 					s, rc = todo.Configurations[j].runBinary(dirs.wd, cmd, false)
