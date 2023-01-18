@@ -22,6 +22,7 @@ var configurationTmpl = template.Must(template.New("configuration").Parse(`
 [[Configurations]]
   Name = "{{.Name}}"
   Root = "{{.GOROOT}}"
+  AfterBuild = ["benchsize"]
 
 {{end -}}
 `))
@@ -111,6 +112,7 @@ func bent(tcs []*toolchain) (err error) {
 		"-N", "10",
 		"-C", confFile,
 		"-B", filepath.Join(dir, "benchmarks-50.toml"),
+		"-v",
 	)
 	cmd.Dir = dir
 	cmd.Stdout = os.Stdout
