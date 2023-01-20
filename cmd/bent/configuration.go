@@ -120,7 +120,7 @@ func (config *Configuration) runOtherBenchmarks(b *Benchmark, cwd string, cmdEnv
 			continue
 		}
 		testBinaryName := config.benchName(b)
-		c := exec.Command(cmd, path.Join(cwd, dirs.testBinDir, testBinaryName), b.Name)
+		c := exec.Command(cmd, path.Join(cwd, dirs.testBinDir, testBinaryName), strings.Title(b.Name))
 
 		c.Env = cmdEnv
 		if !b.NotSandboxed {

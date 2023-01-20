@@ -3,11 +3,18 @@
 tmp=tmp-bench-size-$$
 
 if [ `uname` = "Darwin" ] ; then
-	awkcommand='{print $3}'
+	# e.g., `total 20986192`
+	totalawk='$1 == "total" {print $2}'
+	# e.g., `        Section __text: 1445477`
+	otherawk='$2 == "__%s:" {print $3}'
 	size -m "$1" > $tmp
- else
+else
 	x=`which gsize`
-	awkcommand='{print $2}'
+	# e.g., `Total                3879861`
+	totalawk='$1 == "Total" {print $2}'
+	# e.g., `.text                1269331   4207296`
+	# Field 2 is size, field 3 is address.
+	otherawk='$1 == ".%s" {print $2}'
 	if [ "x$x" = "x" ] ; then
 		size -A "$1" > $tmp
 	else
@@ -15,32 +22,35 @@ if [ `uname` = "Darwin" ] ; then
 	fi
 fi
 
+# $1: size output file
+# $2: section name (without leading .)
+function find_section() {
+	cmd="$(printf "${otherawk}" $2)"
+	out=$(awk -Wposix "${cmd}" < $1)
+	if [[ "${out}" == "" ]]; then
+		echo 0
+	else
+		echo ${out}
+	fi
+}
 
-# note total is different -- always $2
-total=`egrep -i '^total' $tmp | awk -Wposix '{print $2}'`
 
-text=`egrep [^a-z]text[^a-z] $tmp | awk -Wposix "$awkcommand"`
-gopclntab=`grep gopclntab $tmp | awk -Wposix "$awkcommand"`
-rodata=`grep rodata $tmp | awk -Wposix "$awkcommand"`
-data=`egrep [^a-z]data[^a-z._] $tmp | awk -Wposix "$awkcommand"`
+# note total is different
+total=$(awk -Wposix "${totalawk}" < ${tmp})
 
-zdebug_info=`grep zdebug_info $tmp | awk -Wposix "$awkcommand"`
-zdebug_loc=`grep zdebug_loc $tmp | awk -Wposix "$awkcommand"`
-zdebug_line=`grep zdebug_line $tmp | awk -Wposix "$awkcommand"`
-zdebug_ranges=`grep zdebug_ranges $tmp | awk -Wposix "$awkcommand"`
-zdebug_frame=`grep zdebug_frame $tmp | awk -Wposix "$awkcommand"`
-zdebug_abbrev=`grep zdebug_abbrev $tmp | awk -Wposix "$awkcommand"`
-zdebug_pubname=`grep zdebug_pubname $tmp | awk -Wposix "$awkcommand"`
-zdebug_pubtype=`grep zdebug_pubtype $tmp | awk -Wposix "$awkcommand"`
+text=$(find_section "${tmp}" "text")
+gopclntab=$(find_section "${tmp}" "gopclntab")
+rodata=$(find_section "${tmp}" "rodata")
+data=$(find_section "${tmp}" "data")
 
-zdebug_info=${zdebug_info:-0}
-zdebug_loc=${zdebug_loc:-0}
-zdebug_line=${zdebug_line:-0}
-zdebug_ranges=${zdebug_ranges:-0}
-zdebug_frame=${zdebug_frame:-0}
-zdebug_abbrev=${zdebug_abbrev:-0}
-zdebug_pubname=${zdebug_pubname:-0}
-zdebug_pubtype=${zdebug_pubtype:-0}
+zdebug_info=$(find_section "${tmp}" "zdebug_info")
+zdebug_loc=$(find_section "${tmp}" "zdebug_loc")
+zdebug_line=$(find_section "${tmp}" "zdebug_line")
+zdebug_ranges=$(find_section "${tmp}" "zdebug_ranges")
+zdebug_frame=$(find_section "${tmp}" "zdebug_frame")
+zdebug_abbrev=$(find_section "${tmp}" "zdebug_abbrev")
+zdebug_pubname=$(find_section "${tmp}" "zdebug_pubname")
+zdebug_pubtype=$(find_section "${tmp}" "zdebug_pubtype")
 
 echo "goos: $GOOS"
 echo "goarch: $GOARCH"
@@ -48,42 +58,34 @@ echo "pkg:" # Erase any inherited pkg if files are concatenated
 
 if echo $total | egrep -q '[0-9]+' ; then
 	echo Unit total-bytes assume=exact
-	echo "Benchmark${2}_total" 1 ${total} total-bytes
+	echo "Benchmark${2}" 1 ${total} total-bytes
 fi
 
 if echo $text | egrep -q '[0-9]+' ; then
 	echo Unit text-bytes assume=exact
-	echo "Benchmark${2}_text" 1 ${text} text-bytes
+	echo "Benchmark${2}" 1 ${text} text-bytes
 fi
 
 if echo $data | egrep -q '[0-9]+' ; then
 	echo Unit data-bytes assume=exact
-	echo "Benchmark${2}_data" 1 ${data} data-bytes
+	echo "Benchmark${2}" 1 ${data} data-bytes
 fi
 
 if echo $rodata | egrep -q '[0-9]+' ; then
 	echo Unit rodata-bytes assume=exact
-	echo "Benchmark${2}_rodata" 1 ${rodata} rodata-bytes
+	echo "Benchmark${2}" 1 ${rodata} rodata-bytes
 fi
 
 if echo $gopclntab | egrep -q '[0-9]+' ; then
 	echo Unit pclntab-bytes assume=exact
-	echo "Benchmark${2}_pclntab" 1 ${gopclntab} pclntab-bytes
+	echo "Benchmark${2}" 1 ${gopclntab} pclntab-bytes
 fi
 
 zdebug=`expr ${zdebug_info} + ${zdebug_loc} + ${zdebug_line} + ${zdebug_ranges} + ${zdebug_frame} + ${zdebug_abbrev} + ${zdebug_pubname} + ${zdebug_pubtype}`
 
 if echo $zdebug | egrep -q '[0-9]+' ; then
 	echo Unit zdebug-bytes assume=exact
-	echo "Benchmark${2}_zdebug_total" 1 ${zdebug} zdebug-bytes
+	echo "Benchmark${2}" 1 ${zdebug} zdebug-bytes
 fi
-
-# echo "Benchmark${2}_zdebug_info" 1 ${zdebug_info} zdebugbytes
-# echo "Benchmark${2}_zdebug_loc" 1 ${zdebug_loc} zdebugbytes
-# echo "Benchmark${2}_zdebug_line" 1 ${zdebug_line} zdebugbytes
-# echo "Benchmark${2}_zdebug_ranges" 1 ${zdebug_ranges} zdebugbytes
-# echo "Benchmark${2}_zdebug_frame" 1 ${zdebug_frame} zdebugbytes
-# echo "Benchmark${2}_zdebug_pubtype" 1 ${zdebug_pubtype} zdebugbytes
-# echo "Benchmark${2}_zdebug_pubname" 1 ${zdebug_pubname} zdebugbytes
 
 rm $tmp
