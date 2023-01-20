@@ -710,6 +710,7 @@ results will also appear in 'bench'.
 						if config.Disabled {
 							continue
 						}
+						config.say("toolchain: " + config.Name + "\n")
 						s := todo.Configurations[ci].compileOne(&todo.Benchmarks[bi], dirs.wd, yyy)
 						if s != "" {
 							getAndBuildFailures = append(getAndBuildFailures, s)
@@ -736,6 +737,7 @@ results will also appear in 'bench'.
 						if config.Disabled {
 							continue
 						}
+						config.say("toolchain: " + config.Name + "\n")
 						s := config.compileOne(&todo.Benchmarks[bi], dirs.wd, yyy)
 						if s != "" {
 							getAndBuildFailures = append(getAndBuildFailures, s)
@@ -761,6 +763,7 @@ results will also appear in 'bench'.
 					if bench.Disabled || config.Disabled {
 						continue
 					}
+					config.say("toolchain: " + config.Name + "\n")
 					s := config.compileOne(bench, dirs.wd, yyy)
 					if s != "" {
 						getAndBuildFailures = append(getAndBuildFailures, s)
@@ -787,6 +790,7 @@ results will also appear in 'bench'.
 				if bench.Disabled || config.Disabled {
 					continue
 				}
+				config.say("toolchain: " + config.Name + "\n")
 				s := config.compileOne(bench, dirs.wd, p.k)
 				if s != "" {
 					getAndBuildFailures = append(getAndBuildFailures, s)
