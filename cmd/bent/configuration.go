@@ -113,6 +113,12 @@ func (config *Configuration) runOtherBenchmarks(b *Benchmark, cwd string, cmdEnv
 			continue
 		}
 
+		s := fmt.Sprintf("toolchain: %s\n", config.Name)
+		if verbose > 0 {
+			fmt.Print(s)
+		}
+		f.Write([]byte(s))
+
 		if !strings.ContainsAny(cmd, "/") {
 			cmd = path.Join(cwd, cmd)
 		}
@@ -242,12 +248,15 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 	// Report and record build stats to testbin
 
 	buf := new(bytes.Buffer)
-	var s string
+	var goarchVal string
 	if configGoArch != runtime.GOARCH && configGoArch != "" {
-		s = fmt.Sprintf("goarch: %s-%s\n", runtime.GOARCH, configGoArch)
+		goarchVal = fmt.Sprintf("%s-%s", runtime.GOARCH, configGoArch)
 	} else {
-		s = fmt.Sprintf("goarch: %s\n", runtime.GOARCH)
+		goarchVal = runtime.GOARCH
 	}
+	var s string
+	s += fmt.Sprintf("goarch: %s\n", goarchVal)
+	s += fmt.Sprintf("toolchain: %s\n", config.Name)
 	if verbose > 0 {
 		fmt.Print(s)
 	}
