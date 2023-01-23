@@ -89,6 +89,7 @@ var wikiTable = false       // emit the tests in a form usable in a wiki table
 var explicitAll counterFlag // Include "-a" on "go test -c" test build ; repeating flag causes multiple rebuilds, useful for build benchmarking.
 var shuffle = 2             // Dimensionality of (build) shuffling; 0 = none, 1 = per-benchmark, configuration ordering, 2 = bench, config pairs, 3 = across repetitions.
 var haveRsync = true
+var reportBuildTime = true
 
 //go:embed scripts/*
 var scripts embed.FS
@@ -159,6 +160,8 @@ func main() {
 	flag.BoolVar(&test, "T", test, "run tests instead of benchmarks")
 
 	flag.BoolVar(&wikiTable, "W", wikiTable, "print benchmark info for a wiki table")
+
+	flag.BoolVar(&reportBuildTime, "report-build-time", reportBuildTime, "report build real/CPU time as benchmark results")
 
 	flag.Var(&verbose, "v", "print commands and other information (more -v = print more details)")
 

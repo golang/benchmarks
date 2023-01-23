@@ -35,7 +35,6 @@ type Configuration struct {
 	RunEnv      []string // Extra environment variables passed to the test binary
 	RunWrapper  []string // (Outermost) Command and args to precede whatever the operation is; may fail in the sandbox.
 	Disabled    bool     // True if this configuration is temporarily disabled
-	buildStats  []BenchStat
 	benchWriter *os.File
 	rootCopy    string // The contents of GOROOT are copied here to allow benchmarking of just the test compilation.
 }
@@ -236,49 +235,50 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 		bench.Disabled = true // if it won't compile, it won't run, either.
 		return s + "(" + bench.Name + ")\n"
 	}
-	soutput := string(output)
-	bs := BenchStat{
-		Name:     bench.Name,
-		RealTime: realTime,
-		UserTime: cmd.ProcessState.UserTime(),
-		SysTime:  cmd.ProcessState.SystemTime(),
-	}
-	config.buildStats = append(config.buildStats, bs)
 
-	// Report and record build stats to testbin
+	if reportBuildTime {
+		// Report and record build stats to testbin
+		bs := BenchStat{
+			Name:     bench.Name,
+			RealTime: realTime,
+			UserTime: cmd.ProcessState.UserTime(),
+			SysTime:  cmd.ProcessState.SystemTime(),
+		}
 
-	buf := new(bytes.Buffer)
-	var goarchVal string
-	if configGoArch != runtime.GOARCH && configGoArch != "" {
-		goarchVal = fmt.Sprintf("%s-%s", runtime.GOARCH, configGoArch)
-	} else {
-		goarchVal = runtime.GOARCH
-	}
-	var s string
-	s += fmt.Sprintf("goarch: %s\n", goarchVal)
-	s += fmt.Sprintf("toolchain: %s\n", config.Name)
-	if verbose > 0 {
-		fmt.Print(s)
-	}
-	buf.WriteString(s)
-	s = fmt.Sprintf("Benchmark%s 1 %d build-real-ns/op %d build-user-ns/op %d build-sys-ns/op\n",
+		buf := new(bytes.Buffer)
+		var goarchVal string
+		if configGoArch != runtime.GOARCH && configGoArch != "" {
+			goarchVal = fmt.Sprintf("%s-%s", runtime.GOARCH, configGoArch)
+		} else {
+			goarchVal = runtime.GOARCH
+		}
+		var s string
+		s += fmt.Sprintf("goarch: %s\n", goarchVal)
+		s += fmt.Sprintf("toolchain: %s\n", config.Name)
+		if verbose > 0 {
+			fmt.Print(s)
+		}
+		buf.WriteString(s)
+		s = fmt.Sprintf("Benchmark%s 1 %d build-real-ns/op %d build-user-ns/op %d build-sys-ns/op\n",
 		strings.Title(bench.Name), bs.RealTime.Nanoseconds(), bs.UserTime.Nanoseconds(), bs.SysTime.Nanoseconds())
-	if verbose > 0 {
-		fmt.Print(s)
+		if verbose > 0 {
+			fmt.Print(s)
+		}
+		buf.WriteString(s)
+		f, err := os.OpenFile(config.buildBenchName(), os.O_WRONLY|os.O_APPEND, os.ModePerm)
+		if err != nil {
+			fmt.Printf("There was an error opening %s for append, error %v\n", config.buildBenchName(), err)
+			cleanup(gopath)
+			os.Exit(2)
+		}
+		f.Write(buf.Bytes())
+		f.Sync()
+		f.Close()
 	}
-	buf.WriteString(s)
-	f, err := os.OpenFile(config.buildBenchName(), os.O_WRONLY|os.O_APPEND, os.ModePerm)
-	if err != nil {
-		fmt.Printf("There was an error opening %s for append, error %v\n", config.buildBenchName(), err)
-		cleanup(gopath)
-		os.Exit(2)
-	}
-	f.Write(buf.Bytes())
-	f.Sync()
-	f.Close()
 
 	// Trim /usr/bin/time info from soutput, it's ugly
 	if verbose > 0 {
+		soutput := string(output)
 		i := strings.LastIndex(soutput, "real")
 		if i >= 0 {
 			soutput = soutput[:i]

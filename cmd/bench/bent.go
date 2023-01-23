@@ -112,6 +112,7 @@ func bent(tcs []*toolchain) (err error) {
 		"-N", "10",
 		"-C", confFile,
 		"-B", filepath.Join(dir, "benchmarks-50.toml"),
+		"-report-build-time=false", // We only run builds once, which won't yield statistically significant results.
 		"-v",
 	)
 	cmd.Dir = dir
