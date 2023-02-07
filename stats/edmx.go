@@ -117,7 +117,7 @@ func EDMX(input []float64, delta int) int {
 	return edmx(c, delta)
 }
 
-// EMDXInt runs the EDM-X algorithm on a slice of integer datapoints.
+// EDMXInt runs the EDM-X algorithm on a slice of integer datapoints.
 func EDMXInt(input []int, delta int) int {
 	return edmx(toFloat(input), delta)
 }

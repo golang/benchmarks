@@ -26,7 +26,7 @@ import (
 	"github.com/blevesearch/bleve/mapping"
 )
 
-// articleMapping returns a mapping for indexing wikipedia articles
+// ArticleMapping returns a mapping for indexing wikipedia articles
 // in a manner similar to that done by the Apache Lucene nightly
 // benchmarks.
 func ArticleMapping() mapping.IndexMapping {

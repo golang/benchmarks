@@ -1300,7 +1300,7 @@ func replaceEnv(env []string, ev string, evv string) []string {
 	return newenv
 }
 
-// replaceEnv returns a new environment derived from env
+// replaceEnvs returns a new environment derived from env
 // by replacing or adding all modifiers in newevs.
 func replaceEnvs(env, newevs []string) []string {
 	for _, e := range newevs {
@@ -1344,7 +1344,7 @@ func ifMissingAddEnv(env []string, ev string, evv string) []string {
 	return env
 }
 
-// csToset converts a comma-separated string into the set of strings between the commas.
+// csToSet converts a comma-separated string into the set of strings between the commas.
 func csToSet(s string) map[string]bool {
 	if s == "" {
 		return nil
