@@ -3,10 +3,6 @@
 # that appear to be somewhat diverse.
 
 [[Benchmarks]]
-  Name = "klauspost"
-  Benchmarks = "Benchmark"
-
-[[Benchmarks]]
   Name = "minio"
   Tests = "none" # Don't run these tests; they hang, etc.
   Benchmarks = "Benchmark(MarshalMsgdataUsageCacheInfo|DecodehealingTracker|DataUpdateTracker|AppendMsg(ReplicateDecision|ResyncTargetsInfo))"
@@ -14,7 +10,7 @@
 
 [[Benchmarks]]
   Name = "hugo_hugolib"
-  Benchmarks = "Benchmark(ResourceChainPostProcess|ReplaceShortcodeTokens|MergeByLanguage|GetPage$|(Cascade/langs-1-8))"
+  Benchmarks = "Benchmark(ResourceChainPostProcess|ReplaceShortcodeTokens|MergeByLanguage|(Cascade/langs-1-8))"
 
 [[Benchmarks]]
   Name = "ethereum_core"
@@ -85,11 +81,6 @@
   Benchmarks = "BenchmarkValidateVersionTildeFail"
 
 [[Benchmarks]]
-  Name = "hugo_helpers"
-  Benchmarks = "Benchmark(StripHTML|TestTruncateWordsToWholeSentence$|EmojiKyokomiSprint)"
-  GcEnv = ["GO111MODULE=on"]
-
-[[Benchmarks]]
   Name = "k8s_cache"
   Benchmarks = "Benchmark"
 
@@ -127,7 +118,7 @@
 
 [[Benchmarks]]
   Name = "uber_tally"
-  Benchmarks = "BucketsEqual|ScopeTaggedNoCachedSubscopes|HistogramAllocation"
+  Benchmarks = "ScopeTaggedNoCachedSubscopes|HistogramAllocation"
 
 [[Benchmarks]]
   Name = "bindata"
@@ -151,10 +142,6 @@
   Benchmarks = "Benchmark(IsOnCurve|ScalarMult)"
 
 [[Benchmarks]]
-  Name = "nelsam_gxui_interval"
-  Benchmarks = "Benchmark"
-
-[[Benchmarks]]
   Name = "ajstarks_deck_generate"
   Benchmarks = "Benchmark(Polygon|Arc)"
 
@@ -172,7 +159,7 @@
 
 [[Benchmarks]]
   Name = "dustin_humanize"
-  Benchmarks = "Benchmark(FtoaRegexTrailing|ParseBigBytes)"
+  Benchmarks = "BenchmarkParseBigBytes"
 
 [[Benchmarks]]
   Name = "bloom_bloom"
