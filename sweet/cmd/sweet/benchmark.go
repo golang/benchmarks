@@ -40,24 +40,6 @@ var allBenchmarks = []benchmark{
 		generator:   generators.BleveIndex(),
 	},
 	{
-		name:        "bleve-query",
-		description: "Queries a pre-built search index with keywords",
-		harness:     harnesses.BleveQuery(),
-		generator:   generators.BleveQuery{},
-	},
-	{
-		name:        "fogleman-fauxgl",
-		description: "Renders a rotating boat via an OpenGL-like software rendering pipeline",
-		harness:     harnesses.FoglemanFauxGL(),
-		generator:   generators.FoglemanFauxGL(),
-	},
-	{
-		name:        "fogleman-pt",
-		description: "Renders a Go gopher via path tracing",
-		harness:     harnesses.FoglemanPT(),
-		generator:   generators.FoglemanPT(),
-	},
-	{
 		name:        "go-build",
 		description: "Go build command",
 		harness:     harnesses.GoBuild{},
@@ -104,8 +86,6 @@ var benchmarkGroups = func() map[string][]*benchmark {
 		allBenchmarksMap["biogo-igor"],
 		allBenchmarksMap["biogo-krishna"],
 		allBenchmarksMap["bleve-index"],
-		allBenchmarksMap["bleve-query"],
-		allBenchmarksMap["fogleman-pt"],
 		allBenchmarksMap["go-build"],
 		allBenchmarksMap["gopher-lua"],
 		// TODO(go.dev/issue/51445): Enable once gVisor builds with Go 1.19.
@@ -113,19 +93,9 @@ var benchmarkGroups = func() map[string][]*benchmark {
 		allBenchmarksMap["markdown"],
 		allBenchmarksMap["tile38"],
 	}
-	if runtime.GOARCH != "arm64" {
-		// TODO(go.dev/issue/54760): fogleman-fauxgl hangs on arm64.
-		m["default"] = append(m["default"], allBenchmarksMap["fogleman-fauxgl"])
-	}
 
 	for i := range allBenchmarks {
 		switch allBenchmarks[i].name {
-		case "fogleman-fauxgl":
-			if runtime.GOARCH == "arm64" {
-				// TODO(go.dev/issue/54760): fogleman-fauxgl
-				// hangs on arm64.
-				continue
-			}
 		case "gvisor":
 			// TODO(go.dev/issue/51445): Include in "all"
 			// once gVisor builds with Go 1.19.

@@ -91,51 +91,6 @@ func BleveIndex() common.Harness {
 	}
 }
 
-func BleveQuery() common.Harness {
-	return &localBenchHarness{
-		binName: "bleve-query-bench",
-		genArgs: func(cfg *common.Config, rcfg *common.RunConfig) []string {
-			args := []string{filepath.Join(rcfg.AssetsDir, "index")}
-			if rcfg.Short {
-				args = append([]string{"-iterations", "1"}, args...)
-			}
-			return args
-		},
-		beforeRun: func(cfg *common.Config, rcfg *common.RunConfig) error {
-			// Make sure all the index passed to the benchmark is writeable.
-			indexPath := filepath.Join(rcfg.AssetsDir, "index")
-			return makeWriteable(indexPath)
-		},
-	}
-}
-
-func FoglemanFauxGL() common.Harness {
-	return &localBenchHarness{
-		binName: "fogleman-fauxgl-bench",
-		genArgs: func(cfg *common.Config, rcfg *common.RunConfig) []string {
-			args := []string{filepath.Join(rcfg.AssetsDir, "3dbenchy.stl")}
-			if rcfg.Short {
-				args = append([]string{"-images-per-rotation", "1"}, args...)
-			}
-			return args
-		},
-		noStdout: true,
-	}
-}
-
-func FoglemanPT() common.Harness {
-	return &localBenchHarness{
-		binName: "fogleman-pt-bench",
-		genArgs: func(cfg *common.Config, rcfg *common.RunConfig) []string {
-			return []string{
-				"-iter", "1",
-				filepath.Join(rcfg.AssetsDir, "gopher.obj"),
-			}
-		},
-		noStdout: true,
-	}
-}
-
 func GopherLua() common.Harness {
 	return &localBenchHarness{
 		binName: "gopher-lua-bench",

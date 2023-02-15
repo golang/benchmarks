@@ -68,23 +68,6 @@ func BleveIndex() common.Generator {
 	}}
 }
 
-func FoglemanFauxGL() common.Generator {
-	return &copyStatic{assets: []string{
-		"3dbenchy.stl",
-		"README.md",
-		"LICENSE",
-	}}
-}
-
-func FoglemanPT() common.Generator {
-	return &copyStatic{assets: []string{
-		"gopher.mtl",
-		"gopher.obj",
-		"README.md",
-		"LICENSE",
-	}}
-}
-
 func GopherLua() common.Generator {
 	return &copyStatic{
 		assets: []string{
