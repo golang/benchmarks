@@ -10,12 +10,9 @@ require (
 	github.com/biogo/store v0.0.0-20201120204734-aad293a2328f
 	github.com/blevesearch/bleve v1.0.14
 	github.com/dustin/go-wikiparse v0.0.0-20211018054215-c01ec186f20c
-	github.com/fogleman/fauxgl v0.0.0-20200818143847-27cddc103802
-	github.com/fogleman/pt v0.0.0-20170619012416-6fa0015c2178
 	github.com/gomodule/redigo v1.8.5
 	github.com/google/pprof v0.0.0-20211122183932-1daafda22083
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
-	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/opencontainers/runtime-spec v1.0.2
 	github.com/yuin/gopher-lua v0.0.0-20210529063254-f4c35e4016d9
 	gitlab.com/golang-commonmark/markdown v0.0.0-20211110145824-bf3e522c626a
@@ -44,7 +41,6 @@ require (
 	github.com/couchbase/vellum v1.0.2 // indirect
 	github.com/envoyproxy/go-control-plane v0.9.9-0.20210512163311-63b5d3c536b0 // indirect
 	github.com/envoyproxy/protoc-gen-validate v0.1.0 // indirect
-	github.com/fogleman/simplify v0.0.0-20170216171241-d32f302d5046 // indirect
 	github.com/glycerine/go-unsnap-stream v0.0.0-20181221182339-f9677308dec2 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
@@ -63,7 +59,7 @@ require (
 	go.etcd.io/bbolt v1.3.5 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	golang.org/x/net v0.0.0-20210503060351-7fd8e65b6420 // indirect
-	golang.org/x/text v0.3.6 // indirect
+	golang.org/x/text v0.3.8 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20211021150943-2b146023228c // indirect
