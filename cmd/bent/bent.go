@@ -79,6 +79,7 @@ var explicitAll counterFlag // Include "-a" on "go test -c" test build ; repeati
 var shuffle = 2             // Dimensionality of (build) shuffling; 0 = none, 1 = per-benchmark, configuration ordering, 2 = bench, config pairs, 3 = across repetitions.
 var haveRsync = true
 var reportBuildTime = true
+var experiment = false // Don't reset go.mod, for testing purposes
 
 //go:embed scripts/*
 var scripts embed.FS
@@ -149,6 +150,7 @@ func main() {
 	flag.BoolVar(&test, "T", test, "run tests instead of benchmarks")
 
 	flag.BoolVar(&wikiTable, "W", wikiTable, "print benchmark info for a wiki table")
+	flag.BoolVar(&experiment, "X", experiment, "for experimental changes to 3rd party software, do not reset build/*/go.mod")
 
 	flag.BoolVar(&reportBuildTime, "report-build-time", reportBuildTime, "report build real/CPU time as benchmark results")
 
@@ -535,47 +537,56 @@ results will also appear in 'bench'.
 				fmt.Printf("Couldn't create build subdirectory %s, error=%v", bench.BuildDir, err)
 				os.Exit(2)
 			}
+
+			getFiles := true
+
 			goDotMod := path.Join(bench.BuildDir, "go.mod")
 			if _, err := os.Stat(goDotMod); err == nil {
-				os.Remove(goDotMod) // always want a fresh go.mod
+				if !experiment {
+					os.Remove(goDotMod) // always want a fresh go.mod
+				} else {
+					getFiles = false
+				}
 			}
-			cmd := exec.Command("go", "mod", "init", "build")
-			cmd.Env = DefaultEnv()
-			cmd.Dir = bench.BuildDir
+			if getFiles {
+				cmd := exec.Command("go", "mod", "init", "build")
+				cmd.Env = DefaultEnv()
+				cmd.Dir = bench.BuildDir
 
-			if verbose > 0 {
-				fmt.Println(asCommandLine(dirs.wd, cmd))
-			} else {
-				fmt.Print(".")
-			}
-			_, err := cmd.Output()
-			if err != nil {
-				ee := err.(*exec.ExitError)
-				fmt.Printf("There was an error running 'go mod init', stderr = %s", ee.Stderr)
-				os.Exit(2)
-			}
+				if verbose > 0 {
+					fmt.Println(asCommandLine(dirs.wd, cmd))
+				} else {
+					fmt.Print(".")
+				}
+				_, err := cmd.Output()
+				if err != nil {
+					ee := err.(*exec.ExitError)
+					fmt.Printf("There was an error running 'go mod init', stderr = %s", ee.Stderr)
+					os.Exit(2)
+				}
 
-			cmd = exec.Command("go", "get", "-d", "-t", "-v", bench.Repo+bench.Version)
-			cmd.Env = DefaultEnv()
-			cmd.Dir = bench.BuildDir
+				cmd = exec.Command("go", "get", "-d", "-t", "-v", bench.Repo+bench.Version)
+				cmd.Env = DefaultEnv()
+				cmd.Dir = bench.BuildDir
 
-			if !bench.NotSandboxed { // Do this so that OS-dependent dependencies are done correctly.
-				cmd.Env = replaceEnv(cmd.Env, "GOOS", "linux")
-			}
-			cmd.Env = replaceEnvs(cmd.Env, sliceExpandEnv(bench.GcEnv, cmd.Env))
-			if verbose > 0 {
-				fmt.Println(asCommandLine(dirs.wd, cmd))
-			} else {
-				fmt.Print(".")
-			}
-			_, err = cmd.Output()
-			if err != nil {
-				ee := err.(*exec.ExitError)
-				s := fmt.Sprintf("There was an error running 'go get', stderr = %s", ee.Stderr)
-				fmt.Println(s + "DISABLING benchmark " + bench.Name)
-				getAndBuildFailures = append(getAndBuildFailures, s+"("+bench.Name+")\n")
-				todo.Benchmarks[i].Disabled = true
-				continue
+				if !bench.NotSandboxed { // Do this so that OS-dependent dependencies are done correctly.
+					cmd.Env = replaceEnv(cmd.Env, "GOOS", "linux")
+				}
+				cmd.Env = replaceEnvs(cmd.Env, sliceExpandEnv(bench.GcEnv, cmd.Env))
+				if verbose > 0 {
+					fmt.Println(asCommandLine(dirs.wd, cmd))
+				} else {
+					fmt.Print(".")
+				}
+				_, err = cmd.Output()
+				if err != nil {
+					ee := err.(*exec.ExitError)
+					s := fmt.Sprintf("There was an error running 'go get', stderr = %s", ee.Stderr)
+					fmt.Println(s + "DISABLING benchmark " + bench.Name)
+					getAndBuildFailures = append(getAndBuildFailures, s+"("+bench.Name+")\n")
+					todo.Benchmarks[i].Disabled = true
+					continue
+				}
 			}
 
 			needSandbox = !bench.NotSandboxed || needSandbox
@@ -672,14 +683,11 @@ results will also appear in 'bench'.
 				}
 			}
 
-			// Prebuild the library for this configuration unless -a=1
-			if explicitAll != 1 {
-				if needSandbox {
-					buildLibrary(true)
-				}
-				if needNotSandbox {
-					buildLibrary(false)
-				}
+			if needSandbox {
+				buildLibrary(true)
+			}
+			if needNotSandbox {
+				buildLibrary(false)
 			}
 			todo.Configurations[ci] = config
 			if config.Disabled {
