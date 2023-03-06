@@ -182,6 +182,7 @@ func main() {
 	if repository != "go" {
 		toolchain := toolchainFromGOROOT("baseline", gorootBaseline)
 		if err := goTestSubrepo(toolchain, repository, subRepoBaseline, subRepoExperiment); err != nil {
+			log.Printf("Error running subrepo tests: %v", err)
 			log.Print("FAIL")
 			os.Exit(1)
 		}

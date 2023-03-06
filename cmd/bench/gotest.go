@@ -22,40 +22,58 @@ func goTest(tcs []*toolchain) error {
 	return nil
 }
 
+// goTestSubrepo runs subrepo tests for the subrepo x/<subRepo>, where the
+// baseline commit is checked out in baselineDir, and the experiment commit is
+// checked out in experimentDir.
+//
+// To run subrepo tests locally, use this incantation:
+//
+//	./bench -wait=false \
+//	 	 -repository=tools \
+//	   -subrepo=/path/to/experiment \
+//	   -subrepo-baseline=/path/to/baseline \
+//	   -goroot-baseline=$(go env GOROOT)
 func goTestSubrepo(tc *toolchain, subRepo, baselineDir, experimentDir string) error {
+	// Note: tests must write "toolchain: baseline|experiment" to stdout before
+	// running benchmarks for the corresponding commit, as this is parsed as a
+	// benchmark tag.
 	switch subRepo {
 	case "tools":
 		log.Printf("Running sub-repo benchmarks for %s", subRepo)
 
-		// Build baseline gopls binary to run benchmark on
-		goplsBaseline := filepath.Join(baselineDir, "gopls")
-		err := tc.Do(goplsBaseline, "build")
-		if err != nil {
-			log.Printf("Error: %v", err)
-			return fmt.Errorf("error building sub-repo %s with toolchain %s in dir %s: %w", subRepo, tc.Name, baselineDir, err)
+		// Gopls tests run benchmarks defined in the experimentDir (i.e. the latest
+		// versions of the benchmarks themselves).
+		//
+		// Benchmarks all communicate with a separate gopls process, which can be
+		// configured via the -gopls_path flag.
+		//
+		// By convention, gopls uses -short to define tests that should be run by
+		// x/benchmarks.
+		benchmarkDir := filepath.Join(experimentDir, "gopls", "internal", "regtest", "bench")
+
+		tests := []struct {
+			name     string // toolchain name
+			goplsDir string // dir where gopls should be built
+		}{
+			{"baseline", filepath.Join(baselineDir, "gopls")},
+			{"experiment", filepath.Join(experimentDir, "gopls")},
 		}
 
-		// Build experiment gopls binary to run benchmark on
-		goplsExperiment := filepath.Join(experimentDir, "gopls")
-		err = tc.Do(goplsExperiment, "build")
-		if err != nil {
-			log.Printf("Error: %v", err)
-			return fmt.Errorf("error building sub-repo %s with toolchain %s in dir %s: %w", subRepo, tc.Name, experimentDir, err)
+		for _, test := range tests {
+			err := tc.Do(test.goplsDir, "build")
+			if err != nil {
+				return fmt.Errorf("error building sub-repo %s with toolchain %s in dir %s: %w", subRepo, tc.Name, test.goplsDir, err)
+			}
+
+			fmt.Printf("toolchain: %s\n", test.name) // set the toolchain tag
+
+			goplsPath := filepath.Join(test.goplsDir, "gopls")
+			err = tc.Do(benchmarkDir, "test", "-short", "-bench=.", fmt.Sprintf(`-gopls_path=%s`, goplsPath), "-count=5")
+			if err != nil {
+				return fmt.Errorf("error running sub-repo %s benchmark %q with toolchain %s in dir %s: %w", subRepo, test.name, tc.Name, benchmarkDir, err)
+			}
 		}
 
-		fmt.Println("toolchain: baseline")
-		err = tc.Do(goplsExperiment, "test", "-v", "-bench=BenchmarkGoToDefinition", "./internal/regtest/bench/", fmt.Sprintf(`-gopls_path=%s`, filepath.Join(goplsBaseline, "gopls")), "-count=5")
-		if err != nil {
-			log.Printf("Error: %v", err)
-			return fmt.Errorf("error running sub-repo %s benchmark with toolchain %s in dir %s: %w", subRepo, tc.Name, baselineDir, err)
-		}
-
-		fmt.Println("toolchain: experiment")
-		err = tc.Do(goplsExperiment, "test", "-v", "-bench=BenchmarkGoToDefinition", "./internal/regtest/bench/", fmt.Sprintf(`-gopls_path=%s`, filepath.Join(goplsExperiment, "gopls")), "-count=5")
-		if err != nil {
-			log.Printf("Error: %v", err)
-			return fmt.Errorf("error running sub-repo %s benchmark with toolchain %s in dir %s: %w", subRepo, tc.Name, experimentDir, err)
-		}
 	default:
 		return fmt.Errorf("unsupported subrepo %s", subRepo)
 	}
