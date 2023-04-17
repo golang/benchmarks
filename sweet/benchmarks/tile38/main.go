@@ -85,8 +85,6 @@ func init() {
 	cliCfg.serverProcs = serverProcs
 }
 
-type requestFunc func(redis.Conn, float64, float64) error
-
 func doWithinCircle(c redis.Conn, lat, lon float64) error {
 	_, err := c.Do("WITHIN", "key:bench", "COUNT", "CIRCLE",
 		strconv.FormatFloat(lat, 'f', 5, 64),
@@ -113,41 +111,48 @@ func doNearby(c redis.Conn, lat, lon float64) error {
 	return err
 }
 
+type requestFunc func(redis.Conn, float64, float64) error
+
+var requestFuncs = []requestFunc{
+	doWithinCircle,
+	doIntersectsCircle,
+	doNearby,
+}
+
 func randPoint() (float64, float64) {
 	return rand.Float64()*180 - 90, rand.Float64()*360 - 180
 }
 
 type worker struct {
 	redis.Conn
-	runner    requestFunc
 	iterCount *int64 // Accessed atomically.
 	lat       []time.Duration
 }
 
-func newWorker(host string, port int, req requestFunc, iterCount *int64) (*worker, error) {
+func newWorker(host string, port int, iterCount *int64) (*worker, error) {
 	conn, err := redis.Dial("tcp", fmt.Sprintf("%s:%d", host, port))
 	if err != nil {
 		return nil, err
 	}
 	return &worker{
 		Conn:      conn,
-		runner:    req,
 		iterCount: iterCount,
 		lat:       make([]time.Duration, 0, 100000),
 	}, nil
 }
 
 func (w *worker) Run(_ context.Context) error {
+	count := atomic.AddInt64(w.iterCount, -1)
+	if count < 0 {
+		return pool.Done
+	}
 	lat, lon := randPoint()
 	start := time.Now()
-	if err := w.runner(w.Conn, lat, lon); err != nil {
+	if err := requestFuncs[count%3](w.Conn, lat, lon); err != nil {
 		return err
 	}
 	dur := time.Now().Sub(start)
 	w.lat = append(w.lat, dur)
-	if atomic.AddInt64(w.iterCount, -1) < 0 {
-		return pool.Done
-	}
 	return nil
 }
 
@@ -161,20 +166,11 @@ func (d durSlice) Len() int           { return len(d) }
 func (d durSlice) Less(i, j int) bool { return d[i] < d[j] }
 func (d durSlice) Swap(i, j int)      { d[i], d[j] = d[j], d[i] }
 
-type benchmark struct {
-	sname  string
-	runner requestFunc
-}
-
-func (b *benchmark) name() string {
-	return fmt.Sprintf("Tile38%sRequest", b.sname)
-}
-
-func (b *benchmark) run(d *driver.B, host string, port, clients int, iters int) error {
+func runBenchmark(d *driver.B, host string, port, clients int, iters int) error {
 	workers := make([]pool.Worker, 0, clients)
 	iterCount := int64(iters) // Shared atomic variable.
 	for i := 0; i < clients; i++ {
-		w, err := newWorker(host, port, b.runner, &iterCount)
+		w, err := newWorker(host, port, &iterCount)
 		if err != nil {
 			return err
 		}
@@ -212,12 +208,6 @@ func (b *benchmark) run(d *driver.B, host string, port, clients int, iters int) 
 	d.Ops(len(latencies))
 	d.Report(driver.StatTime, uint64((int(d.Elapsed())*clients)/len(latencies)))
 	return nil
-}
-
-var benchmarks = []benchmark{
-	{"WithinCircle100km", doWithinCircle},
-	{"IntersectsCircle100km", doIntersectsCircle},
-	{"KNearestLimit100", doNearby},
 }
 
 func launchServer(cfg *config, out io.Writer) (*exec.Cmd, error) {
@@ -297,7 +287,9 @@ func (cfg *config) readTrace(benchName string) (int64, error) {
 	return n, driver.CopyDiagnosticData(cfg.diagnosticDataPath(diagnostics.Trace), diagnostics.Trace, benchName)
 }
 
-func runOne(bench benchmark, cfg *config) (err error) {
+const benchName = "Tile38QueryLoad"
+
+func run(cfg *config) (err error) {
 	var buf bytes.Buffer
 
 	// Launch the server.
@@ -339,7 +331,7 @@ func runOne(bench benchmark, cfg *config) (err error) {
 					err = r
 					return
 				}
-				if r := driver.WritePprofProfile(p, typ, bench.name()); r != nil {
+				if r := driver.WritePprofProfile(p, typ, benchName); r != nil {
 					err = r
 					return
 				}
@@ -357,11 +349,11 @@ func runOne(bench benchmark, cfg *config) (err error) {
 		driver.DoPerf(true),
 		driver.DoTrace(true),
 	}
-	iters := 20 * 50000
+	iters := 40 * 50000
 	if cfg.short {
 		iters = 1000
 	}
-	return driver.RunBenchmark(bench.name(), func(d *driver.B) error {
+	return driver.RunBenchmark(benchName, func(d *driver.B) error {
 		if driver.DiagnosticEnabled(diagnostics.Trace) {
 			// Handle execution tracing.
 			//
@@ -380,7 +372,7 @@ func runOne(bench benchmark, cfg *config) (err error) {
 						return
 					default:
 					}
-					n, err := cfg.readTrace(bench.name())
+					n, err := cfg.readTrace(benchName)
 					if err != nil {
 						fmt.Fprintf(os.Stderr, "failed to read trace: %v", err)
 						return
@@ -395,7 +387,7 @@ func runOne(bench benchmark, cfg *config) (err error) {
 				d.Report("trace-bytes", traceBytes)
 			}()
 		}
-		return bench.run(d, cfg.host, cfg.port, cfg.serverProcs, iters)
+		return runBenchmark(d, cfg.host, cfg.port, cfg.serverProcs, iters)
 	}, opts...)
 }
 
@@ -408,14 +400,8 @@ func main() {
 	for _, typ := range diagnostics.Types() {
 		cliCfg.isProfiling = cliCfg.isProfiling || driver.DiagnosticEnabled(typ)
 	}
-	benchmarks := benchmarks
-	if cliCfg.short {
-		benchmarks = benchmarks[:1]
-	}
-	for _, bench := range benchmarks {
-		if err := runOne(bench, &cliCfg); err != nil {
-			fmt.Fprintf(os.Stderr, "error: %v\n", err)
-			os.Exit(1)
-		}
+	if err := run(&cliCfg); err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
 	}
 }
