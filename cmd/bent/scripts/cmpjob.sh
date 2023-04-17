@@ -32,6 +32,11 @@ PERFLOCK=`which perflock`
 N=15
 B=1
 
+# Adjust N, B, define NUMACTL, set GOMAXPROCS, as necessary.
+if [ -e ./localfix ] ; then
+	. ./localfix
+fi
+
 REPO="https://go.googlesource.com/go"
 
 cd "${ROOT}"
@@ -82,7 +87,7 @@ if [ $? != 0 ] ; then
 fi
 
 cd "${ROOT}"
-${PERFLOCK} bent -v -N=${N} -a=${B} -L=bentjobs.log -C=configurations-cmpjob.toml "$@"
+GOARCH="${BENTARCH}" ${NUMACTL} ${PERFLOCK}  bent -v -N=${N} -a=${B} -L=bentjobs.log -C=configurations-cmpjob.toml "$@"
 RUN=`tail -1 bentjobs.log | awk -c '{print $1}'`
 
 cd bench

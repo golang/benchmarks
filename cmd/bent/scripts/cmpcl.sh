@@ -26,6 +26,11 @@ PERFLOCK=`which perflock`
 N=15
 B=1
 
+# Adjust N, B, define NUMACTL, set GOMAXPROCS, as necessary.
+if [ -e ./localfix ] ; then
+	. ./localfix
+fi
+
 cd "${ROOT}"
 
 if [ -e go-old ] ; then
@@ -88,7 +93,7 @@ newtag=`git log -n 1 --format='%h'`
 export newtag
 
 cd "${ROOT}"
-${PERFLOCK} bent -v -N=${N} -a=${B} -L=bentjobs.log -C=configurations-cmpjob.toml "$@"
+GOARCH="${BENTARCH}" ${NUMACTL} ${PERFLOCK}  bent -v -N=${N} -a=${B} -L=bentjobs.log -C=configurations-cmpjob.toml "$@"
 RUN=`tail -1 bentjobs.log | awk -c '{print $1}'`
 
 cd bench
@@ -102,11 +107,11 @@ echo "newtag: ${newtag}" >> "${STAMP}"
 oldlog="old-${oldtag}"
 newlog="new-${newtag}"
 
-cat ${RUN}.Old.build > ${oldlog}
-cat ${RUN}.New.build > ${newlog}
-egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.Old.stdout >> ${oldlog}
-egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' ${RUN}.New.stdout >> ${newlog}
-cat ${RUN}.Old.{benchsize,benchdwarf} >> ${oldlog}
-cat ${RUN}.New.{benchsize,benchdwarf} >> ${newlog}
+cat "${RUN}.Old.build" > "${oldlog}"
+cat "${RUN}.New.build" > "${newlog}"
+egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' "${RUN}.Old.stdout" >> "${oldlog}"
+egrep '^(Benchmark|[-_a-zA-Z0-9]+:)' "${RUN}.New.stdout" >> "${newlog}"
+cat "${RUN}.Old.{benchsize,benchdwarf}" >> "${oldlog}"
+cat "${RUN}.New.{benchsize,benchdwarf}" >> "${newlog}"
 benchsave -header "${STAMP}" "${oldlog}" "${newlog}"
 rm "${STAMP}"
