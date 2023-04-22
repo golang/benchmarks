@@ -27,7 +27,6 @@ Usage: %s put [flags]
 type putCmd struct {
 	auth           bootstrap.AuthOption
 	force          bool
-	cache          string
 	bucket         string
 	assetsDir      string
 	assetsHashFile string

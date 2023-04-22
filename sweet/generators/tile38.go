@@ -43,7 +43,7 @@ type Tile38 struct{}
 //
 // This generator also copies over the static assets used to generate
 // the dynamic assets.
-func (_ Tile38) Generate(cfg *common.GenConfig) error {
+func (Tile38) Generate(cfg *common.GenConfig) error {
 	if cfg.AssetsDir != cfg.OutputDir {
 		// Copy over the datasets which are used to generate
 		// the server's persistent data.

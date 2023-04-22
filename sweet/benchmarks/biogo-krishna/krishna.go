@@ -47,10 +47,10 @@ func main() {
 		log.Fatal("error: input FASTA target sequence required")
 	}
 	k, err := krishna.New(flag.Arg(0), tmpDir, krishna.Params{
-		TmpChunkSize: 1e6,
-		MinHitLen:    400,
-		MinHitId:     0.94,
-		TubeOffset:   0,
+		TmpChunkSize: tmpChunk,
+		MinHitLen:    minHitLen,
+		MinHitId:     minId,
+		TubeOffset:   tubeOffset,
 		AlignConc:    alignconc,
 		TmpConc:      tmpConcurrent,
 	})

@@ -60,17 +60,6 @@ type Todo struct {
 	Suites         []Suite
 }
 
-// The length of the path to the root of the git repo, inclusive.
-// For example, github.com/dr2chase/bent <--- bent is the repo.
-var pathLengths = map[string]int{
-	"github.com":    3,
-	"gitlab.com":    3,
-	"zombiezen.com": 3,
-	"gonum.org":     3,
-	"k8s.io":        2,
-	"go.uber.org":   2,
-}
-
 var verbose counterFlag
 
 var benchFile = "benchmarks-50.toml" // default list of benchmarks
@@ -722,7 +711,7 @@ results will also appear in 'bench'.
 			}
 		case 1: // N times, for each benchmark, shuffle configurations and build with
 			permute := make([]int, len(todo.Configurations))
-			for ci, _ := range todo.Configurations {
+			for ci := range todo.Configurations {
 				permute[ci] = ci
 			}
 
@@ -1240,11 +1229,6 @@ func mkdirAsNeeded(d string) error {
 	return nil
 }
 
-// testBinaryName returns the name of the binary produced by "go test -c"
-func (b *Benchmark) testBinaryName() string {
-	return b.Repo[strings.LastIndex(b.Repo, "/")+1:] + ".test"
-}
-
 // inheritEnv extracts ev from the os environment and
 // returns env extended with that new environment variable.
 // Does not check if ev already exists in env.
@@ -1325,17 +1309,6 @@ func replaceEnvs(env, newevs []string) []string {
 		env = append(newenv, e)
 	}
 	return env
-}
-
-func removeEmptyEnvs(env []string) []string {
-	var newenv []string
-	for _, e := range env {
-		if i := strings.Index(e, "="); i == -1 || i == len(e)-1 {
-			continue
-		}
-		newenv = append(newenv, e)
-	}
-	return newenv
 }
 
 // ifMissingAddEnv returns a new environment derived from env

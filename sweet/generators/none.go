@@ -10,6 +10,6 @@ import "golang.org/x/benchmarks/sweet/common"
 type None struct{}
 
 // Generate does nothing.
-func (_ None) Generate(_ *common.GenConfig) error {
+func (None) Generate(_ *common.GenConfig) error {
 	return nil
 }

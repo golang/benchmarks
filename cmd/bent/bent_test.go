@@ -14,9 +14,7 @@ import (
 	"testing"
 )
 
-const dataDir = "testdata"
-
-var binary, dir string
+var dir string
 
 // TestMain implemented to allow (1) alternate use as bent command itself if BENT_TEST_IS_CMD_BENT is in environment,
 // and (2) to create and remove a temporary directory for test initialization.

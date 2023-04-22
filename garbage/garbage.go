@@ -25,10 +25,6 @@ func main() {
 	driver.Main("Garbage", benchmark)
 }
 
-// func init() {
-// 	driver.Register("garbage", benchmark)
-// }
-
 type ParsedPackage *ast.File
 
 var (

@@ -56,14 +56,6 @@ func (c *Configuration) benchName(b *Benchmark) string {
 	return b.Name + "_" + c.Name
 }
 
-func (c *Configuration) goCommand() string {
-	gocmd := "go"
-	if c.Root != "" {
-		gocmd = path.Join(c.Root+"bin", gocmd)
-	}
-	return gocmd
-}
-
 func (c *Configuration) goCommandCopy() string {
 	gocmd := "go"
 	if c.rootCopy != "" {
@@ -239,7 +231,7 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 		}
 		buf.WriteString(s)
 		s = fmt.Sprintf("Benchmark%s 1 %d build-real-ns/op %d build-user-ns/op %d build-sys-ns/op\n",
-		strings.Title(bench.Name), bs.RealTime.Nanoseconds(), bs.UserTime.Nanoseconds(), bs.SysTime.Nanoseconds())
+			strings.Title(bench.Name), bs.RealTime.Nanoseconds(), bs.UserTime.Nanoseconds(), bs.SysTime.Nanoseconds())
 		if verbose > 0 {
 			fmt.Print(s)
 		}

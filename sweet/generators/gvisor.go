@@ -29,7 +29,7 @@ type GVisor struct{}
 //
 // It also copies over static assets which are necessary to run the
 // benchmarks.
-func (_ GVisor) Generate(cfg *common.GenConfig) error {
+func (GVisor) Generate(cfg *common.GenConfig) error {
 	goTool := *cfg.GoTool
 	goTool.Env = goTool.Env.MustSet("CGO_ENABLED=0") // Disable CGO for workloads.
 
