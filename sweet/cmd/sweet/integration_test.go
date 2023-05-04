@@ -167,7 +167,7 @@ func TestSweetEndToEnd(t *testing.T) {
 	sema := semaphore.NewWeighted(2)
 	var wg sync.WaitGroup
 	for i, shard := range []string{
-		"tile38", "go-build", "biogo-igor", "biogo-krishna",
+		"tile38", "go-build", "biogo-igor", "biogo-krishna", "etcd",
 		// TODO(go.dev/issue/51445): Enable once gVisor builds with Go 1.19.
 		// "gvisor",
 		"bleve-index,gopher-lua,markdown",

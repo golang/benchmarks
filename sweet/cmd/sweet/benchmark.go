@@ -40,6 +40,12 @@ var allBenchmarks = []benchmark{
 		generator:   generators.BleveIndex(),
 	},
 	{
+		name:        "etcd",
+		description: "Distributed key-value store",
+		harness:     harnesses.Etcd{},
+		generator:   generators.None{},
+	},
+	{
 		name:        "go-build",
 		description: "Go build command",
 		harness:     harnesses.GoBuild{},

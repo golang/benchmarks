@@ -11,19 +11,18 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
-	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"sort"
 	"strconv"
-	"sync"
 	"sync/atomic"
 	"time"
 
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/driver"
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/pool"
+	"golang.org/x/benchmarks/sweet/benchmarks/internal/server"
 	"golang.org/x/benchmarks/sweet/common/diagnostics"
 	"golang.org/x/benchmarks/sweet/common/profile"
 
@@ -269,24 +268,6 @@ func launchServer(cfg *config, out io.Writer) (*exec.Cmd, error) {
 
 const pprofPort = 12345
 
-func (cfg *config) readTrace(benchName string) (int64, error) {
-	f, err := os.Create(cfg.diagnosticDataPath(diagnostics.Trace))
-	if err != nil {
-		return 0, err
-	}
-	defer f.Close()
-	resp, err := http.Get(fmt.Sprintf("http://%s:%d/debug/pprof/trace", cfg.host, pprofPort))
-	if err != nil {
-		return 0, err
-	}
-	defer resp.Body.Close()
-	n, err := io.Copy(f, resp.Body)
-	if err != nil {
-		return 0, err
-	}
-	return n, driver.CopyDiagnosticData(cfg.diagnosticDataPath(diagnostics.Trace), diagnostics.Trace, benchName)
-}
-
 const benchName = "Tile38QueryLoad"
 
 func run(cfg *config) (err error) {
@@ -347,7 +328,6 @@ func run(cfg *config) (err error) {
 		driver.DoCoreDump(true),
 		driver.BenchmarkPID(srvCmd.Process.Pid),
 		driver.DoPerf(true),
-		driver.DoTrace(true),
 	}
 	iters := 40 * 50000
 	if cfg.short {
@@ -355,36 +335,14 @@ func run(cfg *config) (err error) {
 	}
 	return driver.RunBenchmark(benchName, func(d *driver.B) error {
 		if driver.DiagnosticEnabled(diagnostics.Trace) {
-			// Handle execution tracing.
-			//
-			// TODO(mknyszek): This is kind of a hack. We really should find a way to just
-			// enable tracing at a lower level for the entire server run.
-			var traceStop chan struct{}
-			var traceWg sync.WaitGroup
-			var traceBytes uint64
-			traceWg.Add(1)
-			traceStop = make(chan struct{})
-			go func() {
-				defer traceWg.Done()
-				for {
-					select {
-					case <-traceStop:
-						return
-					default:
-					}
-					n, err := cfg.readTrace(benchName)
-					if err != nil {
-						fmt.Fprintf(os.Stderr, "failed to read trace: %v", err)
-						return
-					}
-					traceBytes += uint64(n)
-				}
-			}()
+			stopTrace := server.PollDiagnostic(
+				fmt.Sprintf("%s:%d", cfg.host, pprofPort),
+				cfg.tmpDir,
+				benchName,
+				diagnostics.Trace,
+			)
 			defer func() {
-				// Stop the trace loop.
-				close(traceStop)
-				traceWg.Wait()
-				d.Report("trace-bytes", traceBytes)
+				d.Report("trace-bytes", stopTrace())
 			}()
 		}
 		return runBenchmark(d, cfg.host, cfg.port, cfg.serverProcs, iters)
