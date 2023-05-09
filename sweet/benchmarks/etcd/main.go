@@ -322,7 +322,7 @@ func run(cfg *config) (err error) {
 					fmt.Fprintf(os.Stderr, "failed to shutdown %s: %v", inst.name, r)
 				}
 			}
-			if inst.output.Len() != 0 {
+			if err != nil && inst.output.Len() != 0 {
 				fmt.Fprintf(os.Stderr, "=== Instance %q stdout+stderr ===\n", inst.name)
 				fmt.Fprintln(os.Stderr, inst.output.String())
 			}
