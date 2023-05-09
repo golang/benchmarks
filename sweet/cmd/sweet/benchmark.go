@@ -92,6 +92,7 @@ var benchmarkGroups = func() map[string][]*benchmark {
 		allBenchmarksMap["biogo-igor"],
 		allBenchmarksMap["biogo-krishna"],
 		allBenchmarksMap["bleve-index"],
+		allBenchmarksMap["etcd"],
 		allBenchmarksMap["go-build"],
 		allBenchmarksMap["gopher-lua"],
 		// TODO(go.dev/issue/51445): Enable once gVisor builds with Go 1.19.
