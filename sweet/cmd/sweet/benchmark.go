@@ -224,15 +224,18 @@ func (b *benchmark) execute(cfgs []*common.Config, r *runCfg) error {
 			}
 		}
 
-		// Add PGO if profile specified for this benchmark.
-		if pgo, ok := cfg.PGOFiles[b.name]; ok {
-			goflags, ok := cfg.BuildEnv.Lookup("GOFLAGS")
-			if ok {
-				goflags += " "
-			}
-			goflags += fmt.Sprintf("-pgo=%s", pgo)
-			cfg.BuildEnv.Env = cfg.BuildEnv.MustSet("GOFLAGS=" + goflags)
+		// Add PGO if profile specified for this benchmark, otherwise
+		// explicitly disable it to avoid default.pgo files.
+		pgo, ok := cfg.PGOFiles[b.name]
+		if !ok {
+			pgo = "off"
 		}
+		goflags, ok := cfg.BuildEnv.Lookup("GOFLAGS")
+		if ok {
+			goflags += " "
+		}
+		goflags += fmt.Sprintf("-pgo=%s", pgo)
+		cfg.BuildEnv.Env = cfg.BuildEnv.MustSet("GOFLAGS=" + goflags)
 
 		// Build the benchmark (application and any other necessary components).
 		bcfg := common.BuildConfig{
