@@ -183,7 +183,11 @@ func (b *benchmark) execute(cfgs []*common.Config, r *runCfg) error {
 	// multiple times, this will already be done.
 	_, err := os.Stat(srcDir)
 	if os.IsNotExist(err) {
-		if err := b.harness.Get(srcDir); err != nil {
+		gcfg := &common.GetConfig{
+			SrcDir: srcDir,
+			Short:  r.short,
+		}
+		if err := b.harness.Get(gcfg); err != nil {
 			return fmt.Errorf("retrieving source for %s: %v", b.name, err)
 		}
 	}

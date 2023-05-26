@@ -20,42 +20,48 @@ type buildBenchmark struct {
 	clone func(outDir string) error
 }
 
-var buildBenchmarks = []*buildBenchmark{
-	{
-		name: "kubernetes",
-		pkg:  "cmd/kubelet",
-		clone: func(outDir string) error {
-			return gitShallowClone(
-				outDir,
-				"https://github.com/kubernetes/kubernetes",
-				"v1.22.1",
-			)
+var (
+	buildBenchmarks = []*buildBenchmark{
+		{
+			name: "kubernetes",
+			pkg:  "cmd/kubelet",
+			clone: func(outDir string) error {
+				return gitShallowClone(
+					outDir,
+					"https://github.com/kubernetes/kubernetes",
+					"v1.22.1",
+				)
+			},
 		},
-	},
-	{
-		name: "istio",
-		pkg:  "istioctl/cmd/istioctl",
-		clone: func(outDir string) error {
-			return gitShallowClone(
-				outDir,
-				"https://github.com/istio/istio",
-				"1.11.1",
-			)
+		{
+			name: "istio",
+			pkg:  "istioctl/cmd/istioctl",
+			clone: func(outDir string) error {
+				return gitShallowClone(
+					outDir,
+					"https://github.com/istio/istio",
+					"1.11.1",
+				)
+			},
 		},
-	},
-	{
-		name: "pkgsite",
-		pkg:  "cmd/frontend",
-		clone: func(outDir string) error {
-			return gitCloneToCommit(
-				outDir,
-				"https://go.googlesource.com/pkgsite",
-				"master",
-				"0a8194a898a1ceff6a0b29e3419650daf43d8567",
-			)
+		{
+			name: "pkgsite",
+			pkg:  "cmd/frontend",
+			clone: func(outDir string) error {
+				return gitCloneToCommit(
+					outDir,
+					"https://go.googlesource.com/pkgsite",
+					"master",
+					"0a8194a898a1ceff6a0b29e3419650daf43d8567",
+				)
+			},
 		},
-	},
-}
+	}
+	// For short mode, only build pkgsite. It's the smallest of
+	// the set, and it's hosted on go.googlesource.com, so fetching
+	// source is less likely to be rate-limited causing CI failures.
+	buildBenchmarksShort = []*buildBenchmark{buildBenchmarks[2]}
+)
 
 type GoBuild struct{}
 
@@ -63,10 +69,10 @@ func (h GoBuild) CheckPrerequisites() error {
 	return nil
 }
 
-func (h GoBuild) Get(srcDir string) error {
+func (h GoBuild) Get(gcfg *common.GetConfig) error {
 	// Clone the sources that we're going to build.
-	for _, bench := range buildBenchmarks {
-		if err := bench.clone(filepath.Join(srcDir, bench.name)); err != nil {
+	for _, bench := range goBuildBenchmarks(gcfg.Short) {
+		if err := bench.clone(filepath.Join(gcfg.SrcDir, bench.name)); err != nil {
 			return err
 		}
 	}
@@ -77,11 +83,8 @@ func (h GoBuild) Build(pcfg *common.Config, bcfg *common.BuildConfig) error {
 	// Local copy of config for updating GOROOT.
 	cfg := pcfg.Copy()
 
-	benchmarks := buildBenchmarks
-	if bcfg.Short {
-		// Do only the pkgsite benchmark.
-		benchmarks = []*buildBenchmark{buildBenchmarks[2]}
-	}
+	// Get the benchmarks we're going to build.
+	benchmarks := goBuildBenchmarks(bcfg.Short)
 
 	// cfg.GoRoot is our source toolchain. We need to rebuild cmd/compile
 	// and cmd/link with cfg.BuildEnv to apply any configured build options
@@ -131,11 +134,7 @@ func (h GoBuild) Run(pcfg *common.Config, rcfg *common.RunConfig) error {
 	cfg := pcfg.Copy()
 	cfg.GoRoot = filepath.Join(rcfg.BinDir, "goroot") // see Build, above.
 
-	benchmarks := buildBenchmarks
-	if rcfg.Short {
-		// Do only the pkgsite benchmark.
-		benchmarks = []*buildBenchmark{buildBenchmarks[2]}
-	}
+	benchmarks := goBuildBenchmarks(rcfg.Short)
 	for _, bench := range benchmarks {
 		cmd := exec.Command(
 			filepath.Join(rcfg.BinDir, "go-build-bench"),
@@ -154,4 +153,11 @@ func (h GoBuild) Run(pcfg *common.Config, rcfg *common.RunConfig) error {
 		}
 	}
 	return nil
+}
+
+func goBuildBenchmarks(short bool) []*buildBenchmark {
+	if short {
+		return buildBenchmarksShort
+	}
+	return buildBenchmarks
 }

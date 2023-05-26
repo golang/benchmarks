@@ -74,7 +74,7 @@ func (GVisor) Generate(cfg *common.GenConfig) error {
 	if err := os.MkdirAll(srcDir, os.ModePerm); err != nil {
 		return err
 	}
-	if err := (harnesses.GVisor{}).Get(srcDir); err != nil {
+	if err := (harnesses.GVisor{}).Get(&common.GetConfig{SrcDir: srcDir}); err != nil {
 		return err
 	}
 

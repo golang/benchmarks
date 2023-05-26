@@ -19,7 +19,7 @@ func (h Etcd) CheckPrerequisites() error {
 	return nil
 }
 
-func (h Etcd) Get(srcDir string) error {
+func (h Etcd) Get(gcfg *common.GetConfig) error {
 	// Build against the latest alpha.
 	//
 	// Because of the way etcd is released (as a binary blob),
@@ -27,7 +27,7 @@ func (h Etcd) Get(srcDir string) error {
 	// Improving performance of these versions doesn't really matter.
 	// Instead, try to track something close to HEAD.
 	return gitShallowClone(
-		srcDir,
+		gcfg.SrcDir,
 		"https://github.com/etcd-io/etcd",
 		"v3.6.0-alpha.0",
 	)

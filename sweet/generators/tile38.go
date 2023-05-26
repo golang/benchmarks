@@ -78,7 +78,7 @@ func (Tile38) Generate(cfg *common.GenConfig) error {
 	if err := os.MkdirAll(srcDir, os.ModePerm); err != nil {
 		return err
 	}
-	if err := (harnesses.Tile38{}).Get(srcDir); err != nil {
+	if err := (harnesses.Tile38{}).Get(&common.GetConfig{SrcDir: srcDir}); err != nil {
 		return err
 	}
 

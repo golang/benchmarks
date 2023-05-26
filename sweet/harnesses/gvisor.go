@@ -24,9 +24,9 @@ func (h GVisor) CheckPrerequisites() error {
 	return nil
 }
 
-func (h GVisor) Get(srcDir string) error {
+func (h GVisor) Get(gcfg *common.GetConfig) error {
 	return gitCloneToCommit(
-		srcDir,
+		gcfg.SrcDir,
 		"https://github.com/google/gvisor",
 		"go",
 		"adc7bb5e1baf4a7489e428e1fad756e5e2aa3410", // release-20220228.0-4233-gadc7bb5e1

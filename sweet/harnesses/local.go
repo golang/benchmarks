@@ -23,7 +23,7 @@ func (h *localBenchHarness) CheckPrerequisites() error {
 	return nil
 }
 
-func (h *localBenchHarness) Get(_ string) error {
+func (h *localBenchHarness) Get(_ *common.GetConfig) error {
 	return nil
 }
 

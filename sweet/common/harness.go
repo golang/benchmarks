@@ -6,6 +6,21 @@ package common
 
 import "os"
 
+type GetConfig struct {
+	// SrcDir is the path to the directory that the harness should write
+	// benchmark source into. This is then fed into the BuildConfig.
+	//
+	// The harness should not write benchmark source code from the Sweet
+	// repository here; it need only collect source code it needs to fetch
+	// from a remote source.
+	SrcDir string
+
+	// Short indicates whether or not to run a short version of the benchmarks
+	// for testing. Guaranteed to be the same as BuildConfig.Short and
+	// RunConfig.Short.
+	Short bool
+}
+
 type BuildConfig struct {
 	// BinDir is the path to the directory where all built binaries should be
 	// placed.
@@ -22,8 +37,8 @@ type BuildConfig struct {
 	BenchDir string
 
 	// Short indicates whether or not to run a short version of the benchmarks
-	// for testing. Guaranteed to be the same as RunConfig.Short for any
-	// RunConfig.
+	// for testing. Guaranteed to be the same as GetConfig.Short and
+	// RunConfig.Short.
 	Short bool
 }
 
@@ -57,8 +72,8 @@ type RunConfig struct {
 	Results *os.File
 
 	// Short indicates whether or not to run a short version of the benchmarks
-	// for testing. Guaranteed to be the same as BuildConfig.Short for any
-	// BuildConfig.
+	// for testing. Guaranteed to be the same as GetConfig.Short and
+	// BuildConfig.Short.
 	Short bool
 }
 
@@ -70,7 +85,7 @@ type Harness interface {
 	CheckPrerequisites() error
 
 	// Get retrieves the source code for a benchmark and places it in srcDir.
-	Get(srcDir string) error
+	Get(g *GetConfig) error
 
 	// Build builds a benchmark and places the binaries in binDir.
 	Build(cfg *Config, b *BuildConfig) error

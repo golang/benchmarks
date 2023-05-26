@@ -22,9 +22,9 @@ func (h Tile38) CheckPrerequisites() error {
 	return nil
 }
 
-func (h Tile38) Get(srcDir string) error {
+func (h Tile38) Get(gcfg *common.GetConfig) error {
 	return gitShallowClone(
-		srcDir,
+		gcfg.SrcDir,
 		"https://github.com/tidwall/tile38",
 		"1.29.1",
 	)
