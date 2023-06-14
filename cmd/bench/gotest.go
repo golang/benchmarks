@@ -68,7 +68,7 @@ func goTestSubrepo(tc *toolchain, subRepo, baselineDir, experimentDir string) er
 			fmt.Printf("toolchain: %s\n", test.name) // set the toolchain tag
 
 			goplsPath := filepath.Join(test.goplsDir, "gopls")
-			err = tc.Do(benchmarkDir, "test", "-short", "-bench=.", fmt.Sprintf(`-gopls_path=%s`, goplsPath), "-count=5")
+			err = tc.Do(benchmarkDir, "test", "-short", "-bench=.", fmt.Sprintf(`-gopls_path=%s`, goplsPath), "-count=5", "-timeout=60m")
 			if err != nil {
 				return fmt.Errorf("error running sub-repo %s benchmark %q with toolchain %s in dir %s: %w", subRepo, test.name, tc.Name, benchmarkDir, err)
 			}
