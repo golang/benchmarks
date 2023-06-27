@@ -109,7 +109,11 @@ func (h GoBuild) Build(pcfg *common.Config, bcfg *common.BuildConfig) error {
 		if err != nil {
 			return err
 		}
-
+		if bcfg.Short {
+			// Short mode isn't intended to produce good benchmark results;
+			// it's meant for testing and debugging. Skip the additional build step.
+			continue
+		}
 		// Build the benchmark once, pulling in any requisite packages.
 		//
 		// Run the go tool with ExecEnv, as that is what we will use

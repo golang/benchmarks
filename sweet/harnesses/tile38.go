@@ -57,11 +57,17 @@ func (h Tile38) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 }
 
 func (h Tile38) Run(cfg *common.Config, rcfg *common.RunConfig) error {
-	// Make sure all the data passed to the server is writable.
-	// The server needs to be able to open its persistent storage as read-write.
-	dataPath := filepath.Join(rcfg.AssetsDir, "data")
-	if err := makeWriteable(dataPath); err != nil {
-		return err
+	var dataPath string
+	if rcfg.Short {
+		// Don't load the real data for short mode. It takes a long time.
+		dataPath = filepath.Join(rcfg.TmpDir, "data-empty-fake")
+	} else {
+		// Make sure all the data passed to the server is writable.
+		// The server needs to be able to open its persistent storage as read-write.
+		dataPath = filepath.Join(rcfg.AssetsDir, "data")
+		if err := makeWriteable(dataPath); err != nil {
+			return err
+		}
 	}
 	args := append(rcfg.Args, []string{
 		"-host", "127.0.0.1",

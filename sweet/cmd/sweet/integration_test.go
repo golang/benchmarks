@@ -192,7 +192,7 @@ func TestSweetEndToEnd(t *testing.T) {
 	sema := semaphore.NewWeighted(8)
 	var wg sync.WaitGroup
 	for i, shard := range []shard{
-		{"tile38", 4},
+		{"tile38", 2},
 		{"go-build", 4},
 		{"biogo-igor", 1},
 		{"biogo-krishna", 1},
