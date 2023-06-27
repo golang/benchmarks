@@ -331,7 +331,7 @@ func run(cfg *config) (err error) {
 	}
 	iters := 40 * 50000
 	if cfg.short {
-		iters = 1000
+		iters = 100
 	}
 	return driver.RunBenchmark(benchName, func(d *driver.B) error {
 		if driver.DiagnosticEnabled(diagnostics.Trace) {

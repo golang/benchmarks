@@ -79,14 +79,19 @@ func BleveIndex() common.Harness {
 	return &localBenchHarness{
 		binName: "bleve-index-bench",
 		genArgs: func(cfg *common.Config, rcfg *common.RunConfig) []string {
-			args := []string{
-				"-batch-size", "100",
-				filepath.Join(rcfg.AssetsDir, "enwiki-20080103-pages-articles.xml.bz2"),
-			}
+			var args []string
 			if rcfg.Short {
-				args = append([]string{"-documents", "100"}, args...)
+				args = []string{
+					"-documents", "10",
+					"-batch-size", "10",
+				}
+			} else {
+				args = []string{
+					"-documents", "1000",
+					"-batch-size", "100",
+				}
 			}
-			return args
+			return append(args, filepath.Join(rcfg.AssetsDir, "enwiki-20080103-pages-articles.xml.bz2"))
 		},
 	}
 }

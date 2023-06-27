@@ -14,6 +14,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"golang.org/x/benchmarks/sweet/common"
 	"golang.org/x/sync/semaphore"
@@ -26,6 +27,16 @@ func TestSweetEndToEnd(t *testing.T) {
 	if testing.Short() {
 		t.Skip("the full Sweet end-to-end experience takes several minutes")
 	}
+
+	// Timing state for timeout debug logging.
+	testStartTime := time.Now()
+	lastTime := testStartTime
+	phaseDone := func(name string) {
+		now := time.Now()
+		t.Logf("phase %s @%s (duration: %s)", name, lastTime.Sub(testStartTime), now.Sub(lastTime))
+		lastTime = now
+	}
+
 	goRoot := os.Getenv("GOROOT")
 	if goRoot == "" {
 		data, err := exec.Command("go", "env", "GOROOT").Output()
@@ -87,6 +98,8 @@ func TestSweetEndToEnd(t *testing.T) {
 		}
 	}()
 
+	phaseDone("setup")
+
 	// Download assets.
 	getCmd := exec.Command(sweetBin, "get",
 		"-auth", "none",
@@ -97,6 +110,8 @@ func TestSweetEndToEnd(t *testing.T) {
 		t.Logf("command output:\n%s", string(output))
 		t.Fatal(err)
 	}
+
+	phaseDone("sweet-get")
 
 	// TODO(mknyszek): Test regenerating assets. As it stands, the following
 	// parts of the test will fail if the source assets change, since they're
@@ -110,6 +125,12 @@ func TestSweetEndToEnd(t *testing.T) {
 
 	var outputMu sync.Mutex
 	runShard := func(shard, resultsDir, workDir string) {
+		startTime := time.Now()
+		defer func() {
+			endTime := time.Now()
+			t.Logf("\tphase sweet-run-%s @%s (duration: %s)", shard, startTime.Sub(testStartTime), endTime.Sub(startTime))
+		}()
+
 		args := []string{
 			"run",
 			"-run", shard,
@@ -163,16 +184,26 @@ func TestSweetEndToEnd(t *testing.T) {
 			t.Error(runErr)
 		}
 	}
+	type shard struct {
+		run    string
+		weight int64
+	}
 	// Limit parallelism to conserve memory.
-	sema := semaphore.NewWeighted(2)
+	sema := semaphore.NewWeighted(8)
 	var wg sync.WaitGroup
-	for i, shard := range []string{
-		"tile38", "go-build", "biogo-igor", "biogo-krishna", "etcd",
+	for i, shard := range []shard{
+		{"tile38", 4},
+		{"go-build", 4},
+		{"biogo-igor", 1},
+		{"biogo-krishna", 1},
+		{"etcd", 1},
+		{"bleve-index", 1},
+		{"gopher-lua", 1},
+		{"markdown", 1},
 		// TODO(go.dev/issue/51445): Enable once gVisor builds with Go 1.19.
-		// "gvisor",
-		"bleve-index,gopher-lua,markdown",
+		// {"gvisor", 1},
 	} {
-		sema.Acquire(context.Background(), 1)
+		sema.Acquire(context.Background(), shard.weight)
 		wg.Add(1)
 		go func(i int, shard string) {
 			defer sema.Release(1)
@@ -180,9 +211,11 @@ func TestSweetEndToEnd(t *testing.T) {
 			resultsDir := filepath.Join(tmpDir, fmt.Sprintf("results-%d", i))
 			workDir := filepath.Join(tmpDir, fmt.Sprintf("tmp-%d", i))
 			runShard(shard, resultsDir, workDir)
-		}(i, shard)
+		}(i, shard.run)
 	}
 	wg.Wait()
+
+	phaseDone("sweet-run")
 }
 
 func makeConfigFile(t *testing.T, goRoot string) string {

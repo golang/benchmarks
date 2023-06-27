@@ -64,11 +64,11 @@ func doBenchmark(s *lua.LState, input lua.LString) error {
 	if err := s.CallByParam(freq, input, lua.LNumber(1)); err != nil {
 		return err
 	}
-	if err := s.CallByParam(freq, input, lua.LNumber(2)); err != nil {
-		return err
-	}
 	if short {
 		return nil
+	}
+	if err := s.CallByParam(freq, input, lua.LNumber(2)); err != nil {
+		return err
 	}
 	if err := s.CallByParam(count, input, lua.LString("GGT")); err != nil {
 		return err

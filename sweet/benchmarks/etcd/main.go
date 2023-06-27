@@ -176,6 +176,8 @@ type benchmark struct {
 	name       string
 	reportName string
 	args       []string
+	longArgs   []string // if !config.short
+	shortArgs  []string // if config.short
 }
 
 var benchmarks = []benchmark{
@@ -190,8 +192,13 @@ var benchmarks = []benchmark{
 			"put",
 			"--key-size=8",
 			"--sequential-keys",
-			"--total=100000",
 			"--val-size=256",
+		},
+		longArgs: []string{
+			"--total=100000",
+		},
+		shortArgs: []string{
+			"--total=1000",
 		},
 	},
 	{
@@ -204,8 +211,13 @@ var benchmarks = []benchmark{
 			"stm",
 			"--keys=1000",
 			"--keys-per-txn=2",
-			"--total=100000",
 			"--val-size=8",
+		},
+		longArgs: []string{
+			"--total=100000",
+		},
+		shortArgs: []string{
+			"--total=1000",
 		},
 	},
 }
@@ -216,6 +228,11 @@ func runBenchmark(b *driver.B, cfg *config, instances []*etcdInstance) (err erro
 		hosts = append(hosts, inst.host(clientPort))
 	}
 	args := append([]string{"--endpoints", strings.Join(hosts, ",")}, cfg.bench.args...)
+	if cfg.short {
+		args = append(args, cfg.bench.shortArgs...)
+	} else {
+		args = append(args, cfg.bench.longArgs...)
+	}
 	cmd := exec.Command(cfg.benchmarkBin, args...)
 
 	var stdout, stderr bytes.Buffer
