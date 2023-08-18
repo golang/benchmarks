@@ -141,7 +141,7 @@ func (d Config) String() string {
 
 // ParseConfig derives a Config from a string. The string must take the form
 //
-//    <type>[=<flags>]
+//	<type>[=<flags>]
 //
 // where [=<flags>] is only accepted if <type> is perf.
 func ParseConfig(d string) (Config, error) {
