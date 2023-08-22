@@ -19,6 +19,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
@@ -79,7 +80,8 @@ var explicitAll counterFlag // Include "-a" on "go test -c" test build ; repeati
 var shuffle = 2             // Dimensionality of (build) shuffling; 0 = none, 1 = per-benchmark, configuration ordering, 2 = bench, config pairs, 3 = across repetitions.
 var haveRsync = true
 var reportBuildTime = true
-var experiment = false // Don't reset go.mod, for testing purposes
+var experiment = false    // Don't reset go.mod, for testing purposes
+var minGoVersion = "1.21" // This is the release the toolchain started caring about versions of Go that are too new.
 
 //go:embed scripts/*
 var scripts embed.FS
@@ -155,6 +157,8 @@ func main() {
 	flag.BoolVar(&reportBuildTime, "report-build-time", reportBuildTime, "report build real/CPU time as benchmark results")
 
 	flag.Var(&verbose, "v", "print commands and other information (more -v = print more details)")
+
+	flag.StringVar(&minGoVersion, "m", minGoVersion, "minimum Go version across all toolchains used for benchmarking")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
@@ -549,23 +553,30 @@ results will also appear in 'bench'.
 				}
 			}
 			if getFiles {
-				cmd := exec.Command("go", "mod", "init", "build")
-				cmd.Env = DefaultEnv()
-				cmd.Dir = bench.BuildDir
-
+				goModPath := filepath.Join(bench.BuildDir, "go.mod")
+				f, err := os.Create(goModPath)
+				if err != nil {
+					fmt.Printf("Error creating go.mod: %v", err)
+					os.Exit(2)
+				}
+				goMod := fmt.Sprintf(goMod, minGoVersion)
+				_, err = fmt.Fprintln(f, goMod)
+				if err != nil {
+					fmt.Printf("Error writing go.mod: %v", err)
+					f.Close()
+					os.Exit(2)
+				}
+				if err := f.Close(); err != nil {
+					fmt.Printf("Error closing go.mod: %v", err)
+					os.Exit(2)
+				}
 				if verbose > 0 {
-					fmt.Println(asCommandLine(dirs.wd, cmd))
+					fmt.Printf("(cd %s; cat <<EOF > %s\n%s\nEOF)\n", bench.BuildDir, "go.mod", goMod)
 				} else {
 					fmt.Print(".")
 				}
-				_, err := cmd.Output()
-				if err != nil {
-					ee := err.(*exec.ExitError)
-					fmt.Printf("There was an error running 'go mod init', stderr = %s", ee.Stderr)
-					os.Exit(2)
-				}
 
-				cmd = exec.Command("go", "get", "-d", "-t", "-v", bench.Repo+bench.Version)
+				cmd := exec.Command("go", "get", "-d", "-t", "-v", bench.Repo+bench.Version)
 				cmd.Env = DefaultEnv()
 				cmd.Dir = bench.BuildDir
 
@@ -1079,6 +1090,11 @@ benchmarks_loop:
 		os.Exit(maxrc)
 	}
 }
+
+var goMod = `module build
+
+go %s
+`
 
 func escape(s string) string {
 	s = strings.Replace(s, "\\", "\\\\", -1)
