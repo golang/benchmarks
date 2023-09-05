@@ -3,7 +3,6 @@
 // license that can be found in the LICENSE file.
 
 //go:build !go1.2
-// +build !go1.2
 
 package driver
 
