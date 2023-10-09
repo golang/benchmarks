@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 	"testing"
 )
 
@@ -46,6 +47,9 @@ func bentCmd(t *testing.T, args ...string) *exec.Cmd {
 }
 
 func TestBent(t *testing.T) {
+	if runtime.GOARCH == "wasm" {
+		t.Skipf("skipping test: exec not supported on %s/%s", runtime.GOOS, runtime.GOARCH)
+	}
 	cmd := bentCmd(t, "-I")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
