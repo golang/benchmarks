@@ -49,7 +49,7 @@ func goTestSubrepo(tc *toolchain, subRepo, baselineDir, experimentDir string) er
 		//
 		// By convention, gopls uses -short to define tests that should be run by
 		// x/benchmarks.
-		benchmarkDir := filepath.Join(experimentDir, "gopls", "internal", "regtest", "bench")
+		benchmarkDir := filepath.Join(experimentDir, "gopls", "internal", "test", "integration", "bench")
 
 		tests := []struct {
 			name     string // toolchain name
