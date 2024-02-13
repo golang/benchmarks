@@ -8,6 +8,16 @@
   ExtraFiles = ["_example"]
 
 [[Suites]]
+  Name = "iter_test"
+  Repo = "github.com/dr2chase/iter_test/bench"
+  Version = "@v1.0.2"
+
+[[Suites]]
+  Name = "iter_tiny"
+  Repo = "github.com/dr2chase/iter_test/tiny"
+  Version = "@v1.0.2"
+
+[[Suites]]
   Name = "dustin_broadcast"
   Repo = "github.com/dustin/go-broadcast"
   Version = "@v0.0.0-20171205050544-f664265f5a66"

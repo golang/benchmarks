@@ -66,7 +66,8 @@ var benchFile = "benchmarks-50.toml" // default list of benchmarks
 var confFile = "configurations.toml" // default list of configurations
 var suiteFile = "suites.toml"        // default list of suites
 var container = ""
-var N = 1
+var N = 1 // benchmark repeat count
+var R = 0 // randomized build/benchmark repeat count
 var list = false
 var initialize = false
 var test = false
@@ -80,7 +81,7 @@ var shuffle = 2             // Dimensionality of (build) shuffling; 0 = none, 1 
 var haveRsync = true
 var reportBuildTime = true
 var experiment = false    // Don't reset go.mod, for testing purposes
-var minGoVersion = "1.21" // This is the release the toolchain started caring about versions of Go that are too new.
+var minGoVersion = "1.22" // This is the release the toolchain started caring about versions of Go that are too new.
 
 //go:embed scripts/*
 var scripts embed.FS
@@ -95,7 +96,7 @@ var copyExes = []string{
 var copyConfigs = []string{
 	"benchmarks-all.toml", "benchmarks-50.toml", "benchmarks-gc.toml", "benchmarks-gcplus.toml", "benchmarks-trial.toml",
 	"configurations-sample.toml", "configurations-gollvm.toml", "configurations-cronjob.toml", "configurations-cmpjob.toml",
-	"configurations-pgo.toml", "suites.toml",
+	"configurations-pgo.toml", "configurations-random.toml", "suites.toml",
 }
 
 var defaultEnv []string
@@ -128,6 +129,7 @@ func main() {
 	var benchmarksString, configurationsString, stampLog string
 
 	flag.IntVar(&N, "N", N, "benchmark/test repeat count")
+	flag.IntVar(&R, "R", R, "randomize binary layouts to suppress alignment artifacts (subsumes and is incompatible with -a, -N)")
 
 	flag.Var(&explicitAll, "a", "add '-a' flag to 'go test -c' to demand full recompile. Repeat or assign a value for repeat builds for benchmarking")
 	flag.IntVar(&shuffle, "s", shuffle, "dimensionality of (build) shuffling (0-3), 0 = none, 1 = per-benchmark, configuration ordering, 2 = bench, config pairs, 3 = across repetitions.")
@@ -197,6 +199,22 @@ results will also appear in 'bench'.
 	}
 
 	flag.Parse()
+
+	if R > 0 {
+		if explicitAll != 0 {
+			fmt.Println("Warning: -R overrides -a, using -R value")
+		}
+		if N != 1 {
+			fmt.Println("Warning: -R overrides -N, using -R value")
+		}
+		if explicitAll < 0 {
+			// preserve the sign; this used to be a thing, it might be again
+			explicitAll = -counterFlag(R)
+		} else {
+			explicitAll = counterFlag(R)
+		}
+		N = R
+	}
 
 	_, errRsync := exec.LookPath("rsync")
 	if errRsync != nil {
@@ -725,7 +743,7 @@ results will also appear in 'bench'.
 						if config.Disabled {
 							continue
 						}
-						s := todo.Configurations[ci].compileOne(&todo.Benchmarks[bi], dirs.wd, yyy)
+						s := todo.Configurations[ci].compileOne(&todo.Benchmarks[bi], dirs.wd, yyy, R > 0)
 						if s != "" {
 							getAndBuildFailures = append(getAndBuildFailures, s)
 						}
@@ -751,7 +769,7 @@ results will also appear in 'bench'.
 						if config.Disabled {
 							continue
 						}
-						s := config.compileOne(&todo.Benchmarks[bi], dirs.wd, yyy)
+						s := config.compileOne(&todo.Benchmarks[bi], dirs.wd, yyy, R > 0)
 						if s != "" {
 							getAndBuildFailures = append(getAndBuildFailures, s)
 						}
@@ -776,7 +794,7 @@ results will also appear in 'bench'.
 					if bench.Disabled || config.Disabled {
 						continue
 					}
-					s := config.compileOne(bench, dirs.wd, yyy)
+					s := config.compileOne(bench, dirs.wd, yyy, R > 0)
 					if s != "" {
 						getAndBuildFailures = append(getAndBuildFailures, s)
 					}
@@ -802,7 +820,7 @@ results will also appear in 'bench'.
 				if bench.Disabled || config.Disabled {
 					continue
 				}
-				s := config.compileOne(bench, dirs.wd, p.k)
+				s := config.compileOne(bench, dirs.wd, p.k, R > 0)
 				if s != "" {
 					getAndBuildFailures = append(getAndBuildFailures, s)
 				}
@@ -1010,7 +1028,7 @@ func benchOne(c *Configuration, b *Benchmark, i int, moreArgs []string) (s strin
 
 	root := c.Root
 
-	testBinaryName := c.benchName(b)
+	testBinaryName := c.benchName(b, i, R > 0)
 
 	runEnv := []string{}
 	runEnv = append(runEnv, "BENT_CONFIG="+c.Name)
@@ -1035,7 +1053,6 @@ func benchOne(c *Configuration, b *Benchmark, i int, moreArgs []string) (s strin
 	}
 
 	crw := c.RunWrapper
-
 	if c.PgoGen != "" {
 		// We want to generate pprof file for using pgo
 		crw = append(crw, wrapperFor([]string{"cpuprofile"}))

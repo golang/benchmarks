@@ -1,0 +1,22 @@
+# A sample configuration for benchmarking binaries whose function ordering has been randomized.
+# This is intended for use with the "-R n" flag and also requires Go > 1.22.
+# BENT_K can be provided externally, for example ina shell script doing iterated benchmarking
+# or two create a different set of randomized link orders.
+#
+# Randomized function ordering creates differences in branch/target alignment which can then be
+# averaged to remove that artifact from benchmarking results, as recommended by
+# Charlie Curtsinger https://dl.acm.org/doi/10.1145/2451116.2451141
+#
+# Benchsize should report slightly different binary sizes if they are correctly linked.
+#
+[[Configurations]]
+  Name = "Control-rand"
+  LdFlags = "-randlayout=0x${BENT_K}a${BENT_I}"
+  Root = "$HOME/work/go/"
+  AfterBuild = [ "benchsize" ]
+
+[[Configurations]]
+  Name = "Test-rand"
+  LdFlags = "-randlayout=0x${BENT_K}a${BENT_I}"
+  Root = "$HOME/work/go-dev/"
+  AfterBuild = [ "benchsize" ]

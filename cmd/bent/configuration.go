@@ -15,6 +15,7 @@ import (
 	"os/exec"
 	"path"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -31,6 +32,7 @@ type Configuration struct {
 	BuildFlags  []string // BuildFlags supplied to 'go test -c' for building (e.g., "-p 1")
 	AfterBuild  []string // Array of commands to run, output of all commands for a configuration (across binaries) is collected in <runstamp>.<config>.<cmd>
 	GcFlags     string   // GcFlags supplied to 'go test -c' for building
+	LdFlags     string   // LdFlags supplied to 'go test -c' for building
 	GcEnv       []string // Environment variables supplied to 'go test -c' for building
 	RunFlags    []string // Extra flags passed to the test binary
 	RunEnv      []string // Extra environment variables passed to the test binary
@@ -53,8 +55,13 @@ func (c *Configuration) thingBenchName(suffix string) string {
 	return path.Join(dirs.benchDir, runstamp+"."+c.Name+"."+suffix)
 }
 
-func (c *Configuration) benchName(b *Benchmark) string {
-	return b.Name + "_" + c.Name
+func (c *Configuration) benchName(b *Benchmark, count int, randomizingBinaries bool) string {
+	n := b.Name + "_" + c.Name
+	if randomizingBinaries {
+		n += "_" + strconv.FormatInt(int64(count), 10)
+	}
+
+	return n
 }
 
 func (c *Configuration) goCommandCopy() string {
@@ -91,7 +98,7 @@ func (config *Configuration) createFilesForLater() {
 	}
 }
 
-func (config *Configuration) runOtherBenchmarks(b *Benchmark, cwd string, cmdEnv []string) {
+func (config *Configuration) runOtherBenchmarks(b *Benchmark, cwd string, cmdEnv []string, count int, randomizingBinaries bool) {
 	// Run various other "benchmark" commands on the built binaries, e.g., size, quality of debugging information.
 	if config.Disabled {
 		return
@@ -117,7 +124,7 @@ func (config *Configuration) runOtherBenchmarks(b *Benchmark, cwd string, cmdEnv
 		if b.Disabled {
 			continue
 		}
-		testBinaryName := config.benchName(b)
+		testBinaryName := config.benchName(b, count, randomizingBinaries)
 		c := exec.Command(cmd, path.Join(cwd, dirs.testBinDir, testBinaryName), strings.Title(b.Name))
 
 		c.Env = cmdEnv
@@ -144,13 +151,13 @@ func (config *Configuration) runOtherBenchmarks(b *Benchmark, cwd string, cmdEnv
 	}
 }
 
-func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int) string {
+func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int, randomizingBinaries bool) string {
 	root := config.rootCopy
 	gocmd := config.goCommandCopy()
 	gopath := path.Join(cwd, "gopath")
 
 	cmd := exec.Command(gocmd, "test", "-vet=off", "-c")
-	compileTo := path.Join(dirs.wd, dirs.testBinDir, config.benchName(bench))
+	compileTo := path.Join(dirs.wd, dirs.testBinDir, config.benchName(bench, count, randomizingBinaries))
 
 	cmd.Env = DefaultEnv()
 
@@ -176,7 +183,10 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 	cmd.Args = append(cmd.Args, "-o", compileTo)
 	cmd.Args = append(cmd.Args, sliceExpandEnv(bench.BuildFlags, cmd.Env)...)
 	// Instead of cleaning the cache, specify -a; cache use changed with 1.20, which made builds take much longer.
-	cmd.Args = append(cmd.Args, "-a")
+	if !randomizingBinaries {
+		// For now, not interesting in benchmarking speed build speed when randomizing
+		cmd.Args = append(cmd.Args, "-a")
+	}
 	cmd.Args = append(cmd.Args, sliceExpandEnv(config.BuildFlags, cmd.Env)...)
 
 	if config.PgoUse != "" {
@@ -186,6 +196,9 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 
 	if config.GcFlags != "" {
 		cmd.Args = append(cmd.Args, "-gcflags="+expandEnv(config.GcFlags, cmd.Env))
+	}
+	if config.LdFlags != "" {
+		cmd.Args = append(cmd.Args, "-ldflags="+expandEnv(config.LdFlags, cmd.Env))
 	}
 	cmd.Args = append(cmd.Args, bench.Repo)
 	cmd.Dir = bench.BuildDir // use module-mode
@@ -266,7 +279,7 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 
 	// Do this here before any cleanup.
 	if count == 0 {
-		config.runOtherBenchmarks(bench, cwd, cmdEnv)
+		config.runOtherBenchmarks(bench, cwd, cmdEnv, count, randomizingBinaries)
 	}
 
 	return ""
