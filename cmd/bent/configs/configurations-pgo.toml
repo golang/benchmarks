@@ -2,10 +2,9 @@
   Name = "pgo-generate"
   Root = "$HOME/work/go/"
   PgoGen = "profiles" # Sub-directory where we put profiles
-#  Disabled = true
+  Disabled = true # Request this explicitly
 
 [[Configurations]]
   Name = "pgo-use"
   Root = "$HOME/work/go/"
   PgoUse = "profiles" # Sub-directory where we search profiles
-  Disabled = true

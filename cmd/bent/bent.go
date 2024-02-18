@@ -344,6 +344,9 @@ results will also appear in 'bench'.
 			// TODO should it use concatenation of os env and configuration env?
 			trial.RunWrapper[0] = os.ExpandEnv(trial.RunWrapper[0])
 		}
+		// TODO would anyone ever make these depend on BENT_I etc?
+		trial.PgoGen = os.ExpandEnv(trial.PgoGen)
+		trial.PgoUse = os.ExpandEnv(trial.PgoUse)
 	}
 	for b, v := range configurations {
 		if v {
@@ -966,128 +969,20 @@ benchmarks_loop:
 	// TODO randomize the benchmarks and configurations, like for builds.
 	for i := 0; i < N; i++ {
 		// For each configuration, run all the benchmarks.
-		for j, config := range todo.Configurations {
-			if config.Disabled {
+		for j := range todo.Configurations {
+			c := &todo.Configurations[j]
+			if c.Disabled {
 				continue
 			}
 
-			for _, b := range todo.Benchmarks {
+			for k := range todo.Benchmarks {
+				b := &todo.Benchmarks[k]
 				if b.Disabled {
 					continue
 				}
 
-				root := config.Root
+				s, rc := benchOne(c, b, i, moreArgs)
 
-				wrapperPrefix := "/"
-				if b.NotSandboxed {
-					wrapperPrefix = dirs.wd + "/"
-				}
-				wrapperFor := func(s []string) string {
-					x := ""
-					if len(s) > 0 {
-						// If not an explicit path, then make it an explicit path
-						x = s[0]
-						if x[0] != '/' {
-							x = wrapperPrefix + x
-						}
-					}
-					return x
-				}
-
-				testBinaryName := config.benchName(&b)
-
-				runEnv := []string{}
-				runEnv = append(runEnv, "BENT_CONFIG="+config.Name)
-				runEnv = append(runEnv, "BENT_BENCH="+b.Name)
-				runEnv = append(runEnv, "BENT_I="+strconv.FormatInt(int64(i), 10))
-				runEnv = append(runEnv, "BENT_BINARY="+testBinaryName)
-
-				if config.PgoGen != "" {
-					// We want to generate pprof file for using pgo
-					config.RunWrapper = append(config.RunWrapper, "cpuprofile")
-				}
-
-				configWrapper := wrapperFor(config.RunWrapper)
-				benchWrapper := wrapperFor(b.RunWrapper)
-
-				var s string
-				var rc int
-
-				var wrappersAndBin []string
-
-				if configWrapper != "" {
-					wrappersAndBin = append(wrappersAndBin, configWrapper)
-					wrappersAndBin = append(wrappersAndBin, config.RunWrapper[1:]...)
-				}
-				if benchWrapper != "" {
-					wrappersAndBin = append(wrappersAndBin, benchWrapper)
-					wrappersAndBin = append(wrappersAndBin, b.RunWrapper[1:]...)
-				}
-
-				if b.NotSandboxed {
-					bin := path.Join(dirs.wd, dirs.testBinDir, testBinaryName)
-					wrappersAndBin = append(wrappersAndBin, bin)
-
-					cmd := exec.Command(wrappersAndBin[0], wrappersAndBin[1:]...)
-					cmd.Args = append(cmd.Args, "-test.run="+b.Tests)
-					cmd.Args = append(cmd.Args, "-test.bench="+b.Benchmarks)
-
-					cmd.Dir = b.RunDir
-					cmd.Env = DefaultEnv()
-					if root != "" {
-						cmd.Env = replaceEnv(cmd.Env, "GOROOT", root)
-					}
-					cmd.Env = append(cmd.Env, "BENT_PROFILES="+path.Join(dirs.wd, config.thingBenchName("profiles")))
-					if config.PgoGen != "" {
-						// We want to generate pprof file for using pgo
-						cmd.Env = append(cmd.Env, "BENT_PGO="+path.Join(dirs.wd, config.PgoGen))
-					}
-
-					cmd.Env = append(cmd.Env, runEnv...)
-					cmd.Env = append(cmd.Env, sliceExpandEnv(config.RunEnv, cmd.Env)...)
-
-					cmd.Args = append(cmd.Args, config.RunFlags...)
-					cmd.Args = append(cmd.Args, moreArgs...)
-					cmd.Args = sliceExpandEnv(cmd.Args, cmd.Env)
-
-					config.say("\n") // force a newline, there may have been loggy-gunk before this.
-					config.say("shortname: " + b.Name + "\n")
-					config.say("toolchain: " + config.Name + "\n")
-					s, rc = todo.Configurations[j].runBinary(dirs.wd, cmd, false)
-				} else {
-					// docker run --net=none -e GOROOT=... -w /src/github.com/minio/minio/cmd $D /testbin/cmd_Config.test -test.short -test.run=Nope -test.v -test.bench=Benchmark'(Get|Put|List)'
-					// TODO(jfaller): I don't think we need either of these "/" below, investigate...
-
-					// TODO this all very undertested right now.
-
-					bin := "/" + path.Join(dirs.testBinDir, testBinaryName)
-					wrappersAndBin = append(wrappersAndBin, bin)
-
-					cmd := exec.Command("docker", "run", "--net=none", "-w", b.RunDir)
-
-					for _, e := range runEnv {
-						cmd.Args = append(cmd.Args, "-e", e)
-					}
-
-					cmd.Args = append(cmd.Args, "-e", "BENT_PROFILES="+path.Join(dirs.wd, config.thingBenchName("profiles")))
-					if config.PgoGen != "" {
-						// We want to generate pprof file for using pgo
-						cmd.Args = append(cmd.Args, "-e", "BENT_PGO="+path.Join(dirs.wd, config.PgoGen))
-					}
-					cmd.Args = append(cmd.Args, container)
-					cmd.Args = append(cmd.Args, wrappersAndBin...)
-					cmd.Args = append(cmd.Args, "-test.run="+b.Tests)
-					cmd.Args = append(cmd.Args, "-test.bench="+b.Benchmarks)
-
-					cmd.Args = append(cmd.Args, config.RunFlags...)
-					cmd.Args = append(cmd.Args, moreArgs...)
-					cmd.Args = sliceExpandEnv(cmd.Args, runEnv)
-
-					config.say("\n") // force a newline, there may have been loggy-gunk before this.
-					config.say("shortname: " + b.Name + "\n")
-					config.say("toolchain: " + config.Name + "\n")
-					s, rc = todo.Configurations[j].runBinary(dirs.wd, cmd, false)
-				}
 				if s != "" {
 					fmt.Println(s)
 					failures = append(failures, s)
@@ -1101,6 +996,133 @@ benchmarks_loop:
 	if maxrc > 0 {
 		os.Exit(maxrc)
 	}
+}
+
+// benchOne runs a single benchmarks b in configuration c at iteration i, applying moreArgs to the run.
+// it returns the output and the return code.
+//
+// if either the configuration or benchmark is disabled, return with empty output and no change (0)
+// to the return code.
+func benchOne(c *Configuration, b *Benchmark, i int, moreArgs []string) (s string, rc int) {
+	if c.Disabled || b.Disabled {
+		return
+	}
+
+	root := c.Root
+
+	testBinaryName := c.benchName(b)
+
+	runEnv := []string{}
+	runEnv = append(runEnv, "BENT_CONFIG="+c.Name)
+	runEnv = append(runEnv, "BENT_BENCH="+b.Name)
+	runEnv = append(runEnv, "BENT_I="+strconv.FormatInt(int64(i), 10))
+	runEnv = append(runEnv, "BENT_BINARY="+testBinaryName)
+
+	wrapperPrefix := "/"
+	if b.NotSandboxed {
+		wrapperPrefix = dirs.wd + "/"
+	}
+	wrapperFor := func(s []string) string {
+		x := ""
+		if len(s) > 0 {
+			// If not an explicit path, then make it an explicit path
+			x = s[0]
+			if x[0] != '/' {
+				x = wrapperPrefix + x
+			}
+		}
+		return x
+	}
+
+	crw := c.RunWrapper
+
+	if c.PgoGen != "" {
+		// We want to generate pprof file for using pgo
+		crw = append(crw, wrapperFor([]string{"cpuprofile"}))
+	}
+
+	configWrapper := wrapperFor(crw)
+	benchWrapper := wrapperFor(b.RunWrapper)
+
+	var wrappersAndBin []string
+
+	if configWrapper != "" {
+		wrappersAndBin = append(wrappersAndBin, configWrapper)
+		wrappersAndBin = append(wrappersAndBin, crw[1:]...)
+	}
+	if benchWrapper != "" {
+		wrappersAndBin = append(wrappersAndBin, benchWrapper)
+		wrappersAndBin = append(wrappersAndBin, b.RunWrapper[1:]...)
+	}
+
+	if b.NotSandboxed {
+		bin := path.Join(dirs.wd, dirs.testBinDir, testBinaryName)
+		wrappersAndBin = append(wrappersAndBin, bin)
+
+		cmd := exec.Command(wrappersAndBin[0], wrappersAndBin[1:]...)
+		cmd.Args = append(cmd.Args, "-test.run="+b.Tests)
+		cmd.Args = append(cmd.Args, "-test.bench="+b.Benchmarks)
+
+		cmd.Dir = b.RunDir
+		cmd.Env = DefaultEnv()
+		if root != "" {
+			cmd.Env = replaceEnv(cmd.Env, "GOROOT", root)
+		}
+		cmd.Env = append(cmd.Env, "BENT_DIR="+dirs.wd)
+		cmd.Env = append(cmd.Env, "BENT_PROFILES="+path.Join(dirs.wd, c.thingBenchName("profiles")))
+		if c.PgoGen != "" {
+			// We want to generate pprof file for using pgo
+			cmd.Env = append(cmd.Env, "BENT_PGO="+path.Join(dirs.wd, c.PgoGen))
+		}
+
+		cmd.Env = append(cmd.Env, runEnv...)
+		cmd.Env = append(cmd.Env, sliceExpandEnv(c.RunEnv, cmd.Env)...)
+
+		cmd.Args = append(cmd.Args, c.RunFlags...)
+		cmd.Args = append(cmd.Args, moreArgs...)
+		cmd.Args = sliceExpandEnv(cmd.Args, cmd.Env)
+
+		c.say("\n") // force a newline, there may have been loggy-gunk before this.
+		c.say("shortname: " + b.Name + "\n")
+		c.say("toolchain: " + c.Name + "\n")
+		s, rc = c.runBinary(dirs.wd, cmd, false)
+	} else {
+		// docker run --net=none -e GOROOT=... -w /src/github.com/minio/minio/cmd $D /testbin/cmd_Config.test -test.short -test.run=Nope -test.v -test.bench=Benchmark'(Get|Put|List)'
+		// TODO(jfaller): I don't think we need either of these "/" below, investigate...
+
+		// TODO this all very undertested right now.
+
+		bin := "/" + path.Join(dirs.testBinDir, testBinaryName)
+		wrappersAndBin = append(wrappersAndBin, bin)
+
+		cmd := exec.Command("docker", "run", "--net=none", "-w", b.RunDir)
+
+		for _, e := range runEnv {
+			cmd.Args = append(cmd.Args, "-e", e)
+		}
+
+		cmd.Args = append(cmd.Args, "-e", "BENT_PROFILES="+path.Join(dirs.wd, c.thingBenchName("profiles")))
+
+		if c.PgoGen != "" {
+			// We want to generate pprof file for using pgo
+			cmd.Args = append(cmd.Args, "-e", "BENT_PGO="+path.Join(dirs.wd, c.PgoGen))
+		}
+
+		cmd.Args = append(cmd.Args, container)
+		cmd.Args = append(cmd.Args, wrappersAndBin...)
+		cmd.Args = append(cmd.Args, "-test.run="+b.Tests)
+		cmd.Args = append(cmd.Args, "-test.bench="+b.Benchmarks)
+
+		cmd.Args = append(cmd.Args, c.RunFlags...)
+		cmd.Args = append(cmd.Args, moreArgs...)
+		cmd.Args = sliceExpandEnv(cmd.Args, runEnv)
+
+		c.say("\n") // force a newline, there may have been loggy-gunk before this.
+		c.say("shortname: " + b.Name + "\n")
+		c.say("toolchain: " + c.Name + "\n")
+		s, rc = c.runBinary(dirs.wd, cmd, false)
+	}
+	return s, rc
 }
 
 var goMod = `module build

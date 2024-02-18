@@ -1,6 +1,12 @@
 # A Suite is a short name, a repo, a version, and sometimes some related default values
 # for the benchmark specification files.
 
+ [[Suites]]
+  Name = "toml"
+  Repo = "github.com/BurntSushi/toml"
+  Version = "@v1.3.2"
+  ExtraFiles = ["_example"]
+
 [[Suites]]
   Name = "dustin_broadcast"
   Repo = "github.com/dustin/go-broadcast"
