@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build go1.16
-
 package main
 
 import (
@@ -20,6 +18,7 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -68,6 +67,7 @@ var suiteFile = "suites.toml"        // default list of suites
 var container = ""
 var N = 1 // benchmark repeat count
 var R = 0 // randomized build/benchmark repeat count
+var groupRuns = true
 var list = false
 var initialize = false
 var test = false
@@ -129,7 +129,8 @@ func main() {
 	var benchmarksString, configurationsString, stampLog string
 
 	flag.IntVar(&N, "N", N, "benchmark/test repeat count")
-	flag.IntVar(&R, "R", R, "randomize binary layouts to suppress alignment artifacts (subsumes and is incompatible with -a, -N)")
+	flag.IntVar(&R, "R", R, "randomize binary layouts to reduce alignment artifacts (subsumes and is incompatible with -a, -N)")
+	flag.BoolVar(&groupRuns, "G", groupRuns, "group runs by benchmark (give them similar platform noise)")
 
 	flag.Var(&explicitAll, "a", "add '-a' flag to 'go test -c' to demand full recompile. Repeat or assign a value for repeat builds for benchmarking")
 	flag.IntVar(&shuffle, "s", shuffle, "dimensionality of (build) shuffling (0-3), 0 = none, 1 = per-benchmark, configuration ordering, 2 = bench, config pairs, 3 = across repetitions.")
@@ -140,7 +141,7 @@ func main() {
 	flag.StringVar(&configurationsString, "c", "", "comma-separated list of test/benchmark configurations (default is all)")
 	flag.StringVar(&confFile, "C", confFile, "name of file describing configurations")
 
-	flag.BoolVar(&requireSandbox, "S", requireSandbox, "require Docker sandbox to run tests/benchmarks (& exclude unsandboxable tests/benchmarks)")
+	flag.BoolVar(&requireSandbox, "sandbox", requireSandbox, "require Docker sandbox to run tests/benchmarks (& exclude unsandboxable tests/benchmarks)")
 
 	flag.BoolVar(&getOnly, "g", getOnly, "get tests/benchmarks and dependencies, do not build or run")
 	flag.StringVar(&runContainer, "r", runContainer, "skip get and build, go directly to run, using specified container (any non-empty string will do for unsandboxed execution)")
@@ -166,41 +167,50 @@ func main() {
 		flag.PrintDefaults()
 		fmt.Fprintf(os.Stderr,
 			`
-%s obtains the benchmarks/tests listed in %s and compiles
-and runs them according to the flags and environment
+%s obtains the benchmarks/tests listed in %s and
+compiles and runs them according to the flags and environment
 variables supplied in %s.
 
 Specifying "-a" will pass "-a" to test compilations, but normally this
-should not be needed and only slows down builds; -a with a number
-that is not 1 can be used for benchmarking builds of the tests
-themselves. (Don't forget to specify "all=..." for GCFLAGS if you want
-those applied to the entire build.)
+should not be needed and only slows down builds; -a with a number that
+is not 1 can be used for benchmarking builds of the tests themselves.
+(Don't forget to specify "all=..." for GCFLAGS if you want those
+applied to the entire build.)
 
 Both of these files can be changed with the -B and -C flags; the full
-suite of benchmarks in benchmarks-all.toml is somewhat
-time-consuming. Suites.toml contains the known benchmarks, their
-versions, and certain necessary build or run flags.
+suite of benchmarks in benchmarks-all.toml is somewhat time-consuming.
+Suites.toml contains the known benchmarks, their versions, and certain
+necessary build or run flags.
 
 Running with the -l flag will list all the available tests and
 benchmarks for the given benchmark and configuration files.
 
 By default benchmarks are run, not tests.  -T runs tests instead.
 
-To run tests or benchmnarks in a docker sandbox, specify -S; if the
-host OS is not linux this will exclude some benchmarks that cannot be
-cross-compiled.
+To run tests or benchmnarks in a docker sandbox, specify -sandbox; if
+the host OS is not linux this will exclude some benchmarks that cannot
+be cross-compiled.
+
+-R and -G help with timing noise studies; -R builds a binary for each
+ index (builds can be parameterised by BENT_I) and -G groups benchmark
+ runs together so that they experience most-similar platform noise
+ (i.e., at a nearby time).
 
 All the test binaries will appear in the subdirectory 'testbin', and
 test (benchmark) output will appear in the subdirectory 'bench' with
 the suffix '.stdout'.  The test output is grouped by configuration to
 allow easy benchmark comparisons with benchstat.  Other benchmarking
-results will also appear in 'bench'.
-`, os.Args[0], benchFile, confFile)
+results will also appear in 'bench'. `, os.Args[0], benchFile,
+			confFile)
 	}
 
 	flag.Parse()
 
 	if R > 0 {
+		if R > 1000000 {
+			fmt.Println("R must be less than or equal to 1,000,000 (1e6)")
+			os.Exit(1)
+		}
 		if explicitAll != 0 {
 			fmt.Println("Warning: -R overrides -a, using -R value")
 		}
@@ -214,6 +224,11 @@ results will also appear in 'bench'.
 			explicitAll = counterFlag(R)
 		}
 		N = R
+	}
+
+	if N > 1000000 {
+		fmt.Println("N must be less than or equal to 1,000,000 (1e6)")
+		os.Exit(1)
 	}
 
 	_, errRsync := exec.LookPath("rsync")
@@ -983,6 +998,8 @@ benchmarks_loop:
 		fmt.Println()
 	}
 
+	var runs []*Run
+
 	// N repetitions for each configurationm, run all the benchmarks.
 	// TODO randomize the benchmarks and configurations, like for builds.
 	for i := 0; i < N; i++ {
@@ -999,21 +1016,63 @@ benchmarks_loop:
 					continue
 				}
 
-				s, rc := benchOne(c, b, i, moreArgs)
-
-				if s != "" {
-					fmt.Println(s)
-					failures = append(failures, s)
-				}
-				if rc > maxrc {
-					maxrc = rc
-				}
+				runs = append(runs, &Run{c, b, i})
 			}
 		}
 	}
+
+	rand.Shuffle(len(runs), func(i, j int) { runs[i], runs[j] = runs[j], runs[i] })
+
+	benchTogether := func(r, s *Run) int {
+		if r.b.Name == s.b.Name {
+			return r.i>>1 - s.i>>1 // small numbers will not overflow.
+		}
+		return strings.Compare(r.b.Name, s.b.Name)
+	}
+
+	nTogether := func(r, s *Run) int {
+		return r.i - s.i // small numbers will not overflow.
+	}
+
+	less := nTogether
+
+	if groupRuns {
+		less = benchTogether
+	}
+
+	slices.SortStableFunc(runs, less)
+
+	if verbose > 0 {
+		for _, r := range runs {
+			fmt.Println(r.String())
+		}
+	}
+
+	for _, r := range runs {
+		s, rc := benchOne(r.c, r.b, r.i, moreArgs)
+
+		if s != "" {
+			fmt.Println(s)
+			failures = append(failures, s)
+		}
+		if rc > maxrc {
+			maxrc = rc
+		}
+	}
+
 	if maxrc > 0 {
 		os.Exit(maxrc)
 	}
+}
+
+type Run struct {
+	c *Configuration
+	b *Benchmark
+	i int
+}
+
+func (r *Run) String() string {
+	return r.c.Name + "-" + r.b.Name + "-" + strconv.FormatInt(int64(r.i), 10)
 }
 
 // benchOne runs a single benchmarks b in configuration c at iteration i, applying moreArgs to the run.
