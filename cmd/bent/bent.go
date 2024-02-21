@@ -465,6 +465,8 @@ results will also appear in 'bench'.
 			defaultEnv = append(defaultEnv, e)
 		}
 	}
+	defaultEnv = inheritEnv(defaultEnv, "http_proxy")
+	defaultEnv = inheritEnv(defaultEnv, "https_proxy")
 	defaultEnv = replaceEnv(defaultEnv, "GOPATH", dirs.gopath)
 	defaultEnv = replaceEnv(defaultEnv, "GOOS", runtime.GOOS)
 	defaultEnv = replaceEnv(defaultEnv, "GOARCH", runtime.GOARCH)
