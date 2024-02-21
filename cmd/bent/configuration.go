@@ -26,6 +26,8 @@ import (
 type Configuration struct {
 	Name        string   // Short name used for binary names, mention on command line
 	Root        string   // Specific Go root to use for this trial
+	PgoGen      string   // Name of sub-directory to put profiles for later loading
+	PgoUse      string   // Name of sub-directory to take generated profile files
 	BuildFlags  []string // BuildFlags supplied to 'go test -c' for building (e.g., "-p 1")
 	AfterBuild  []string // Array of commands to run, output of all commands for a configuration (across binaries) is collected in <runstamp>.<config>.<cmd>
 	GcFlags     string   // GcFlags supplied to 'go test -c' for building
@@ -176,6 +178,12 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int)
 	// Instead of cleaning the cache, specify -a; cache use changed with 1.20, which made builds take much longer.
 	cmd.Args = append(cmd.Args, "-a")
 	cmd.Args = append(cmd.Args, sliceExpandEnv(config.BuildFlags, cmd.Env)...)
+
+	if config.PgoUse != "" {
+		// We want to use pprof file for pgo
+		cmd.Args = append(cmd.Args, "-pgo="+path.Join(dirs.wd, config.PgoUse, bench.Name+".prof"))
+	}
+
 	if config.GcFlags != "" {
 		cmd.Args = append(cmd.Args, "-gcflags="+expandEnv(config.GcFlags, cmd.Env))
 	}

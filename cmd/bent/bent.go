@@ -95,7 +95,7 @@ var copyExes = []string{
 var copyConfigs = []string{
 	"benchmarks-all.toml", "benchmarks-50.toml", "benchmarks-gc.toml", "benchmarks-gcplus.toml", "benchmarks-trial.toml",
 	"configurations-sample.toml", "configurations-gollvm.toml", "configurations-cronjob.toml", "configurations-cmpjob.toml",
-	"suites.toml",
+	"configurations-pgo.toml", "suites.toml",
 }
 
 var defaultEnv []string
@@ -1002,6 +1002,11 @@ benchmarks_loop:
 				runEnv = append(runEnv, "BENT_I="+strconv.FormatInt(int64(i), 10))
 				runEnv = append(runEnv, "BENT_BINARY="+testBinaryName)
 
+				if config.PgoGen != "" {
+					// We want to generate pprof file for using pgo
+					config.RunWrapper = append(config.RunWrapper, "cpuprofile")
+				}
+
 				configWrapper := wrapperFor(config.RunWrapper)
 				benchWrapper := wrapperFor(b.RunWrapper)
 
@@ -1032,8 +1037,11 @@ benchmarks_loop:
 					if root != "" {
 						cmd.Env = replaceEnv(cmd.Env, "GOROOT", root)
 					}
-					cmd.Env = append(cmd.Env, "BENT_DIR="+dirs.wd)
 					cmd.Env = append(cmd.Env, "BENT_PROFILES="+path.Join(dirs.wd, config.thingBenchName("profiles")))
+					if config.PgoGen != "" {
+						// We want to generate pprof file for using pgo
+						cmd.Env = append(cmd.Env, "BENT_PGO="+path.Join(dirs.wd, config.PgoGen))
+					}
 
 					cmd.Env = append(cmd.Env, runEnv...)
 					cmd.Env = append(cmd.Env, sliceExpandEnv(config.RunEnv, cmd.Env)...)
@@ -1061,8 +1069,11 @@ benchmarks_loop:
 						cmd.Args = append(cmd.Args, "-e", e)
 					}
 
-					cmd.Args = append(cmd.Args, "-e", "BENT_DIR=/") // TODO this is not going to work well
 					cmd.Args = append(cmd.Args, "-e", "BENT_PROFILES="+path.Join(dirs.wd, config.thingBenchName("profiles")))
+					if config.PgoGen != "" {
+						// We want to generate pprof file for using pgo
+						cmd.Args = append(cmd.Args, "-e", "BENT_PGO="+path.Join(dirs.wd, config.PgoGen))
+					}
 					cmd.Args = append(cmd.Args, container)
 					cmd.Args = append(cmd.Args, wrappersAndBin...)
 					cmd.Args = append(cmd.Args, "-test.run="+b.Tests)
