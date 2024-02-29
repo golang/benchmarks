@@ -38,6 +38,14 @@ func BenchmarkGCLatency(b *testing.B) {
 		{"global", true},
 	}
 
+	if testing.Short() {
+		tcs = []testCase{
+			{"stack", false},
+			{"heap", false},
+			{"global", false},
+		}
+	}
+
 	for _, tc := range tcs {
 		lb := &LB{doFluff: tc.withFluff, howAllocated: tc.howAlloc}
 		b.Run(fmt.Sprintf("how=%s/fluff=%v", tc.howAlloc, tc.withFluff),

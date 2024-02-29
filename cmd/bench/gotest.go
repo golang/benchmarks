@@ -14,7 +14,7 @@ func goTest(tcs []*toolchain) error {
 	for _, tc := range tcs {
 		log.Printf("Running Go test benchmarks for %s", tc.Name)
 		fmt.Printf("toolchain: %s\n", tc.Name)
-		err := tc.Do("", "test", "-v", "-run=none", "-bench=.", "-count=5", "golang.org/x/benchmarks/...")
+		err := tc.Do("", "test", "-v", "-run=none", "-short", "-bench=.", "-count=5", "golang.org/x/benchmarks/...")
 		if err != nil {
 			return fmt.Errorf("error running gotest with toolchain %s: %w", tc.Name, err)
 		}

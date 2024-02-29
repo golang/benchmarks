@@ -202,13 +202,19 @@ func (lb0 *LB) bench(b *testing.B) {
 	average, median := time.Duration(lb.total.Nanoseconds()/int64(count)), delays[len(delays)/2]
 	p29, p39, p49, p59, p69 := lb.delays[int(0.99*delayLen)], delays[int(0.999*delayLen)], delays[int(0.9999*delayLen)], delays[int(0.99999*delayLen)], delays[int(0.999999*delayLen)]
 	if b != nil {
-		b.ReportMetric(float64(average.Nanoseconds()), "ns/op")
-		b.ReportMetric(float64(median), "p50-ns")
-		b.ReportMetric(float64(p29), "p99-ns")
-		b.ReportMetric(float64(p39), "p99.9-ns")
-		b.ReportMetric(float64(p49), "p99.99-ns")
-		b.ReportMetric(float64(p59), "p99.999-ns")
-		b.ReportMetric(float64(p69), "p99.9999-ns")
+		if testing.Short() {
+			b.ReportMetric(0, "ns/op")
+			b.ReportMetric(float64(p59), "p99.999-ns")
+			b.ReportMetric(float64(p69), "p99.9999-ns")
+		} else {
+			b.ReportMetric(float64(average.Nanoseconds()), "ns/op")
+			b.ReportMetric(float64(median), "p50-ns")
+			b.ReportMetric(float64(p29), "p99-ns")
+			b.ReportMetric(float64(p39), "p99.9-ns")
+			b.ReportMetric(float64(p49), "p99.99-ns")
+			b.ReportMetric(float64(p59), "p99.999-ns")
+			b.ReportMetric(float64(p69), "p99.9999-ns")
+		}
 		if reportWorstFlag {
 			b.ReportMetric(float64(lb.worst), "worst")
 		}
