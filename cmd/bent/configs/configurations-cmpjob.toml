@@ -1,11 +1,13 @@
 [[Configurations]]
   Name = "Old"
   Root = "$ROOT/go-old"
+  LdFlags = "-randlayout=0x${BENT_K}a${BENT_I}"
   AfterBuild = [ "benchsize", "benchdwarf" ]
 
 [[Configurations]]
   Name = "New"
   Root = "$ROOT/go-new"
+  LdFlags = "-randlayout=0x${BENT_K}a${BENT_I}"
   AfterBuild = [ "benchsize", "benchdwarf" ]
 
 [[Configurations]]

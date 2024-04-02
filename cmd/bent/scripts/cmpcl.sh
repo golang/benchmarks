@@ -21,10 +21,9 @@ export ROOT cl
 # perflock is not always available
 PERFLOCK=`which perflock`
 
-# N is number of benchmarks, B is number of builds
-# Can override these with -N= and -a= on command line.
+# N is number of benchmarks.
+# Can override thise with -R=
 N=15
-B=1
 
 # Adjust N, B, define NUMACTL, set GOMAXPROCS, as necessary.
 if [ -e ./localfix ] ; then
@@ -93,7 +92,7 @@ newtag=`git log -n 1 --format='%h'`
 export newtag
 
 cd "${ROOT}"
-GOARCH="${BENTARCH}" ${NUMACTL} ${PERFLOCK}  bent -v -N=${N} -a=${B} -L=bentjobs.log -C=configurations-cmpjob.toml "$@"
+GOARCH="${BENTARCH}" ${NUMACTL} ${PERFLOCK}  bent -v -R=${N} -L=bentjobs.log -C=configurations-cmpjob.toml "$@"
 RUN=`tail -1 bentjobs.log | awk -c '{print $1}'`
 
 cd bench
