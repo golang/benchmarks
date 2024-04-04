@@ -17,9 +17,9 @@ require (
 	github.com/yuin/gopher-lua v0.0.0-20210529063254-f4c35e4016d9
 	gitlab.com/golang-commonmark/markdown v0.0.0-20211110145824-bf3e522c626a
 	go.etcd.io/etcd/client/v3 v3.5.8
-	golang.org/x/oauth2 v0.18.0
-	golang.org/x/sync v0.6.0
-	golang.org/x/sys v0.18.0
+	golang.org/x/oauth2 v0.19.0
+	golang.org/x/sync v0.7.0
+	golang.org/x/sys v0.19.0
 	google.golang.org/api v0.60.0
 )
 
@@ -67,7 +67,7 @@ require (
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
-	golang.org/x/net v0.22.0 // indirect
+	golang.org/x/net v0.24.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
