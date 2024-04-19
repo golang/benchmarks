@@ -5,7 +5,7 @@
 [[Benchmarks]]
   Name = "minio"
   Tests = "none" # Don't run these tests; they hang, etc.
-  Benchmarks = "Benchmark(MarshalMsgdataUsageCacheInfo|DecodehealingTracker|DataUpdateTracker|AppendMsg(ReplicateDecision|ResyncTargetsInfo))"
+  Benchmarks = "Benchmark(MarshalMsgdataUsageCacheInfo|DecodehealingTracker|DataUpdateTracker|AppendMsgResyncTargetsInfo)"
   GcEnv = ["GO111MODULE=on"]
 
 [[Benchmarks]]
@@ -14,7 +14,7 @@
 
 [[Benchmarks]]
   Name = "ethereum_core"
-  Benchmarks = "Benchmark([^ICBH]|H[^a]|B[^l]|C[^h]|I[^n]).*10000"
+  Benchmarks = "BenchmarkP.*10000"
 
 [[Benchmarks]]
   Name = "shopify_sarama"
@@ -167,7 +167,7 @@
 
 [[Benchmarks]]
   Name = "kanzi"
-  Benchmarks = "Benchmark(BWTS|FPAQ|LZ|MTFT)$"
+  Benchmarks = "Benchmark(FPAQ|LZ|MTFT)$"
 
 [[Benchmarks]]
   Name = "commonmark_markdown"
