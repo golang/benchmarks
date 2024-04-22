@@ -45,6 +45,7 @@ type config struct {
 	isProfiling  bool
 	short        bool
 	procsPerInst int
+	gomaxprocs   int
 	bench        *benchmark
 }
 
@@ -68,6 +69,7 @@ func init() {
 	}
 	runtime.GOMAXPROCS(procsPerInst)
 	cliCfg.procsPerInst = procsPerInst
+	cliCfg.gomaxprocs = procs
 }
 
 type etcdInstance struct {
@@ -357,6 +359,7 @@ func run(cfg *config) (err error) {
 		driver.DoCoreDump(true),
 		driver.BenchmarkPID(instances[0].cmd.Process.Pid),
 		driver.DoPerf(true),
+		driver.WithGOMAXPROCS(cfg.gomaxprocs),
 	}
 	return driver.RunBenchmark(cfg.bench.reportName, func(d *driver.B) error {
 		// Set up diagnostics.

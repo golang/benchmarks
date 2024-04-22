@@ -37,6 +37,7 @@ type config struct {
 	dataPath    string
 	tmpDir      string
 	serverProcs int
+	gomaxprocs  int
 	isProfiling bool
 	short       bool
 }
@@ -82,6 +83,7 @@ func init() {
 	}
 	runtime.GOMAXPROCS(clientProcs)
 	cliCfg.serverProcs = serverProcs
+	cliCfg.gomaxprocs = procs
 }
 
 func doWithinCircle(c redis.Conn, lat, lon float64) error {
@@ -328,6 +330,7 @@ func run(cfg *config) (err error) {
 		driver.DoCoreDump(true),
 		driver.BenchmarkPID(srvCmd.Process.Pid),
 		driver.DoPerf(true),
+		driver.WithGOMAXPROCS(cfg.gomaxprocs),
 	}
 	iters := 40 * 50000
 	if cfg.short {

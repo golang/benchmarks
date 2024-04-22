@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"runtime/pprof"
 	"runtime/trace"
 	"sort"
@@ -129,6 +130,12 @@ func WriteResultsTo(wr io.Writer) RunOption {
 	}
 }
 
+func WithGOMAXPROCS(procs int) RunOption {
+	return func(b *B) {
+		b.gomaxprocs = procs
+	}
+}
+
 var InProcessMeasurementOptions = []RunOption{
 	DoTime(true),
 	DoPeakRSS(true),
@@ -151,6 +158,7 @@ type B struct {
 	doPeakRSS     bool
 	doPeakVM      bool
 	doCoreDump    bool
+	gomaxprocs    int
 	collectDiag   map[diagnostics.Type]bool
 	rssFunc       func() (uint64, error)
 	statsMu       sync.Mutex
@@ -372,7 +380,11 @@ func (b *B) report() {
 	if b.resultsWriter != nil {
 		out = b.resultsWriter
 	}
-	fmt.Fprintf(out, "Benchmark%s %d", b.name, b.ops)
+	suffix := ""
+	if b.gomaxprocs > 1 {
+		suffix = fmt.Sprintf("-%d", b.gomaxprocs)
+	}
+	fmt.Fprintf(out, "Benchmark%s%s %d", b.name, suffix, b.ops)
 	for _, name := range names {
 		value := b.stats[name]
 		if value != 0 {
@@ -440,6 +452,11 @@ func RunBenchmark(name string, f func(*B) error, opts ...RunOption) error {
 	b := newB(name)
 	for _, opt := range opts {
 		opt(b)
+	}
+
+	// Make sure gomaxprocs is set.
+	if b.gomaxprocs == 0 {
+		b.gomaxprocs = runtime.GOMAXPROCS(-1)
 	}
 
 	// Start the RSS sampler and start the timer.

@@ -159,7 +159,7 @@ func (b httpServer) run(cfg *config, out io.Writer) (err error) {
 			return fmt.Errorf("server startup timed out")
 		}
 		return nil
-	}, driver.DoTime(true))
+	}, driver.DoTime(true), driver.WithGOMAXPROCS(procs))
 
 	workers := make([]pool.Worker, 0, clients)
 	for i := 0; i < clients; i++ {
@@ -202,5 +202,5 @@ func (b httpServer) run(cfg *config, out io.Writer) (err error) {
 		d.Ops(len(latencies))
 		d.Report(driver.StatTime, uint64((int(b.duration)*clients)/len(latencies)))
 		return nil
-	}, driver.DoTime(true), driver.DoAvgRSS(srvCmd.RSSFunc()))
+	}, driver.DoTime(true), driver.DoAvgRSS(srvCmd.RSSFunc()), driver.WithGOMAXPROCS(procs))
 }
