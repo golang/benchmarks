@@ -44,13 +44,17 @@ type benchmark interface {
 
 func main1() error {
 	benchmarks := []benchmark{
-		startup{},
+		// TODO(go.dev/issue/67508): Disable the startup benchmark because it doesn't work
+		// on the builders.
+		// startup{},
 		systemCall{500000},
 		httpServer{20 * time.Second},
 	}
 	if cliCfg.short {
 		benchmarks = []benchmark{
-			startup{},
+			// TODO(go.dev/issue/67508): Disable the startup benchmark because it doesn't work
+			// on the builders.
+			// startup{},
 			systemCall{500},
 			httpServer{1 * time.Second},
 		}
@@ -62,8 +66,8 @@ func main1() error {
 		var buf bytes.Buffer
 		if err := bench.run(&cliCfg, &buf); err != nil {
 			if buf.Len() != 0 {
-				fmt.Fprintln(os.Stderr, "=== Benchmark stdout+stderr ===")
-				fmt.Fprintln(os.Stderr, buf.String())
+				fmt.Fprintf(os.Stderr, "=== Benchmark %s stdout+stderr ===", bench.name())
+				fmt.Fprintf(os.Stderr, "%s\n", buf.String())
 			}
 			return err
 		}

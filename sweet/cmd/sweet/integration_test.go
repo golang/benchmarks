@@ -200,8 +200,7 @@ func TestSweetEndToEnd(t *testing.T) {
 		{"bleve-index", 1},
 		{"gopher-lua", 1},
 		{"markdown", 1},
-		// TODO(go.dev/issue/51445): Enable once gVisor builds with Go 1.19.
-		// {"gvisor", 1},
+		{"gvisor", 1},
 	} {
 		sema.Acquire(context.Background(), shard.weight)
 		wg.Add(1)
