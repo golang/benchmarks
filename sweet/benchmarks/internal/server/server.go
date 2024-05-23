@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/driver"
@@ -16,6 +17,10 @@ import (
 )
 
 func CollectDiagnostic(host, tmpDir, benchName string, typ diagnostics.Type) (int64, error) {
+	// We attempt to use the benchmark name to create a temp file so replace all
+	// path separators with "_".
+	benchName = strings.Replace(benchName, "/", "_", -1)
+	benchName = strings.Replace(benchName, string(os.PathSeparator), "_", -1)
 	f, err := os.CreateTemp(tmpDir, benchName+"."+string(typ))
 	if err != nil {
 		return 0, err

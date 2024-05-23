@@ -40,6 +40,12 @@ var allBenchmarks = []benchmark{
 		generator:   generators.BleveIndex(),
 	},
 	{
+		name:        "cockroachdb",
+		description: "Distributed database",
+		harness:     harnesses.CockroachDB{},
+		generator:   generators.None{},
+	},
+	{
 		name:        "etcd",
 		description: "Distributed key-value store",
 		harness:     harnesses.Etcd{},
@@ -92,6 +98,7 @@ var benchmarkGroups = func() map[string][]*benchmark {
 		allBenchmarksMap["biogo-igor"],
 		allBenchmarksMap["biogo-krishna"],
 		allBenchmarksMap["bleve-index"],
+		allBenchmarksMap["cockroachdb"],
 		allBenchmarksMap["etcd"],
 		allBenchmarksMap["go-build"],
 		allBenchmarksMap["gopher-lua"],

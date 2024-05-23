@@ -72,7 +72,7 @@ func (g *Go) BuildPackage(pkg, out string) error {
 	return g.Do("", "build", "-o", out, pkg)
 }
 
-func (g *Go) BuildPath(path, out string) error {
+func (g *Go) BuildPath(path, out string, args ...string) error {
 	if path[0] != '/' && path[0] != '.' {
 		path = "./" + path
 	}
@@ -84,7 +84,8 @@ func (g *Go) BuildPath(path, out string) error {
 	if err := chdir(path); err != nil {
 		return fmt.Errorf("failed to enter build directory: %w", err)
 	}
-	return g.Do("", "build", "-o", out)
+	args = append([]string{"build", "-o", out}, args...)
+	return g.Do("", args...)
 }
 
 func chdir(path string) error {

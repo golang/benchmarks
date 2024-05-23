@@ -20,6 +20,18 @@ func gitShallowClone(dir, url, ref string) error {
 	return err
 }
 
+func gitRecursiveCloneToCommit(dir, url, branch, hash string) error {
+	cloneCmd := exec.Command("git", "clone", "--recursive", "--shallow-submodules", "-b", branch, url, dir)
+	log.TraceCommand(cloneCmd, false)
+	if _, err := cloneCmd.Output(); err != nil {
+		return err
+	}
+	checkoutCmd := exec.Command("git", "-C", dir, "checkout", hash)
+	log.TraceCommand(checkoutCmd, false)
+	_, err := checkoutCmd.Output()
+	return err
+}
+
 func gitCloneToCommit(dir, url, branch, hash string) error {
 	cloneCmd := exec.Command("git", "clone", "-b", branch, url, dir)
 	log.TraceCommand(cloneCmd, false)
