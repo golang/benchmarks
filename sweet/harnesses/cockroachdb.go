@@ -143,7 +143,7 @@ func (h CockroachDB) Run(cfg *common.Config, rcfg *common.RunConfig) error {
 		}
 		// The short benchmarks take about 1 minute to run.
 		// The long benchmarks take about 10 minutes to run.
-		// We set the timeout to 15 minutes to give some buffer.
+		// We set the timeout to 30 minutes to give ample buffer.
 		cmd := exec.Command(
 			filepath.Join(rcfg.BinDir, "cockroachdb-bench"),
 			args...,
@@ -160,14 +160,14 @@ func (h CockroachDB) Run(cfg *common.Config, rcfg *common.RunConfig) error {
 				return err
 			}
 		} else {
-			// Wait for 15 minutes.
+			// Wait for 30 minutes.
 			c := make(chan error)
 			go func() {
 				c <- cmd.Wait()
 			}()
 			select {
 			case <-c:
-			case <-time.After(15 * time.Minute):
+			case <-time.After(30 * time.Minute):
 				if err := cmd.Process.Kill(); err != nil {
 					return fmt.Errorf("timeout, error killing process: %s", err.Error())
 				}
