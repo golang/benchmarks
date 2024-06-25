@@ -24,6 +24,7 @@ import (
 
 var (
 	wait              = flag.Bool("wait", true, "wait for system idle before starting benchmarking")
+	pgo               = flag.Bool("pgo", false, "run the benchmarks to collect profiles and rebuild them with PGO enabled before measuring")
 	gorootExperiment  = flag.String("goroot", "", "GOROOT to test (default $GOROOT or 'go env GOROOT')")
 	gorootBaseline    = flag.String("goroot-baseline", "", "baseline GOROOT to test against (optional) (default $BENCH_BASELINE_GOROOT)")
 	branch            = flag.String("branch", "", "branch of the commits we're testing against (default $BENCH_BRANCH or unknown)")
@@ -64,16 +65,17 @@ func toolchainFromGOROOT(name, goroot string) *toolchain {
 	}
 }
 
-func run(tcs []*toolchain) error {
+func run(tcs []*toolchain, pgo bool) error {
 	// Because each of the functions below is responsible for running
 	// benchmarks under each toolchain itself, it is also responsible
 	// for ensuring that the benchmark tag "toolchain" is printed.
 	pass := true
-	if err := goTest(tcs); err != nil {
+
+	if err := goTest(tcs, pgo); err != nil {
 		pass = false
 		log.Printf("Error running Go tests: %v", err)
 	}
-	if err := bent(tcs); err != nil {
+	if err := bent(tcs, pgo); err != nil {
 		pass = false
 		log.Printf("Error running bent: %v", err)
 	}
@@ -93,7 +95,7 @@ func run(tcs []*toolchain) error {
 			return fmt.Errorf("failed to clean Go cache: %w", err)
 		}
 	}
-	if err := sweet(tcs); err != nil {
+	if err := sweet(tcs, pgo); err != nil {
 		pass = false
 		log.Printf("Error running sweet: %v", err)
 	}
@@ -189,7 +191,7 @@ func main() {
 		return
 	}
 	// Run benchmarks against the toolchains.
-	if err := run(toolchains); err != nil {
+	if err := run(toolchains, *pgo); err != nil {
 		log.Print("FAIL")
 		os.Exit(1)
 	}

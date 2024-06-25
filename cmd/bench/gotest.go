@@ -10,7 +10,11 @@ import (
 	"path/filepath"
 )
 
-func goTest(tcs []*toolchain) error {
+func goTest(tcs []*toolchain, pgo bool) error {
+	if pgo {
+		log.Printf("Skipping Go test benchmarks (PGO not supported)")
+		return nil
+	}
 	for _, tc := range tcs {
 		log.Printf("Running Go test benchmarks for %s", tc.Name)
 		fmt.Printf("toolchain: %s\n", tc.Name)

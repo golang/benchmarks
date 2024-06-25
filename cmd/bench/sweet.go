@@ -39,7 +39,7 @@ func writeSweetConfiguration(filename string, tcs []*toolchain) error {
 	return nil
 }
 
-func sweet(tcs []*toolchain) (err error) {
+func sweet(tcs []*toolchain, pgo bool) (err error) {
 	tmpDir, err := os.MkdirTemp("", "go-sweet")
 	if err != nil {
 		return fmt.Errorf("error creating temporary directory: %w", err)
@@ -103,16 +103,20 @@ func sweet(tcs []*toolchain) (err error) {
 	// Finally we can actually run the benchmarks.
 	resultsDir := filepath.Join(tmpDir, "results")
 	workDir := filepath.Join(tmpDir, "work")
-	cmd = exec.Command(
-		sweetBin, "run",
+	sweetRunArgs := []string{
+		"run",
 		"-run", "default",
 		"-count", "10",
 		"-bench-dir", filepath.Join(sweetRoot, "benchmarks"),
 		"-cache", assetsCacheDir,
 		"-work-dir", workDir,
 		"-results", resultsDir,
-		confFile,
-	)
+	}
+	if pgo {
+		sweetRunArgs = append(sweetRunArgs, "-pgo")
+	}
+	sweetRunArgs = append(sweetRunArgs, confFile)
+	cmd = exec.Command(sweetBin, sweetRunArgs...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -129,7 +133,26 @@ func sweet(tcs []*toolchain) (err error) {
 		}
 	}()
 
-	// Dump results to stdout.
+	dumpResults := func(filename string) error {
+		// Print pkg and shortname tags because Sweet won't do it.
+		benchName := filepath.Base(filepath.Dir(filename))
+		fmt.Printf("pkg: golang.org/x/benchmarks/sweet/benchmarks/%s\n", benchName)
+		fmt.Printf("shortname: sweet_%s\n", strings.ReplaceAll(benchName, "-", "_"))
+
+		// Dump results file.
+		f, err := os.Open(filename)
+		if err != nil {
+			return fmt.Errorf("opening result %s: %v", filename, err)
+		}
+		defer f.Close()
+		if _, err := io.Copy(os.Stdout, f); err != nil {
+			return fmt.Errorf("reading result %s: %v", filename, err)
+		}
+		return nil
+	}
+
+	// Dump non-PGO results to stdout.
+	fmt.Printf("pgo: off\n")
 	for _, tc := range tcs {
 		matches, err := filepath.Glob(filepath.Join(resultsDir, "*", fmt.Sprintf("%s.results", tc.Name)))
 		if err != nil {
@@ -137,21 +160,26 @@ func sweet(tcs []*toolchain) (err error) {
 		}
 		fmt.Printf("toolchain: %s\n", tc.Name)
 		for _, match := range matches {
-			// Print pkg and shortname tags because Sweet won't do it.
-			benchName := filepath.Base(filepath.Dir(match))
-			fmt.Printf("pkg: golang.org/x/benchmarks/sweet/benchmarks/%s\n", benchName)
-			fmt.Printf("shortname: sweet_%s\n", strings.ReplaceAll(benchName, "-", "_"))
+			if err := dumpResults(match); err != nil {
+				return err
+			}
+		}
+	}
 
-			// Dump results file.
-			f, err := os.Open(match)
+	// Dump PGO results to stdout, if we expect them to exist.
+	if pgo {
+		fmt.Printf("pgo: on\n")
+		for _, tc := range tcs {
+			matches, err := filepath.Glob(filepath.Join(resultsDir, "*", fmt.Sprintf("%s.pgo.results", tc.Name)))
 			if err != nil {
-				return fmt.Errorf("opening result %s: %v", match, err)
+				return fmt.Errorf("searching for PGO results for %s in %s: %v", tc.Name, resultsDir, err)
 			}
-			if _, err := io.Copy(os.Stdout, f); err != nil {
-				f.Close()
-				return fmt.Errorf("reading result %s: %v", match, err)
+			fmt.Printf("toolchain: %s\n", tc.Name)
+			for _, match := range matches {
+				if err := dumpResults(match); err != nil {
+					return err
+				}
 			}
-			f.Close()
 		}
 	}
 	return nil

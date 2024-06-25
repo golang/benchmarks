@@ -63,7 +63,11 @@ func removeAllIncludingReadonly(dir string) error {
 	return os.RemoveAll(dir)
 }
 
-func bent(tcs []*toolchain) (err error) {
+func bent(tcs []*toolchain, pgo bool) (err error) {
+	if pgo {
+		log.Printf("Skipping bent benchmarks (PGO not supported)")
+		return nil
+	}
 	dir, err := os.MkdirTemp("", "bent")
 	if err != nil {
 		return fmt.Errorf("error creating temporary directory: %w", err)
