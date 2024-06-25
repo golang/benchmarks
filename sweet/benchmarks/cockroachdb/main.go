@@ -12,9 +12,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"golang.org/x/benchmarks/sweet/benchmarks/internal/driver"
-	"golang.org/x/benchmarks/sweet/benchmarks/internal/server"
-	"golang.org/x/benchmarks/sweet/common/diagnostics"
+	"log"
 	"os"
 	"os/exec"
 	"regexp"
@@ -25,6 +23,10 @@ import (
 	"sync/atomic"
 	"syscall"
 	"time"
+
+	"golang.org/x/benchmarks/sweet/benchmarks/internal/driver"
+	"golang.org/x/benchmarks/sweet/benchmarks/internal/server"
+	"golang.org/x/benchmarks/sweet/common/diagnostics"
 )
 
 const (
@@ -256,20 +258,53 @@ func (i *cockroachdbInstance) httpAddr() string {
 	return fmt.Sprintf("%s:%d", cliCfg.host, i.httpPort)
 }
 
-func (i *cockroachdbInstance) shutdown() error {
+func (i *cockroachdbInstance) shutdown() (killed bool, err error) {
 	// Only attempt to shut down the process if we got to a point
 	// that a command was constructed and started.
-	if i.cmd != nil && i.cmd.Process != nil {
-		// Send SIGTERM and wait instead of just killing as sending SIGKILL
-		// bypasses node shutdown logic and will leave the node in a bad state.
-		// Normally not an issue unless you want to restart the cluster i.e.
-		// to poke around and see what's wrong.
-		if err := i.cmd.Process.Signal(syscall.SIGTERM); err != nil {
-			return err
-		}
+	if i.cmd == nil || i.cmd.Process == nil {
+		return false, nil
+	}
+	// Send SIGTERM and wait instead of just killing as sending SIGKILL
+	// bypasses node shutdown logic and will leave the node in a bad state.
+	// Normally not an issue unless you want to restart the cluster i.e.
+	// to poke around and see what's wrong.
+	if err := i.cmd.Process.Signal(syscall.SIGTERM); err != nil {
+		return false, err
+	}
+	done := make(chan struct{})
+	go func() {
 		if _, err := i.cmd.Process.Wait(); err != nil {
-			return err
+			fmt.Fprintf(os.Stderr, "failed to wait for instance %s: %v\n", i.name, err)
 		}
+		done <- struct{}{}
+	}()
+	select {
+	case <-done:
+	case <-time.After(1 * time.Minute):
+		// If it takes a full minute to shut down, just kill the instance
+		// and report that we did it. We *probably* won't need it again.
+		if err := i.cmd.Process.Signal(syscall.SIGKILL); err != nil {
+			return false, fmt.Errorf("failed to send SIGKILL to instance %s: %v", i.name, err)
+		}
+		killed = true
+
+		// Wait again -- this time it should happen.
+		log.Println("sent kill signal to", i.name, "and waiting for exit")
+		<-done
+	}
+	return killed, nil
+}
+
+func (i *cockroachdbInstance) kill() error {
+	if i.cmd == nil || i.cmd.Process == nil {
+		// Nothing to kill.
+		return nil
+	}
+	if err := i.cmd.Process.Signal(syscall.SIGKILL); err != nil {
+		return err
+	}
+	if _, err := i.cmd.Process.Wait(); err != nil {
+		return fmt.Errorf("failed to wait for instance %s: %v", i.name, err)
 	}
 	return nil
 }
@@ -345,6 +380,7 @@ func runBenchmark(b *driver.B, cfg *config, instances []*cockroachdbInstance) (e
 		pgurls = append(pgurls, fmt.Sprintf(`postgres://root@%s?sslmode=disable`, host))
 	}
 	// Load in the schema needed for the workload via `workload init`
+	log.Println("loading the schema")
 	initArgs := []string{"workload", "init", cfg.bench.workload}
 	initArgs = append(initArgs, pgurls...)
 	initCmd := exec.Command(cfg.cockroachdbBin, initArgs...)
@@ -354,6 +390,8 @@ func runBenchmark(b *driver.B, cfg *config, instances []*cockroachdbInstance) (e
 	if err = initCmd.Run(); err != nil {
 		return err
 	}
+
+	log.Println("sleeping")
 
 	// If we try and start the workload right after loading in the schema
 	// it will spam us with database does not exist errors. We could repeatedly
@@ -369,6 +407,7 @@ func runBenchmark(b *driver.B, cfg *config, instances []*cockroachdbInstance) (e
 	}
 	args = append(args, pgurls...)
 
+	log.Println("running benchmark timeout")
 	cmd := exec.Command(cfg.cockroachdbBin, args...)
 	fmt.Fprintln(os.Stderr, cmd.String())
 
@@ -499,6 +538,7 @@ func reportMetrics(b *driver.B, metricType string, metrics benchmarkMetrics) {
 }
 
 func run(cfg *config) (err error) {
+	log.Println("launching cluster")
 	var instances []*cockroachdbInstance
 	// Launch the server.
 	instances, err = launchCockroachCluster(cfg)
@@ -509,14 +549,27 @@ func run(cfg *config) (err error) {
 
 	// Clean up the cluster after we're done.
 	defer func() {
-		// We only need send SIGTERM to one instance, attempting to
+		log.Println("shutting down cluster")
+
+		// We only need send a shutdown signal to one instance, attempting to
 		// send it again will cause it to hang.
 		inst := instances[0]
-		if r := inst.shutdown(); r != nil {
+		killed, r := inst.shutdown()
+		if r != nil {
 			if err == nil {
 				err = r
 			} else {
 				fmt.Fprintf(os.Stderr, "failed to shutdown %s: %v", inst.name, r)
+			}
+		}
+		if killed {
+			log.Println("killed instance", inst.name, "and killing others")
+
+			// If we ended up killing an instance, try to kill the other instances too.
+			for _, inst := range instances[1:] {
+				if err := inst.kill(); err != nil {
+					fmt.Fprintf(os.Stderr, "failed to kill %s: %v", inst.name, err)
+				}
 			}
 		}
 		if err != nil && inst.output.Len() != 0 {
@@ -525,10 +578,12 @@ func run(cfg *config) (err error) {
 		}
 	}()
 
+	log.Println("waiting for cluster")
 	if err = waitForCluster(instances, cfg); err != nil {
 		return err
 	}
 
+	log.Println("setting cluster settings")
 	if err = instances[0].setClusterSettings(cfg); err != nil {
 		return err
 	}
@@ -593,6 +648,7 @@ func run(cfg *config) (err error) {
 		if len(finishers) != 0 {
 			// Finish all the diagnostic collections in concurrently. Otherwise we could be waiting a while.
 			defer func() {
+				log.Println("running finishers")
 				var wg sync.WaitGroup
 				for _, finish := range finishers {
 					finish := finish
@@ -606,6 +662,7 @@ func run(cfg *config) (err error) {
 			}()
 		}
 		// Actually run the benchmark.
+		log.Println("running benchmark")
 		return runBenchmark(d, cfg, instances)
 	}, opts...)
 }
