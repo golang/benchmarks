@@ -3,6 +3,14 @@
 # that appear to be somewhat diverse.
 
 [[Benchmarks]]
+  Name = "wazero"
+  Benchmarks = "BenchmarkInvocation/interpreter/(string_manipulation_size_50|fib_for_20|random_mat_mul_size_20)|BenchmarkCompilation/with"
+
+[[Benchmarks]]
+  Name = "toml"
+  Benchmarks = "BenchmarkDecode/large-doc"
+
+[[Benchmarks]]
   Name = "minio"
   Tests = "none" # Don't run these tests; they hang, etc.
   Benchmarks = "Benchmark(MarshalMsgdataUsageCacheInfo|DecodehealingTracker|DataUpdateTracker|AppendMsgResyncTargetsInfo)"

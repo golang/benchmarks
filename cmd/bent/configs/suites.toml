@@ -2,6 +2,11 @@
 # for the benchmark specification files.
 
  [[Suites]]
+  Name = "wazero"
+  Repo = "github.com/tetratelabs/wazero/internal/integration_test/bench"
+  Version = "@v1.7.3"
+
+ [[Suites]]
   Name = "toml"
   Repo = "github.com/BurntSushi/toml"
   Version = "@v1.3.2"
