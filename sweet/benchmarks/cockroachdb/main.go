@@ -572,7 +572,7 @@ func run(cfg *config) (err error) {
 				}
 			}
 		}
-		if err != nil && inst.output.Len() != 0 {
+		if inst.output.Len() != 0 {
 			fmt.Fprintf(os.Stderr, "=== Instance %q stdout+stderr ===\n", inst.name)
 			fmt.Fprintln(os.Stderr, inst.output.String())
 		}
