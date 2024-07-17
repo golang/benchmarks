@@ -42,7 +42,6 @@ type config struct {
 	benchmarkBin string
 	tmpDir       string
 	benchName    string
-	isProfiling  bool
 	short        bool
 	procsPerInst int
 	gomaxprocs   int
@@ -435,9 +434,6 @@ func main() {
 	if flag.NArg() != 0 {
 		fmt.Fprintf(os.Stderr, "error: unexpected args\n")
 		os.Exit(1)
-	}
-	for _, typ := range diagnostics.Types() {
-		cliCfg.isProfiling = cliCfg.isProfiling || driver.DiagnosticEnabled(typ)
 	}
 	for i := range benchmarks {
 		if benchmarks[i].name == cliCfg.benchName {

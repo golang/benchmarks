@@ -38,7 +38,6 @@ type config struct {
 	tmpDir      string
 	serverProcs int
 	gomaxprocs  int
-	isProfiling bool
 	short       bool
 }
 
@@ -357,9 +356,6 @@ func main() {
 	if flag.NArg() != 0 {
 		fmt.Fprintf(os.Stderr, "error: unexpected args\n")
 		os.Exit(1)
-	}
-	for _, typ := range diagnostics.Types() {
-		cliCfg.isProfiling = cliCfg.isProfiling || driver.DiagnosticEnabled(typ)
 	}
 	if err := run(&cliCfg); err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
