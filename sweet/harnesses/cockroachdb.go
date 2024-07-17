@@ -166,7 +166,10 @@ func (h CockroachDB) Run(cfg *common.Config, rcfg *common.RunConfig) error {
 				c <- cmd.Wait()
 			}()
 			select {
-			case <-c:
+			case err := <-c:
+				if err != nil {
+					return err
+				}
 			case <-time.After(30 * time.Minute):
 				if err := cmd.Process.Kill(); err != nil {
 					return fmt.Errorf("timeout, error killing process: %s", err.Error())
