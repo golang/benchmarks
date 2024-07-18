@@ -19,12 +19,12 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-	"sync"
 	"sync/atomic"
 	"syscall"
 	"time"
 
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/driver"
+	"golang.org/x/benchmarks/sweet/benchmarks/internal/par"
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/server"
 	"golang.org/x/benchmarks/sweet/common/diagnostics"
 )
@@ -597,15 +597,16 @@ func run(cfg *config) (err error) {
 	}
 	return driver.RunBenchmark(cfg.bench.reportName, func(d *driver.B) error {
 		// Set up diagnostics.
-		var finishers []func() uint64
+		var stopAll par.Funcs
 		if driver.DiagnosticEnabled(diagnostics.CPUProfile) {
 			for _, inst := range instances {
-				finishers = append(finishers, server.PollDiagnostic(
+				stop := server.PollDiagnostic(
 					inst.httpAddr(),
 					cfg.tmpDir,
 					cfg.bench.reportName,
 					diagnostics.CPUProfile,
-				))
+				)
+				stopAll.Add(stop)
 			}
 		}
 		if driver.DiagnosticEnabled(diagnostics.Trace) {
@@ -617,10 +618,9 @@ func run(cfg *config) (err error) {
 					cfg.bench.reportName,
 					diagnostics.Trace,
 				)
-				finishers = append(finishers, func() uint64 {
+				stopAll.Add(func() {
 					n := stopTrace()
 					sum.Add(n)
-					return n
 				})
 			}
 			defer func() {
@@ -630,8 +630,8 @@ func run(cfg *config) (err error) {
 		if driver.DiagnosticEnabled(diagnostics.MemProfile) {
 			for _, inst := range instances {
 				inst := inst
-				finishers = append(finishers, func() uint64 {
-					n, err := server.CollectDiagnostic(
+				stopAll.Add(func() {
+					_, err := server.CollectDiagnostic(
 						inst.httpAddr(),
 						cfg.tmpDir,
 						cfg.bench.reportName,
@@ -640,26 +640,10 @@ func run(cfg *config) (err error) {
 					if err != nil {
 						fmt.Fprintf(os.Stderr, "failed to read memprofile: %v", err)
 					}
-					return uint64(n)
 				})
 			}
 		}
-		if len(finishers) != 0 {
-			// Finish all the diagnostic collections in concurrently. Otherwise we could be waiting a while.
-			defer func() {
-				log.Println("running finishers")
-				var wg sync.WaitGroup
-				for _, finish := range finishers {
-					finish := finish
-					wg.Add(1)
-					go func() {
-						defer wg.Done()
-						finish()
-					}()
-				}
-				wg.Wait()
-			}()
-		}
+		defer stopAll.Run()
 		// Actually run the benchmark.
 		log.Println("running benchmark")
 		return runBenchmark(d, cfg, instances)
