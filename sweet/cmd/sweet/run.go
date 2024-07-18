@@ -466,14 +466,8 @@ func mergeCPUProfiles(dir string) (string, error) {
 	}
 
 	out := filepath.Join(dir, "merged.cpu")
-	f, err := os.Create(out)
-	if err != nil {
-		return "", fmt.Errorf("error creating file: %w", err)
-	}
-	defer f.Close()
-
-	if err := p.Write(f); err != nil {
-		return "", fmt.Errorf("error writing merged profile: %w", err)
+	if err := sprofile.WritePprof(out, p); err != nil {
+		return "", err
 	}
 
 	return out, nil

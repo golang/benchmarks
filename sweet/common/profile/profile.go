@@ -6,6 +6,7 @@
 package profile
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -19,6 +20,24 @@ func ReadPprof(filename string) (*profile.Profile, error) {
 	}
 	defer f.Close()
 	return profile.Parse(f)
+}
+
+func WritePprof(filename string, p *profile.Profile) error {
+	f, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	err = p.Write(f)
+	if err == nil {
+		err = f.Close()
+	}
+	if err != nil {
+		return fmt.Errorf("error writing profile %s: %s", filename, err)
+	}
+
+	return nil
 }
 
 // ReadDir reads all pprof profiles in dir whose name matches match(name).
