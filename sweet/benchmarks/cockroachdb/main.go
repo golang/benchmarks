@@ -15,6 +15,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"runtime"
 	"strconv"
@@ -90,8 +91,8 @@ func launchSingleNodeCluster(cfg *config) ([]*cockroachdbInstance, error) {
 		"--listen-addr", inst.sqlAddr(),
 		"--http-addr", inst.httpAddr(),
 		"--cache", cacheSize,
-		"--store", fmt.Sprintf("%s/%s", cfg.tmpDir, inst.name),
-		"--logtostderr",
+		"--store", filepath.Join(cfg.tmpDir, inst.name),
+		"--log-dir", filepath.Join(cfg.tmpDir, inst.name+"-log"),
 	)
 	inst.cmd.Env = append(os.Environ(),
 		fmt.Sprintf("GOMAXPROCS=%d", cfg.procsPerInst),
@@ -129,8 +130,8 @@ func launchCockroachCluster(cfg *config) ([]*cockroachdbInstance, error) {
 			"--listen-addr", inst.sqlAddr(),
 			"--http-addr", inst.httpAddr(),
 			"--cache", cacheSize,
-			"--store", fmt.Sprintf("%s/%s", cfg.tmpDir, inst.name),
-			"--logtostderr",
+			"--store", filepath.Join(cfg.tmpDir, inst.name),
+			"--log-dir", filepath.Join(cfg.tmpDir, inst.name+"-log"),
 			join,
 		)
 		inst.cmd.Env = append(os.Environ(),
@@ -574,6 +575,13 @@ func run(cfg *config) (err error) {
 		if inst.output.Len() != 0 {
 			fmt.Fprintf(os.Stderr, "=== Instance %q stdout+stderr ===\n", inst.name)
 			fmt.Fprintln(os.Stderr, inst.output.String())
+		}
+		stderrLog, logReadErr := os.ReadFile(filepath.Join(cfg.tmpDir, inst.name+"-log", "cockroach-stderr.log"))
+		if logReadErr == nil {
+			fmt.Fprintf(os.Stderr, "=== Instance %q original stderr ===\n", inst.name)
+			fmt.Fprintln(os.Stderr, string(stderrLog))
+		} else {
+			fmt.Fprintf(os.Stderr, "=== Instance %q failed to read original stderr: %v\n", inst.name, logReadErr)
 		}
 	}()
 
