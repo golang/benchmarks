@@ -13,7 +13,6 @@ import (
 	"math/rand"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"runtime"
 	"sort"
 	"strconv"
@@ -24,7 +23,6 @@ import (
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/pool"
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/server"
 	"golang.org/x/benchmarks/sweet/common/diagnostics"
-	"golang.org/x/benchmarks/sweet/common/profile"
 
 	"github.com/gomodule/redigo/redis"
 )
@@ -39,23 +37,6 @@ type config struct {
 	serverProcs int
 	gomaxprocs  int
 	short       bool
-}
-
-func (c *config) diagnosticDataPath(typ diagnostics.Type) string {
-	var fname string
-	switch typ {
-	case diagnostics.CPUProfile:
-		fname = "cpu.prof"
-	case diagnostics.MemProfile:
-		fname = "mem.prof"
-	case diagnostics.Perf:
-		fname = "perf.data"
-	case diagnostics.Trace:
-		fname = "runtime.trace"
-	default:
-		panic("unsupported profile type " + string(typ))
-	}
-	return filepath.Join(c.tmpDir, fname)
 }
 
 var cliCfg config
@@ -210,7 +191,7 @@ func runBenchmark(d *driver.B, host string, port, clients int, iters int) error 
 	return nil
 }
 
-func launchServer(cfg *config, out io.Writer) (*exec.Cmd, error) {
+func launchServer(cfg *config, diag *driver.Diagnostics, out io.Writer) (*exec.Cmd, []func(), error) {
 	// Set up arguments.
 	srvArgs := []string{
 		"-d", cfg.dataPath,
@@ -219,9 +200,17 @@ func launchServer(cfg *config, out io.Writer) (*exec.Cmd, error) {
 		"-threads", strconv.Itoa(cfg.serverProcs),
 		"-pprofport", strconv.Itoa(pprofPort),
 	}
+
+	// Set up diagnostics that the server can gather on its own
+	var postExit []func()
 	for _, typ := range []diagnostics.Type{diagnostics.CPUProfile, diagnostics.MemProfile} {
-		if driver.DiagnosticEnabled(typ) {
-			srvArgs = append(srvArgs, "-"+string(typ), cfg.diagnosticDataPath(typ))
+		if df, err := diag.Create(typ); err != nil {
+			fmt.Fprintf(os.Stderr, "failed to create %s diagnostics: %s\n", typ, err)
+		} else if df != nil {
+			srvArgs = append(srvArgs, "-"+string(typ), df.Name())
+			// We don't need the file, so close it immediately.
+			df.Close()
+			postExit = append(postExit, df.Commit)
 		}
 	}
 
@@ -233,7 +222,7 @@ func launchServer(cfg *config, out io.Writer) (*exec.Cmd, error) {
 	srvCmd.Stdout = out
 	srvCmd.Stderr = out
 	if err := srvCmd.Start(); err != nil {
-		return nil, fmt.Errorf("failed to start server: %v", err)
+		return nil, nil, fmt.Errorf("failed to start server: %v", err)
 	}
 
 	testConnection := func() error {
@@ -260,11 +249,11 @@ func launchServer(cfg *config, out io.Writer) (*exec.Cmd, error) {
 	for time.Now().Sub(start) < 120*time.Second {
 		err = testConnection()
 		if err == nil {
-			return srvCmd, nil
+			return srvCmd, postExit, nil
 		}
 		time.Sleep(2 * time.Second)
 	}
-	return nil, fmt.Errorf("timeout trying to connect to server: %v", err)
+	return nil, nil, fmt.Errorf("timeout trying to connect to server: %v", err)
 }
 
 const pprofPort = 12345
@@ -274,8 +263,11 @@ const benchName = "Tile38QueryLoad"
 func run(cfg *config) (err error) {
 	var buf bytes.Buffer
 
+	diag := driver.NewDiagnostics("tile38")
+	defer diag.Commit(nil)
+
 	// Launch the server.
-	srvCmd, err := launchServer(cfg, &buf)
+	srvCmd, postExit, err := launchServer(cfg, diag, &buf)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "starting server: %v\n%s\n", err, &buf)
 		os.Exit(1)
@@ -304,20 +296,9 @@ func run(cfg *config) (err error) {
 			fmt.Fprintln(os.Stderr, buf.String())
 		}
 
-		// Now that the server is done, the profile should be complete and flushed.
-		// Copy it over.
-		for _, typ := range []diagnostics.Type{diagnostics.CPUProfile, diagnostics.MemProfile} {
-			if driver.DiagnosticEnabled(typ) {
-				p, r := profile.ReadPprof(cfg.diagnosticDataPath(typ))
-				if r != nil {
-					err = r
-					return
-				}
-				if r := driver.WritePprofProfile(p, typ, benchName); r != nil {
-					err = r
-					return
-				}
-			}
+		// Run post-exit functions
+		for _, fn := range postExit {
+			fn()
 		}
 	}()
 
@@ -336,17 +317,12 @@ func run(cfg *config) (err error) {
 		iters = 100
 	}
 	return driver.RunBenchmark(benchName, func(d *driver.B) error {
-		if driver.DiagnosticEnabled(diagnostics.Trace) {
-			stopTrace := server.PollDiagnostic(
-				fmt.Sprintf("%s:%d", cfg.host, pprofPort),
-				cfg.tmpDir,
-				benchName,
-				diagnostics.Trace,
-			)
-			defer func() {
-				d.Report("trace-bytes", stopTrace())
-			}()
-		}
+		// Collect a trace only during the run. (Also, Tile38 doesn't have a
+		// flag to collect its own trace, so we couldn't collect it another way
+		// anyway.)
+		stop := server.FetchDiagnostic(fmt.Sprintf("%s:%d", cfg.host, pprofPort), diag, diagnostics.Trace, benchName)
+		defer stop()
+
 		return runBenchmark(d, cfg.host, cfg.port, cfg.serverProcs, iters)
 	}, opts...)
 }
