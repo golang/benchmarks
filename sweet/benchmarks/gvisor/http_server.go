@@ -101,7 +101,7 @@ func (b httpServer) run(cfg *config, out io.Writer) (err error) {
 	defer runtime.GOMAXPROCS(procs)
 	clients := clientProcs
 
-	baseSrvCmd := cfg.runscCmd(
+	baseSrvCmd, postExit := cfg.runscCmd(
 		"-rootless", "do", "-ip", ip,
 		workloadsPath(cfg.assetsDir, "http"),
 		"-host", ip,
@@ -138,6 +138,10 @@ func (b httpServer) run(cfg *config, out io.Writer) (err error) {
 			}
 			err = r
 			return
+		}
+
+		for _, fn := range postExit {
+			fn()
 		}
 	}()
 

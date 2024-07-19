@@ -23,13 +23,18 @@ func (b systemCall) name() string {
 }
 
 func (b systemCall) run(cfg *config, out io.Writer) error {
-	baseCmd := cfg.runscCmd("-rootless", "do", workloadsPath(cfg.assetsDir, "syscall"))
+	baseCmd, postExit := cfg.runscCmd("-rootless", "do", workloadsPath(cfg.assetsDir, "syscall"))
 	baseCmd.Stdout = out
 	baseCmd.Stderr = out
 	cmd, err := cgroups.WrapCommand(baseCmd, "test-syscall.scope")
 	if err != nil {
 		return err
 	}
+	defer func() {
+		for _, fn := range postExit {
+			fn()
+		}
+	}()
 	return driver.RunBenchmark(b.name(), func(d *driver.B) error {
 		d.Ops(b.ops)
 		d.ResetTimer()

@@ -9,6 +9,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"syscall"
@@ -24,40 +25,44 @@ func workloadsPath(assetsDir, subBenchmark string) string {
 	return filepath.Join(assetsDir, subBenchmark, "bin", platformDir, "workload")
 }
 
-func (c *config) profilePath(typ diagnostics.Type) string {
-	return filepath.Join(c.tmpDir, string(typ)+".prof")
-}
-
-func (cfg *config) runscCmd(arg ...string) *exec.Cmd {
+func (cfg *config) runscCmd(arg ...string) (*exec.Cmd, []func()) {
 	var cmd *exec.Cmd
+
+	cmdArgs := []string{cfg.runscPath}
+
 	goProfiling := false
-	for _, typ := range []diagnostics.Type{diagnostics.CPUProfile, diagnostics.MemProfile, diagnostics.Trace} {
-		if driver.DiagnosticEnabled(typ) {
+	var postExit []func()
+	addDiagnostic := func(typ diagnostics.Type, flag string) {
+		if df, err := cfg.diag.Create(typ); err != nil {
+			fmt.Fprintf(os.Stderr, "failed to create %s diagnostics: %s\n", typ, err)
+		} else if df != nil {
+			df.Close()
+			cmdArgs = append(cmdArgs, flag, df.Name())
 			goProfiling = true
-			break
+			postExit = append(postExit, df.Commit)
 		}
 	}
+	addDiagnostic(diagnostics.CPUProfile, "-profile-cpu")
+	addDiagnostic(diagnostics.MemProfile, "-profile-heap")
+	addDiagnostic(diagnostics.Trace, "-trace")
 	if goProfiling {
-		arg = append([]string{"-profile"}, arg...)
+		cmdArgs = append(cmdArgs, "-profile")
 	}
-	if driver.DiagnosticEnabled(diagnostics.CPUProfile) {
-		arg = append([]string{"-profile-cpu", cfg.profilePath(diagnostics.CPUProfile)}, arg...)
-	}
-	if driver.DiagnosticEnabled(diagnostics.MemProfile) {
-		arg = append([]string{"-profile-heap", cfg.profilePath(diagnostics.MemProfile)}, arg...)
-	}
-	if driver.DiagnosticEnabled(diagnostics.Trace) {
-		arg = append([]string{"-trace", cfg.profilePath(diagnostics.Trace)}, arg...)
-	}
-	if driver.DiagnosticEnabled(diagnostics.Perf) {
-		perfArgs := []string{"record", "-o", cfg.profilePath(diagnostics.Perf)}
+
+	if df, err := cfg.diag.Create(diagnostics.Perf); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to create %s diagnostics: %s\n", diagnostics.Perf, err)
+	} else if df != nil {
+		df.Close()
+		postExit = append(postExit, df.Commit)
+
+		perfArgs := []string{"perf", "record", "-o", df.Name()}
 		perfArgs = append(perfArgs, driver.PerfFlags()...)
-		perfArgs = append(perfArgs, cfg.runscPath)
-		perfArgs = append(perfArgs, arg...)
-		cmd = exec.Command("perf", perfArgs...)
-	} else {
-		cmd = exec.Command(cfg.runscPath, arg...)
+		perfArgs = append(perfArgs, cmdArgs...)
+		cmdArgs = perfArgs
 	}
+
+	cmdArgs = append(cmdArgs, arg...)
+	cmd = exec.Command(cmdArgs[0], cmdArgs[1:]...)
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		// Try to bring down the sandbox if we unexpectedly exit.
 		Pdeathsig: syscall.SIGKILL,
@@ -66,5 +71,5 @@ func (cfg *config) runscCmd(arg ...string) *exec.Cmd {
 		// tree at once.
 		Setpgid: true,
 	}
-	return cmd
+	return cmd, postExit
 }

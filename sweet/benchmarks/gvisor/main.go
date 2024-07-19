@@ -17,7 +17,6 @@ import (
 	"time"
 
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/driver"
-	"golang.org/x/benchmarks/sweet/common/diagnostics"
 )
 
 type config struct {
@@ -25,6 +24,8 @@ type config struct {
 	assetsDir string
 	tmpDir    string
 	short     bool
+
+	diag *driver.Diagnostics
 }
 
 var cliCfg config
@@ -62,24 +63,20 @@ func main1() error {
 
 	// Run each benchmark once.
 	for _, bench := range benchmarks {
+		cfg := cliCfg
+		cfg.diag = driver.NewDiagnostics(bench.name())
+
 		// Run the benchmark command under runsc.
 		var buf bytes.Buffer
-		if err := bench.run(&cliCfg, &buf); err != nil {
+		if err := bench.run(&cfg, &buf); err != nil {
 			if buf.Len() != 0 {
 				fmt.Fprintf(os.Stderr, "=== Benchmark %s stdout+stderr ===", bench.name())
 				fmt.Fprintf(os.Stderr, "%s\n", buf.String())
 			}
 			return err
 		}
-		for _, typ := range diagnostics.Types() {
-			if !driver.DiagnosticEnabled(typ) {
-				continue
-			}
-			// runscCmd ensures these are created if necessary.
-			if err := driver.CopyDiagnosticData(cliCfg.profilePath(typ), typ, bench.name()); err != nil {
-				return err
-			}
-		}
+
+		cfg.diag.Commit(nil)
 	}
 	return nil
 }

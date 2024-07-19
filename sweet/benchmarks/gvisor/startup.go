@@ -21,10 +21,15 @@ func (b startup) name() string {
 }
 
 func (b startup) run(cfg *config, out io.Writer) error {
-	cmd := cfg.runscCmd("-rootless", "-network=none", "run", "bench")
+	cmd, postExit := cfg.runscCmd("-rootless", "-network=none", "run", "bench")
 	cmd.Stdout = out
 	cmd.Stderr = out
 	cmd.Dir = filepath.Join(cfg.assetsDir, "startup")
+	defer func() {
+		for _, fn := range postExit {
+			fn()
+		}
+	}()
 	return driver.RunBenchmark(b.name(), func(d *driver.B) error {
 		return cmd.Run()
 	}, driver.DoTime(true))
