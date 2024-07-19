@@ -8,17 +8,16 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"math/rand"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
-	"github.com/google/pprof/profile"
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/cgroups"
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/driver"
 	"golang.org/x/benchmarks/sweet/common"
 	"golang.org/x/benchmarks/sweet/common/diagnostics"
-	sprofile "golang.org/x/benchmarks/sweet/common/profile"
 )
 
 var (
@@ -26,6 +25,8 @@ var (
 	tmpDir    string
 	toolexec  bool
 	benchName string
+
+	diag *driver.Diagnostics
 )
 
 func init() {
@@ -34,6 +35,10 @@ func init() {
 	flag.StringVar(&tmpDir, "tmp", "", "work directory (cleared before use)")
 	flag.BoolVar(&toolexec, "toolexec", false, "run as a toolexec binary")
 	flag.StringVar(&benchName, "bench-name", "", "for -toolexec")
+	flag.Func("diagnostics", "for -toolexec", func(s string) error {
+		diag = new(driver.Diagnostics)
+		return diag.UnmarshalText([]byte(s))
+	})
 }
 
 func tmpResultsDir() string {
@@ -56,7 +61,7 @@ func run(pkgPath string) error {
 
 	name := "GoBuild" + strings.Title(filepath.Base(pkgPath))
 
-	cmdArgs := []string{"build", "-a"}
+	cmdArgs := []string{goTool, "build", "-a"}
 
 	// Build a command comprised of this binary to pass to -toolexec.
 	selfPath, err := filepath.Abs(os.Args[0])
@@ -75,17 +80,28 @@ func run(pkgPath string) error {
 		selfCmd = append(selfCmd, "-"+f.Name, f.Value.String())
 	})
 
-	cmdArgs = append(cmdArgs, "-toolexec", strings.Join(selfCmd, " "))
-	var baseCmd *exec.Cmd
-	if driver.DiagnosticEnabled(diagnostics.Perf) {
-		perfArgs := []string{"record", "-o", filepath.Join(tmpDir, "perf.data")}
-		perfArgs = append(perfArgs, driver.PerfFlags()...)
-		perfArgs = append(perfArgs, goTool)
-		perfArgs = append(perfArgs, cmdArgs...)
-		baseCmd = exec.Command("perf", perfArgs...)
-	} else {
-		baseCmd = exec.Command(goTool, cmdArgs...)
+	diag = driver.NewDiagnostics(name)
+	diagFlag, err := diag.MarshalText()
+	if err != nil {
+		return err
 	}
+	selfCmd = append(selfCmd, "-diagnostics", string(diagFlag))
+
+	cmdArgs = append(cmdArgs, "-toolexec", strings.Join(selfCmd, " "))
+
+	if df, err := diag.Create(diagnostics.Perf); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to create %s diagnostics: %s\n", diagnostics.Perf, err)
+	} else if df != nil {
+		df.Close()
+		defer df.Commit()
+
+		perfArgs := []string{"perf", "record", "-o", df.Name()}
+		perfArgs = append(perfArgs, driver.PerfFlags()...)
+		perfArgs = append(perfArgs, cmdArgs...)
+		cmdArgs = perfArgs
+	}
+
+	baseCmd := exec.Command(cmdArgs[0], cmdArgs[1:]...)
 	baseCmd.Dir = pkgPath
 	baseCmd.Env = common.NewEnvFromEnviron().MustSet("GOROOT=" + filepath.Dir(filepath.Dir(goTool))).Collapse()
 	baseCmd.Stdout = os.Stdout
@@ -95,89 +111,13 @@ func run(pkgPath string) error {
 		return err
 	}
 	err = driver.RunBenchmark(name, func(d *driver.B) error {
+		defer diag.Commit(d)
 		return cmd.Run()
 	}, append(benchOpts, driver.DoAvgRSS(cmd.RSSFunc()))...)
 	if err != nil {
 		return err
 	}
-
-	// Handle any CPU profiles produced, and merge them.
-	// Then, write them out to the canonical profiles above.
-	if driver.DiagnosticEnabled(diagnostics.CPUProfile) {
-		compileProfile, err := mergePprofProfiles(tmpDir, profilePrefix("compile", diagnostics.CPUProfile))
-		if err != nil {
-			return err
-		}
-		if err := driver.WritePprofProfile(compileProfile, diagnostics.CPUProfile, name+"Compile"); err != nil {
-			return err
-		}
-
-		linkProfile, err := mergePprofProfiles(tmpDir, profilePrefix("link", diagnostics.CPUProfile))
-		if err != nil {
-			return err
-		}
-		if err := driver.WritePprofProfile(linkProfile, diagnostics.CPUProfile, name+"Link"); err != nil {
-			return err
-		}
-	}
-	if driver.DiagnosticEnabled(diagnostics.MemProfile) {
-		if err := copyPprofProfiles(tmpDir, "compile", diagnostics.MemProfile, name+"Compile"); err != nil {
-			return err
-		}
-		if err := copyPprofProfiles(tmpDir, "link", diagnostics.MemProfile, name+"Link"); err != nil {
-			return err
-		}
-	}
-	if driver.DiagnosticEnabled(diagnostics.Perf) {
-		if err := driver.CopyDiagnosticData(filepath.Join(tmpDir, "perf.data"), diagnostics.Perf, name); err != nil {
-			return err
-		}
-	}
-	if driver.DiagnosticEnabled(diagnostics.Trace) {
-		entries, err := os.ReadDir(tmpDir)
-		if err != nil {
-			return err
-		}
-		for _, entry := range entries {
-			if !strings.HasPrefix(entry.Name(), profilePrefix("compile", diagnostics.Trace)) {
-				continue
-			}
-			if err := driver.CopyDiagnosticData(filepath.Join(tmpDir, entry.Name()), diagnostics.Trace, name+"Compile"); err != nil {
-				return err
-			}
-		}
-	}
 	return printOtherResults(tmpResultsDir())
-}
-
-func mergePprofProfiles(dir, prefix string) (*profile.Profile, error) {
-	profiles, err := sprofile.ReadDirPprof(dir, func(name string) bool {
-		return strings.HasPrefix(name, prefix)
-	})
-	if err != nil {
-		return nil, err
-	}
-	return profile.Merge(profiles)
-}
-
-func copyPprofProfiles(dir, bin string, typ diagnostics.Type, finalPrefix string) error {
-	prefix := profilePrefix(bin, typ)
-	profiles, err := sprofile.ReadDirPprof(dir, func(name string) bool {
-		return strings.HasPrefix(name, prefix)
-	})
-	if err != nil {
-		return err
-	}
-	for _, profile := range profiles {
-		if err := driver.WritePprofProfile(profile, typ, finalPrefix); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func profilePrefix(bin string, typ diagnostics.Type) string {
-	return bin + "-prof." + string(typ)
 }
 
 func printOtherResults(dir string) error {
@@ -220,22 +160,29 @@ func runToolexec() error {
 	}
 	var extraFlags []string
 	for _, typ := range []diagnostics.Type{diagnostics.CPUProfile, diagnostics.MemProfile, diagnostics.Trace} {
-		if driver.DiagnosticEnabled(typ) {
-			if bin == "link" && typ == diagnostics.Trace {
-				// TODO(mknyszek): Traces are not supported for the linker.
-				continue
-			}
-			// Stake a claim for a filename.
-			f, err := os.CreateTemp(tmpDir, profilePrefix(bin, typ))
-			if err != nil {
-				return err
-			}
-			f.Close()
+		if bin == "link" && typ == diagnostics.Trace {
+			// TODO(mknyszek): Traces are not supported for the linker.
+			continue
+		}
+
+		subName := ""
+		if !typ.CanMerge() {
+			// Create a unique name for this diagnostic file.
+			subName = fmt.Sprintf("%08x", rand.Uint32())
+		}
+		df, err := diag.CreateNamed(typ, subName)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "failed to create %s diagnostics: %s\n", typ, err)
+			continue
+		} else if df != nil {
+			df.Close()
+			defer df.Commit()
+
 			flag := "-" + string(typ)
 			if typ == diagnostics.Trace {
-				flag += "profile" // The compiler flag is -traceprofile.
+				flag = "-traceprofile"
 			}
-			extraFlags = append(extraFlags, flag, f.Name())
+			extraFlags = append(extraFlags, flag, df.Name())
 		}
 	}
 	cmd := exec.Command(flag.Args()[0], append(extraFlags, flag.Args()[1:]...)...)

@@ -47,6 +47,28 @@ func NewDiagnostics(name string) *Diagnostics {
 	return &Diagnostics{name: name}
 }
 
+// MarshalText marshals this Diagnostics configuration into text that can be
+// passed to another process (e.g., via a flag) and unmarshaled into a new
+// Diagnostics with UnmarshalText. That other process may call Create* on the
+// result and use the resulting [DiagnosticsFile]s as usual, but it must not
+// call [Diagnostics.Commit].
+func (d *Diagnostics) MarshalText() (text []byte, err error) {
+	tmpDir, err := d.getTmpDir()
+	return []byte(tmpDir), err
+}
+
+func (d *Diagnostics) UnmarshalText(text []byte) error {
+	// Clear the tmpDir once.
+	first := false
+	d.once.Do(func() { first = true })
+	if !first {
+		return fmt.Errorf("Diagnostics.UnmarshalText requires an unused Diagnostics")
+	}
+	d.tmpDir = string(text)
+	d.tmpDirErr = nil
+	return nil
+}
+
 func safeFileName(name string) string {
 	// The following characters are disallowed by either VFAT, NTFS, APFS, or
 	// most Unix file systems:
