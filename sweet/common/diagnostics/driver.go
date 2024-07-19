@@ -9,32 +9,45 @@ import (
 	"fmt"
 )
 
+// DriverConfig is a diagnostics configuration that can be passed to a benchmark
+// driver by serializing to and from command-line flags.
+type DriverConfig struct {
+	ConfigSet
+	ResultsDir string
+}
+
 // DriverArgs returns the arguments that should be passed to a Sweet benchmark
-// binary to collect data for the Config.
-func (d Config) DriverArgs(resultsDir string) []string {
-	flag := d.Type.AsFlag()
-	args := []string{flag, resultsDir}
-	if d.Flags != "" {
-		args = append(args, flag+"-flags", d.Flags)
+// binary to collect data for c.
+func (c *DriverConfig) DriverArgs() []string {
+	args := []string{"-results-dir", c.ResultsDir}
+	for _, c1 := range c.cfgs {
+		args = append(args, "-"+string(c1.Type))
+		if c1.Type == Perf {
+			// String flag
+			args = append(args, c1.Flags)
+		}
 	}
 	return args
 }
 
-type DriverConfig struct {
-	Config
-	Dir string
-}
+// AddFlags populates f with flags that will fill in c.
+func (c *DriverConfig) AddFlags(f *flag.FlagSet) {
+	*c = DriverConfig{}
+	c.ConfigSet.cfgs = make(map[Type]Config)
 
-func SetFlagsForDriver(f *flag.FlagSet) map[Type]*DriverConfig {
-	storage := make(map[Type]*DriverConfig)
+	f.StringVar(&c.ResultsDir, "results-dir", "", "directory to write diagnostics data")
 	for _, t := range Types() {
-		dc := new(DriverConfig)
-		dc.Type = t
-		storage[t] = dc
-		f.StringVar(&dc.Dir, string(t), "", fmt.Sprintf("directory to write %s data", t))
+		t := t
 		if t == Perf {
-			f.StringVar(&dc.Flags, string(t)+"-flags", "", "flags for Linux perf")
+			f.Func(string(t), fmt.Sprintf("enable %s diagnostics with `flags`", t), func(s string) error {
+				c.cfgs[t] = Config{Type: t, Flags: s}
+				return nil
+			})
+		} else {
+			f.BoolFunc(string(t), fmt.Sprintf("enable %s diagnostics", t), func(s string) error {
+				c.cfgs[t] = Config{Type: t}
+				return nil
+			})
 		}
 	}
-	return storage
 }

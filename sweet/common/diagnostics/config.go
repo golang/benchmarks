@@ -78,15 +78,6 @@ func (c ConfigSet) Empty() bool {
 	return len(c.cfgs) == 0
 }
 
-// ToSlice returns each Config contained in the ConfigSet in a slice.
-func (c ConfigSet) ToSlice() []Config {
-	cfgs := make([]Config, 0, len(c.cfgs))
-	for _, cfg := range c.cfgs {
-		cfgs = append(cfgs, cfg)
-	}
-	return cfgs
-}
-
 // Type is a diagnostic type supported by Sweet.
 type Type string
 
@@ -100,11 +91,6 @@ const (
 // IsPprof returns whether the diagnostic's data is stored in the pprof format.
 func (t Type) IsPprof() bool {
 	return t == CPUProfile || t == MemProfile
-}
-
-// AsFlag returns the Type suitable for use as a CLI flag.
-func (t Type) AsFlag() string {
-	return "-" + string(t)
 }
 
 // Types returns a slice of all supported types.

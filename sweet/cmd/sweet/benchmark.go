@@ -16,6 +16,7 @@ import (
 	"strings"
 
 	"golang.org/x/benchmarks/sweet/common"
+	"golang.org/x/benchmarks/sweet/common/diagnostics"
 	"golang.org/x/benchmarks/sweet/common/fileutil"
 	"golang.org/x/benchmarks/sweet/common/log"
 	"golang.org/x/benchmarks/sweet/generators"
@@ -339,9 +340,8 @@ func (b *benchmark) execute(cfgs []*common.Config, r *runCfg) error {
 
 			// We need to pass arguments to the benchmark binary to generate
 			// profiles. See benchmarks/internal/driver for details.
-			for _, d := range cfg.Diagnostics.ToSlice() {
-				args = append(args, d.DriverArgs(resultsProfilesDir)...)
-			}
+			dc := diagnostics.DriverConfig{ResultsDir: resultsProfilesDir, ConfigSet: cfg.Diagnostics}
+			args = append(args, dc.DriverArgs()...)
 		}
 
 		results, err := os.Create(filepath.Join(resultsDir, fmt.Sprintf("%s.results", cfg.Name)))

@@ -27,12 +27,12 @@ import (
 
 var (
 	coreDumpDir string
-	diag        map[diagnostics.Type]*diagnostics.DriverConfig
+	diag        diagnostics.DriverConfig
 )
 
 func SetFlags(f *flag.FlagSet) {
 	f.StringVar(&coreDumpDir, "dump-cores", "", "dump a core file to the given directory after every benchmark run")
-	diag = diagnostics.SetFlagsForDriver(f)
+	diag.AddFlags(f)
 }
 
 const (
@@ -422,9 +422,7 @@ func (b *B) startPerf() error {
 		panic("perf process already started")
 	}
 	args := []string{"record", "-o", b.diagnostics[diagnostics.Perf].Name(), "-p", strconv.Itoa(b.pid)}
-	if perfFlags := diag[diagnostics.Perf].Flags; perfFlags != "" {
-		args = append(args, strings.Split(perfFlags, " ")...)
-	}
+	args = append(args, PerfFlags()...)
 	cmd := exec.Command("perf", args...)
 	cmd.Stderr = os.Stderr
 	if err := cmd.Start(); err != nil {
@@ -556,11 +554,8 @@ func RunBenchmark(name string, f func(*B) error, opts ...RunOption) error {
 }
 
 func DiagnosticEnabled(typ diagnostics.Type) bool {
-	cfg, ok := diag[typ]
-	if !ok {
-		panic("bad profile type")
-	}
-	return cfg.Dir != ""
+	_, ok := diag.ConfigSet.Get(typ)
+	return ok
 }
 
 func WritePprofProfile(prof *profile.Profile, typ diagnostics.Type, pattern string) error {
@@ -594,16 +589,16 @@ func CopyDiagnosticData(diagPath string, typ diagnostics.Type, pattern string) e
 }
 
 func PerfFlags() []string {
-	if !DiagnosticEnabled(diagnostics.Perf) {
+	cfg, ok := diag.ConfigSet.Get(diagnostics.Perf)
+	if !ok {
 		panic("perf not enabled")
 	}
-	return strings.Split(diag[diagnostics.Perf].Flags, " ")
+	return strings.Split(cfg.Flags, " ")
 }
 
 func newDiagnosticDataFile(typ diagnostics.Type, pattern string) (*os.File, error) {
-	cfg, ok := diag[typ]
-	if !ok || cfg.Dir == "" {
+	if !DiagnosticEnabled(typ) {
 		return nil, fmt.Errorf("this type of profile is not currently enabled")
 	}
-	return os.CreateTemp(cfg.Dir, pattern+"."+string(typ))
+	return os.CreateTemp(diag.ResultsDir, pattern+"."+string(typ))
 }
