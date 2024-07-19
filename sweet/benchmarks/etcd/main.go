@@ -18,7 +18,6 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-	"sync/atomic"
 
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/driver"
@@ -363,52 +362,24 @@ func run(cfg *config) (err error) {
 	return driver.RunBenchmark(cfg.bench.reportName, func(d *driver.B) error {
 		// Set up diagnostics.
 		var stopAll par.Funcs
-		if driver.DiagnosticEnabled(diagnostics.CPUProfile) {
-			for _, inst := range instances {
-				stop := server.PollDiagnostic(
-					inst.host(clientPort),
-					cfg.tmpDir,
-					cfg.bench.reportName,
-					diagnostics.CPUProfile,
-				)
+		diag := driver.NewDiagnostics(cfg.bench.reportName)
+		for _, typ := range diagnostics.Types() {
+			if typ.HTTPEndpoint() == "" {
+				continue
+			}
+			for i, inst := range instances {
+				name := ""
+				if !typ.CanMerge() {
+					// Create a separate file for each instance.
+					name = fmt.Sprintf("inst%d", i)
+				}
+				stop := server.FetchDiagnostic(inst.host(clientPort), diag, typ, name)
 				stopAll.Add(stop)
 			}
 		}
-		if driver.DiagnosticEnabled(diagnostics.Trace) {
-			var sum atomic.Uint64
-			for _, inst := range instances {
-				stopTrace := server.PollDiagnostic(
-					inst.host(clientPort),
-					cfg.tmpDir,
-					cfg.bench.reportName,
-					diagnostics.Trace,
-				)
-				stopAll.Add(func() {
-					n := stopTrace()
-					sum.Add(n)
-				})
-			}
-			defer func() {
-				d.Report("trace-bytes", sum.Load())
-			}()
-		}
-		if driver.DiagnosticEnabled(diagnostics.MemProfile) {
-			for _, inst := range instances {
-				inst := inst
-				stopAll.Add(func() {
-					_, err := server.CollectDiagnostic(
-						inst.host(clientPort),
-						cfg.tmpDir,
-						cfg.bench.reportName,
-						diagnostics.MemProfile,
-					)
-					if err != nil {
-						fmt.Fprintf(os.Stderr, "failed to read memprofile: %v", err)
-					}
-				})
-			}
-		}
+		defer diag.Commit(d)
 		defer stopAll.Run()
+
 		// Actually run the benchmark.
 		return runBenchmark(d, cfg, instances)
 	}, opts...)
