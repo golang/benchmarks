@@ -447,7 +447,7 @@ func (c *runCmd) preparePGO(configs []*common.Config, benchmarks []*benchmark) (
 	return newConfigs, nil
 }
 
-var cpuProfileRe = regexp.MustCompile(`^.*\.cpuprofile[0-9]+$`)
+var cpuProfileRe = regexp.MustCompile(`\.cpuprofile[0-9]+|-cpu\.prof$`)
 
 func mergeCPUProfiles(dir string) (string, error) {
 	profiles, err := sprofile.ReadDirPprof(dir, func(name string) bool {

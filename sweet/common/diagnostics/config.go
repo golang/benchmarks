@@ -93,6 +93,65 @@ func (t Type) IsPprof() bool {
 	return t == CPUProfile || t == MemProfile
 }
 
+// HTTPEndpoint returns the net/http/pprof endpoint for this diagnostic type as
+// a host-relative URL, or "" if there is no enpdoint.
+func (t Type) HTTPEndpoint() string {
+	switch t {
+	case CPUProfile:
+		return "debug/pprof/profile"
+	case MemProfile:
+		return "debug/pprof/heap"
+	case Trace:
+		return "debug/pprof/trace"
+	}
+	return ""
+}
+
+// FileName returns the typical file name suffix for this diagnostic type.
+func (t Type) FileName() string {
+	switch t {
+	case CPUProfile:
+		return "cpu.prof"
+	case MemProfile:
+		return "mem.prof"
+	case Perf:
+		return "perf.data"
+	case Trace:
+		return "runtime.trace"
+	}
+	panic("unsupported profile type " + string(t))
+}
+
+// IsSnapshot indicates that this diagnostic is a point-in-time snapshot that
+// should be collected at the end of a benchmark.
+func (t Type) IsSnapshot() bool {
+	switch t {
+	case MemProfile:
+		return true
+	}
+	return false
+}
+
+// CanMerge indicates that multiple profiles of this type can be merged into one
+// profile.
+func (t Type) CanMerge() bool {
+	switch t {
+	case CPUProfile, MemProfile:
+		return true
+	}
+	return false
+}
+
+// CanTruncate indicates that a truncated diagnostic file of this type is still
+// meaningful.
+func (t Type) CanTruncate() bool {
+	switch t {
+	case Trace, Perf:
+		return true
+	}
+	return false
+}
+
 // Types returns a slice of all supported types.
 func Types() []Type {
 	return []Type{

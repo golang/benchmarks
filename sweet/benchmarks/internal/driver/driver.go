@@ -558,6 +558,8 @@ func DiagnosticEnabled(typ diagnostics.Type) bool {
 	return ok
 }
 
+// TODO: Delete below here
+
 func WritePprofProfile(prof *profile.Profile, typ diagnostics.Type, pattern string) error {
 	if !typ.IsPprof() {
 		return fmt.Errorf("this type of diagnostic doesn't use the pprof format")
