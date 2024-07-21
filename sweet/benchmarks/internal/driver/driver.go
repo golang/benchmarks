@@ -165,9 +165,11 @@ type B struct {
 	stats         map[string]uint64
 	ops           int
 	wg            sync.WaitGroup
-	diagnostics   map[diagnostics.Type]*os.File
 	resultsWriter io.Writer
-	perfProcess   *os.Process
+
+	diag        *Diagnostics
+	diagFiles   map[diagnostics.Type]*DiagnosticFile
+	perfProcess *os.Process
 }
 
 func newB(name string) *B {
@@ -178,9 +180,11 @@ func newB(name string) *B {
 			diagnostics.CPUProfile: false,
 			diagnostics.MemProfile: false,
 		},
-		stats:       make(map[string]uint64),
-		ops:         1,
-		diagnostics: make(map[diagnostics.Type]*os.File),
+		stats: make(map[string]uint64),
+		ops:   1,
+
+		diag:      NewDiagnostics(name),
+		diagFiles: make(map[diagnostics.Type]*DiagnosticFile),
 	}
 	return b
 }
@@ -191,42 +195,51 @@ func (b *B) setStat(name string, value uint64) {
 	b.stats[name] = value
 }
 
-func (b *B) shouldCollectDiag(typ diagnostics.Type) bool {
-	return b.collectDiag[typ] && DiagnosticEnabled(typ)
-}
-
 func (b *B) Name() string {
 	return b.name
 }
 
 func (b *B) StartTimer() {
-	if b.shouldCollectDiag(diagnostics.CPUProfile) {
-		pprof.StartCPUProfile(b.diagnostics[diagnostics.CPUProfile])
-	}
-	if b.shouldCollectDiag(diagnostics.Perf) {
-		if err := b.startPerf(); err != nil {
-			warningf("failed to start perf: %v", err)
+	if typ := diagnostics.CPUProfile; b.collectDiag[typ] {
+		if df, err := b.diag.Create(typ); err != nil {
+			warningf("failed to create %s diagnostics: %s\n", typ, err)
+		} else if df != nil {
+			b.diagFiles[typ] = df
+			pprof.StartCPUProfile(df)
 		}
 	}
+	if typ := diagnostics.Perf; b.collectDiag[typ] {
+		if df, err := b.diag.Create(typ); err != nil {
+			warningf("failed to create %s diagnostics: %s\n", typ, err)
+		} else if df != nil {
+			if err := b.startPerf(df); err != nil {
+				df.Close()
+				warningf("failed to start perf: %v", err)
+			} else {
+				b.diagFiles[typ] = df
+			}
+		}
+	}
+
 	b.start = time.Now()
 }
 
 func (b *B) ResetTimer() {
-	if b.shouldCollectDiag(diagnostics.CPUProfile) {
+	if df := b.diagFiles[diagnostics.CPUProfile]; df != nil {
 		pprof.StopCPUProfile()
-		if err := b.truncateDiagnosticData(diagnostics.CPUProfile); err != nil {
+		if err := b.truncateDiagnosticData(df); err != nil {
 			warningf("failed to truncate CPU profile: %v", err)
 		}
-		pprof.StartCPUProfile(b.diagnostics[diagnostics.CPUProfile])
+		pprof.StartCPUProfile(df)
 	}
-	if b.shouldCollectDiag(diagnostics.Perf) {
+	if df := b.diagFiles[diagnostics.Perf]; df != nil {
 		if err := b.stopPerf(); err != nil {
 			warningf("failed to stop perf: %v", err)
 		}
-		if err := b.truncateDiagnosticData(diagnostics.Perf); err != nil {
+		if err := b.truncateDiagnosticData(df); err != nil {
 			warningf("failed to truncate perf data file: %v", err)
 		}
-		if err := b.startPerf(); err != nil {
+		if err := b.startPerf(df); err != nil {
 			warningf("failed to start perf: %v", err)
 		}
 	}
@@ -236,13 +249,12 @@ func (b *B) ResetTimer() {
 	b.dur = 0
 }
 
-func (b *B) truncateDiagnosticData(typ diagnostics.Type) error {
-	f := b.diagnostics[typ]
-	_, err := f.Seek(0, 0)
+func (b *B) truncateDiagnosticData(df *DiagnosticFile) error {
+	_, err := df.Seek(0, 0)
 	if err != nil {
 		return err
 	}
-	return f.Truncate(0)
+	return df.Truncate(0)
 }
 
 func (b *B) StopTimer() {
@@ -253,10 +265,10 @@ func (b *B) StopTimer() {
 	b.dur += end.Sub(b.start)
 	b.start = time.Time{}
 
-	if b.shouldCollectDiag(diagnostics.CPUProfile) {
+	if df := b.diagFiles[diagnostics.CPUProfile]; df != nil {
 		pprof.StopCPUProfile()
 	}
-	if b.shouldCollectDiag(diagnostics.Perf) {
+	if df := b.diagFiles[diagnostics.Perf]; df != nil {
 		if err := b.stopPerf(); err != nil {
 			warningf("failed to stop perf: %v", err)
 		}
@@ -417,11 +429,11 @@ func avg(s []uint64) uint64 {
 	return avg
 }
 
-func (b *B) startPerf() error {
+func (b *B) startPerf(df *DiagnosticFile) error {
 	if b.perfProcess != nil {
 		panic("perf process already started")
 	}
-	args := []string{"record", "-o", b.diagnostics[diagnostics.Perf].Name(), "-p", strconv.Itoa(b.pid)}
+	args := []string{"record", "-o", df.Name(), "-p", strconv.Itoa(b.pid)}
 	args = append(args, PerfFlags()...)
 	cmd := exec.Command("perf", args...)
 	cmd.Stderr = os.Stderr
@@ -461,20 +473,16 @@ func RunBenchmark(name string, f func(*B) error, opts ...RunOption) error {
 	// Start the RSS sampler and start the timer.
 	stop := b.startRSSSampler()
 
-	// Make sure profile file(s) are created if necessary.
-	for _, typ := range diagnostics.Types() {
-		if b.shouldCollectDiag(typ) {
-			f, err := newDiagnosticDataFile(typ, b.name)
-			if err != nil {
+	// Collect trace diagnostics regardless of the timer state.
+	if typ := diagnostics.Trace; b.collectDiag[typ] {
+		if df, err := b.diag.Create(typ); err != nil {
+			warningf("failed to create %s diagnostics: %s", typ, err)
+		} else if df != nil {
+			if err := trace.Start(df); err != nil {
 				return err
 			}
-			b.diagnostics[typ] = f
-		}
-	}
-
-	if b.shouldCollectDiag(diagnostics.Trace) {
-		if err := trace.Start(b.diagnostics[diagnostics.Trace]); err != nil {
-			return err
+			b.diagFiles[typ] = df
+			defer trace.Stop()
 		}
 	}
 
@@ -535,18 +543,27 @@ func RunBenchmark(name string, f func(*B) error, opts ...RunOption) error {
 
 	b.wg.Wait()
 
-	// Finalize all the profile files we're handling ourselves.
-	for typ, f := range b.diagnostics {
-		if typ == diagnostics.MemProfile {
-			if err := pprof.Lookup("heap").WriteTo(f, 0); err != nil {
+	// Collect memory profile.
+	if typ := diagnostics.MemProfile; b.collectDiag[typ] {
+		if df, err := b.diag.Create(typ); err != nil {
+			warningf("failed to create %s diagnostics: %s", typ, err)
+		} else if df != nil {
+			if err := pprof.Lookup("heap").WriteTo(df, 0); err != nil {
 				return err
 			}
+			b.diagFiles[typ] = df
 		}
+	}
+
+	// Finalize all diagnostics.
+	for typ, df := range b.diagFiles {
 		if typ == diagnostics.Trace {
 			trace.Stop()
 		}
-		f.Close()
+		df.Close()
+		df.Commit()
 	}
+	b.diag.Commit(b)
 
 	// Report the results.
 	b.report()
