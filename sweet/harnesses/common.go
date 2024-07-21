@@ -16,6 +16,7 @@ import (
 func gitShallowClone(dir, url, ref string) error {
 	cmd := exec.Command("git", "clone", "--depth", "1", "-b", ref, url, dir)
 	log.TraceCommand(cmd, false)
+	cmd.Stderr = os.Stderr
 	_, err := cmd.Output()
 	return err
 }
@@ -23,11 +24,13 @@ func gitShallowClone(dir, url, ref string) error {
 func gitRecursiveCloneToCommit(dir, url, branch, hash string) error {
 	cloneCmd := exec.Command("git", "clone", "--recursive", "--shallow-submodules", "-b", branch, url, dir)
 	log.TraceCommand(cloneCmd, false)
+	cloneCmd.Stderr = os.Stderr
 	if _, err := cloneCmd.Output(); err != nil {
 		return err
 	}
 	checkoutCmd := exec.Command("git", "-C", dir, "checkout", hash)
 	log.TraceCommand(checkoutCmd, false)
+	checkoutCmd.Stderr = os.Stderr
 	_, err := checkoutCmd.Output()
 	return err
 }
@@ -35,11 +38,13 @@ func gitRecursiveCloneToCommit(dir, url, branch, hash string) error {
 func gitCloneToCommit(dir, url, branch, hash string) error {
 	cloneCmd := exec.Command("git", "clone", "-b", branch, url, dir)
 	log.TraceCommand(cloneCmd, false)
+	cloneCmd.Stderr = os.Stderr
 	if _, err := cloneCmd.Output(); err != nil {
 		return err
 	}
 	checkoutCmd := exec.Command("git", "-C", dir, "checkout", hash)
 	log.TraceCommand(checkoutCmd, false)
+	checkoutCmd.Stderr = os.Stderr
 	_, err := checkoutCmd.Output()
 	return err
 }
