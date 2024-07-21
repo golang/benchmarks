@@ -28,7 +28,8 @@ func gitRecursiveCloneToCommit(dir, url, branch, hash string) error {
 	if _, err := cloneCmd.Output(); err != nil {
 		return err
 	}
-	checkoutCmd := exec.Command("git", "-C", dir, "checkout", hash)
+	// Git 2.46+ has a global --no-advice flag, but that's extremely recent as of this writing.
+	checkoutCmd := exec.Command("git", "-C", dir, "-c", "advice.detachedHead=false", "checkout", hash)
 	log.TraceCommand(checkoutCmd, false)
 	checkoutCmd.Stderr = os.Stderr
 	_, err := checkoutCmd.Output()
@@ -42,7 +43,7 @@ func gitCloneToCommit(dir, url, branch, hash string) error {
 	if _, err := cloneCmd.Output(); err != nil {
 		return err
 	}
-	checkoutCmd := exec.Command("git", "-C", dir, "checkout", hash)
+	checkoutCmd := exec.Command("git", "-C", dir, "-c", "advice.detachedHead=false", "checkout", hash)
 	log.TraceCommand(checkoutCmd, false)
 	checkoutCmd.Stderr = os.Stderr
 	_, err := checkoutCmd.Output()
