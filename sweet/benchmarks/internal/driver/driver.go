@@ -426,6 +426,7 @@ func (b *B) startPerf() error {
 		args = append(args, strings.Split(perfFlags, " ")...)
 	}
 	cmd := exec.Command("perf", args...)
+	cmd.Stderr = os.Stderr
 	if err := cmd.Start(); err != nil {
 		return err
 	}
