@@ -21,7 +21,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/pprof/profile"
 	"golang.org/x/benchmarks/sweet/common/diagnostics"
 )
 
@@ -575,49 +574,10 @@ func DiagnosticEnabled(typ diagnostics.Type) bool {
 	return ok
 }
 
-// TODO: Delete below here
-
-func WritePprofProfile(prof *profile.Profile, typ diagnostics.Type, pattern string) error {
-	if !typ.IsPprof() {
-		return fmt.Errorf("this type of diagnostic doesn't use the pprof format")
-	}
-	if !DiagnosticEnabled(typ) {
-		return fmt.Errorf("this type of diagnostic is not currently enabled")
-	}
-	f, err := newDiagnosticDataFile(typ, pattern)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	return prof.Write(f)
-}
-
-func CopyDiagnosticData(diagPath string, typ diagnostics.Type, pattern string) error {
-	inF, err := os.Open(diagPath)
-	if err != nil {
-		return err
-	}
-	defer inF.Close()
-	outF, err := newDiagnosticDataFile(typ, pattern)
-	if err != nil {
-		return err
-	}
-	defer outF.Close()
-	_, err = io.Copy(outF, inF)
-	return err
-}
-
 func PerfFlags() []string {
 	cfg, ok := diag.ConfigSet.Get(diagnostics.Perf)
 	if !ok {
 		panic("perf not enabled")
 	}
 	return strings.Split(cfg.Flags, " ")
-}
-
-func newDiagnosticDataFile(typ diagnostics.Type, pattern string) (*os.File, error) {
-	if !DiagnosticEnabled(typ) {
-		return nil, fmt.Errorf("this type of profile is not currently enabled")
-	}
-	return os.CreateTemp(diag.ResultsDir, pattern+"."+string(typ))
 }
