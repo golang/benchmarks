@@ -14,7 +14,8 @@ import (
 )
 
 func gitShallowClone(dir, url, ref string) error {
-	cmd := exec.Command("git", "clone", "--depth", "1", "-b", ref, url, dir)
+	// Git 2.46+ has a global --no-advice flag, but that's extremely recent as of this writing.
+	cmd := exec.Command("git", "-c", "advice.detachedHead=false", "clone", "--depth", "1", "-b", ref, url, dir)
 	log.TraceCommand(cmd, false)
 	cmd.Stderr = os.Stderr
 	_, err := cmd.Output()
@@ -28,7 +29,6 @@ func gitRecursiveCloneToCommit(dir, url, branch, hash string) error {
 	if _, err := cloneCmd.Output(); err != nil {
 		return err
 	}
-	// Git 2.46+ has a global --no-advice flag, but that's extremely recent as of this writing.
 	checkoutCmd := exec.Command("git", "-C", dir, "-c", "advice.detachedHead=false", "checkout", hash)
 	log.TraceCommand(checkoutCmd, false)
 	checkoutCmd.Stderr = os.Stderr
