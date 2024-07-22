@@ -102,10 +102,11 @@ var benchmarkGroups = func() map[string][]*benchmark {
 		allBenchmarksMap["etcd"],
 		allBenchmarksMap["go-build"],
 		allBenchmarksMap["gopher-lua"],
-		allBenchmarksMap["gvisor"],
-		allBenchmarksMap["markdown"],
-		allBenchmarksMap["tile38"],
 	}
+	if runtime.GOARCH == "amd64" {
+		m["default"] = append(m["default"], allBenchmarksMap["gvisor"])
+	}
+	m["default"] = append(m["default"], allBenchmarksMap["markdown"], allBenchmarksMap["tile38"])
 
 	for i := range allBenchmarks {
 		m["all"] = append(m["all"], &allBenchmarks[i])

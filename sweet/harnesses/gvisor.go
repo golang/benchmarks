@@ -21,6 +21,9 @@ func (h GVisor) CheckPrerequisites() error {
 	if runtime.GOOS != "linux" {
 		return fmt.Errorf("requires Linux")
 	}
+	if runtime.GOARCH != "amd64" {
+		return fmt.Errorf("requires amd64")
+	}
 	return nil
 }
 
