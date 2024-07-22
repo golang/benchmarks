@@ -5,6 +5,7 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -12,6 +13,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"runtime/debug"
+	"strings"
 
 	"golang.org/x/benchmarks/sweet/common"
 	"golang.org/x/benchmarks/sweet/common/fileutil"
@@ -143,6 +145,73 @@ func rmDirContents(dir string) error {
 		}
 	}
 	return nil
+}
+
+func readFileTail(f *os.File) (data string, err error) {
+	const maxLines = 20
+	const maxBytes = 16 << 10
+	const block = 4096
+
+	// Read the file backwards.
+	stat, err := f.Stat()
+	if err != nil {
+		return "", err
+	}
+	pos := stat.Size()
+
+	nLines, nBytes := -1, 0
+	blocks := make([][]byte, 0, 10)
+	for pos > 0 {
+		// Back up by a block
+		want := int64(block)
+		if pos < block {
+			want = pos
+		}
+		pos -= want
+
+		// Read
+		buf := make([]byte, want)
+		n, readErr := f.ReadAt(buf, pos)
+		buf = buf[:n]
+
+		// Apply byte limit
+		if nBytes+n > maxBytes {
+			n = maxBytes - nBytes
+			buf = buf[len(buf)-n:]
+		}
+		nBytes += n
+
+		// Apply line limit
+		nl := len(buf)
+		for {
+			nl = bytes.LastIndexByte(buf[:nl], '\n')
+			if nl == -1 {
+				break
+			}
+			nLines++
+			if nLines == maxLines {
+				buf = buf[nl+1:]
+				break
+			}
+		}
+
+		blocks = append(blocks, buf)
+
+		if nLines >= maxLines || nBytes >= maxBytes {
+			break
+		}
+
+		if readErr != nil {
+			return "", err
+		}
+	}
+
+	// Build final result
+	var str strings.Builder
+	for i := len(blocks) - 1; i >= 0; i-- {
+		str.Write(blocks[i])
+	}
+	return str.String(), nil
 }
 
 type benchmark struct {
@@ -310,8 +379,13 @@ func (b *benchmark) execute(cfgs []*common.Config, r *runCfg) error {
 			gogc := debug.SetGCPercent(-1)
 			if err := b.harness.Run(cfgs[i], &setup); err != nil {
 				debug.SetGCPercent(gogc)
+				// Useful error messages are often in the log. Grab the end.
+				logTail, err := readFileTail(setup.Results)
+				if err != nil {
+					logTail = fmt.Sprintf("error reading log tail: %s", err)
+				}
 				setup.Results.Close()
-				return fmt.Errorf("run benchmark %s for config %s: %v", b.name, cfgs[i].Name, err)
+				return fmt.Errorf("run benchmark %s for config %s: %v\nLog tail:\n%s", b.name, cfgs[i].Name, err, logTail)
 			}
 			debug.SetGCPercent(gogc)
 
