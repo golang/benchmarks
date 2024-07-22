@@ -106,8 +106,12 @@ func (h CockroachDB) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 	// to build cockroach. However, benchmark release branches are on older
 	// versions that don't recognize the flag. Try first with the flag and
 	// again without if there is an error.
-	if buildWithFlagErr := cfg.GoTool().BuildPath(filepath.Join(bcfg.SrcDir, "pkg/cmd/cockroach-short"), bcfg.BinDir, "-ldflags=-checklinkname=0"); buildWithFlagErr != nil {
-		if buildWithoutFlagErr := cfg.GoTool().BuildPath(filepath.Join(bcfg.SrcDir, "pkg/cmd/cockroach-short"), bcfg.BinDir); buildWithoutFlagErr != nil {
+	//
+	// Cockroachdb reaches into runtime internals, so it has a negative build
+	// tag to exclude unreleased Go versions. Set untested_go_version so we can
+	// run at tip (and cross our fingers).
+	if buildWithFlagErr := cfg.GoTool().BuildPath(filepath.Join(bcfg.SrcDir, "pkg/cmd/cockroach-short"), bcfg.BinDir, "-tags=untested_go_version", "-ldflags=-checklinkname=0"); buildWithFlagErr != nil {
+		if buildWithoutFlagErr := cfg.GoTool().BuildPath(filepath.Join(bcfg.SrcDir, "pkg/cmd/cockroach-short"), bcfg.BinDir, "-tags=untested_go_version"); buildWithoutFlagErr != nil {
 			return errors.Join(buildWithFlagErr, buildWithoutFlagErr)
 		}
 	}
