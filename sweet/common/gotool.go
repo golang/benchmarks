@@ -72,6 +72,17 @@ func (g *Go) BuildPackage(pkg, out string) error {
 	return g.Do("", "build", "-o", out, pkg)
 }
 
+func (g *Go) Version() (string, error) {
+	cmd := exec.Command(g.Tool, "version")
+	cmd.Env = g.Env.Collapse()
+	log.TraceCommand(cmd, false)
+	out, err := cmd.Output()
+	if err != nil {
+		return "", fmt.Errorf("error running 'go version': %w", err)
+	}
+	return string(out), nil
+}
+
 func (g *Go) BuildPath(path, out string, args ...string) error {
 	if path[0] != '/' && path[0] != '.' {
 		path = "./" + path

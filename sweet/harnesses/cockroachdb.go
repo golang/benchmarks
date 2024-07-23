@@ -5,12 +5,12 @@
 package harnesses
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	"golang.org/x/benchmarks/sweet/common"
@@ -98,22 +98,32 @@ func (h CockroachDB) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 		return err
 	}
 
-	// Finally build the cockroach binary with `go build`. Build the
-	// cockroach-short binary as it is functionally the same, but
-	// without the UI, making it much quicker to build.
+	// Get the Go version. Then, finall build the cockroach binary with `go build`.
 	//
-	// As of go1.23, we need to pass the `-ldflags=-checklinkname=0` flag
-	// to build cockroach. However, benchmark release branches are on older
-	// versions that don't recognize the flag. Try first with the flag and
-	// again without if there is an error.
+	// Build the cockroach-short binary as it is functionally the same, but without
+	// the UI, making it much quicker to build.
 	//
-	// Cockroachdb reaches into runtime internals, so it has a negative build
-	// tag to exclude unreleased Go versions. Set untested_go_version so we can
-	// run at tip (and cross our fingers).
-	if buildWithFlagErr := cfg.GoTool().BuildPath(filepath.Join(bcfg.SrcDir, "pkg/cmd/cockroach-short"), bcfg.BinDir, "-tags=untested_go_version", "-ldflags=-checklinkname=0"); buildWithFlagErr != nil {
-		if buildWithoutFlagErr := cfg.GoTool().BuildPath(filepath.Join(bcfg.SrcDir, "pkg/cmd/cockroach-short"), bcfg.BinDir, "-tags=untested_go_version"); buildWithoutFlagErr != nil {
-			return errors.Join(buildWithFlagErr, buildWithoutFlagErr)
-		}
+	// CockroachDB reaches into runtime internals, so we need to pass -checklinkname=0
+	// to the linker to get it to build with Go 1.23+. Also, CockroachDB has a negative
+	// build tag to exclude unreleased Go versions, so we need to explicitly set it for
+	// new-enough Go versions.
+	//
+	// Note that since the version of CockroachDB is pinned, we can generally rely on
+	// the checking below. However as CockroachDB and Go evolve, the logic below may need
+	// to change.
+	ver, err := cfg.GoTool().Version()
+	if err != nil {
+		return fmt.Errorf("getting go version for toolchain: %v", err)
+	}
+	var goBuildArgs []string
+	if v := strings.TrimPrefix(ver, "go version "); strings.HasPrefix(v, "devel ") || v >= "go1.23" {
+		goBuildArgs = append(goBuildArgs, "-ldflags=-checklinkname=0")
+	}
+	if v := strings.TrimPrefix(ver, "go version "); strings.HasPrefix(v, "devel ") || v >= "go1.24" {
+		goBuildArgs = append(goBuildArgs, "-tags=untested_go_version")
+	}
+	if err := cfg.GoTool().BuildPath(filepath.Join(bcfg.SrcDir, "pkg/cmd/cockroach-short"), bcfg.BinDir, goBuildArgs...); err != nil {
+		return err
 	}
 
 	// Rename the binary from cockroach-short to cockroach for
@@ -126,7 +136,6 @@ func (h CockroachDB) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 	if err := cfg.GoTool().BuildPath(bcfg.BenchDir, filepath.Join(bcfg.BinDir, "cockroachdb-bench")); err != nil {
 		return err
 	}
-
 	return nil
 }
 
