@@ -153,13 +153,20 @@ func TestSweetEndToEnd(t *testing.T) {
 		defer outputMu.Unlock()
 
 		// Poke at the results directory.
-		matches, err := filepath.Glob(filepath.Join(resultsDir, "*", "go.results"))
-		if err != nil {
-			t.Errorf("failed to search results directory for results: %v", err)
+		var matches []string
+		addMatches := func(fileName string) {
+			m1, err := filepath.Glob(filepath.Join(resultsDir, "*", fileName))
+			if err != nil {
+				t.Errorf("failed to search results directory for %s: %v", fileName, err)
+			} else if len(m1) == 0 {
+				t.Logf("no %s results", fileName)
+			}
+			matches = append(matches, m1...)
 		}
-		if len(matches) == 0 {
-			t.Log("no results produced.")
+		if hasPGO {
+			addMatches("go.profile.results")
 		}
+		addMatches("go.results")
 
 		// Dump additional information in case of error, and
 		// check for reasonable results in the case of no error.
