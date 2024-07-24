@@ -13,6 +13,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/driver"
 	"golang.org/x/benchmarks/sweet/common/diagnostics"
@@ -51,8 +52,18 @@ func FetchDiagnostic(host string, diag *driver.Diagnostics, typ diagnostics.Type
 	go func() {
 		defer wg.Done()
 
+		// If we can't truncate this diagnostic, make sure we collect it at
+		// least once. This is important for PGO, which first does a profiling run.
+		ctx1 := ctx
+		if typ.CanMerge() && !typ.CanTruncate() {
+			var cancel1 func()
+			ctx1, cancel1 = context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel1()
+		}
+
 		for {
-			err := collectTo(ctx, host, diag, typ, name)
+			err := collectTo(ctx1, host, diag, typ, name)
+			ctx1 = ctx
 			if err != nil {
 				if !errors.Is(err, context.Canceled) {
 					fmt.Fprintf(os.Stderr, "failed to read diagnostic %s: %v", typ, err)
