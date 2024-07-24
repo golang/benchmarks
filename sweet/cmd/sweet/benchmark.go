@@ -380,9 +380,9 @@ func (b *benchmark) execute(cfgs []*common.Config, r *runCfg) error {
 			if err := b.harness.Run(cfgs[i], &setup); err != nil {
 				debug.SetGCPercent(gogc)
 				// Useful error messages are often in the log. Grab the end.
-				logTail, err := readFileTail(setup.Results)
-				if err != nil {
-					logTail = fmt.Sprintf("error reading log tail: %s", err)
+				logTail, tailErr := readFileTail(setup.Results)
+				if tailErr != nil {
+					logTail = fmt.Sprintf("error reading log tail: %s", tailErr)
 				}
 				setup.Results.Close()
 				return fmt.Errorf("run benchmark %s for config %s: %v\nLog tail:\n%s", b.name, cfgs[i].Name, err, logTail)
