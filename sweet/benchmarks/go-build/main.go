@@ -104,7 +104,7 @@ func run(pkgPath string) error {
 	baseCmd := exec.Command(cmdArgs[0], cmdArgs[1:]...)
 	baseCmd.Dir = pkgPath
 	baseCmd.Env = common.NewEnvFromEnviron().MustSet("GOROOT=" + filepath.Dir(filepath.Dir(goTool))).Collapse()
-	baseCmd.Stdout = os.Stdout
+	baseCmd.Stdout = os.Stderr // Redirect all tool output to stderr.
 	baseCmd.Stderr = os.Stderr
 	cmd, err := cgroups.WrapCommand(baseCmd, "test.scope")
 	if err != nil {
@@ -133,7 +133,8 @@ func printOtherResults(dir string) error {
 			if err != nil {
 				return err
 			}
-			if _, err := io.Copy(os.Stderr, f); err != nil {
+			// Results canonically go to stdout.
+			if _, err := io.Copy(os.Stdout, f); err != nil {
 				f.Close()
 				return err
 			}
@@ -154,6 +155,9 @@ func runToolexec() error {
 		benchmark = true
 	default:
 		cmd := exec.Command(flag.Args()[0], flag.Args()[1:]...)
+		// Passing through stdout is necessary here because the go tool needs
+		// to be able to read stdout from some of these tools. This won't appear
+		// in the final output.
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		return cmd.Run()
@@ -186,6 +190,9 @@ func runToolexec() error {
 		}
 	}
 	cmd := exec.Command(flag.Args()[0], append(extraFlags, flag.Args()[1:]...)...)
+	// Passing through stdout is necessary here because the go tool needs
+	// to be able to read stdout from some of these tools. This won't appear
+	// in the final output.
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if benchmark {

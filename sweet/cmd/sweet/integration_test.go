@@ -153,38 +153,44 @@ func TestSweetEndToEnd(t *testing.T) {
 		defer outputMu.Unlock()
 
 		// Poke at the results directory.
-		var matches []string
-		addMatches := func(fileName string) {
-			m1, err := filepath.Glob(filepath.Join(resultsDir, "*", fileName))
+		var resultFiles []string
+		addResultFiles := func(fileName string) {
+			matches, err := filepath.Glob(filepath.Join(resultsDir, "*", fileName))
 			if err != nil {
 				t.Errorf("failed to search results directory for %s: %v", fileName, err)
-			} else if len(m1) == 0 {
+			} else if len(matches) == 0 {
 				t.Logf("no %s results", fileName)
 			}
-			matches = append(matches, m1...)
+			resultFiles = append(resultFiles, matches...)
 		}
 		if hasPGO {
-			addMatches("go.profile.results")
+			addResultFiles("go.profile.results")
 		}
-		addMatches("go.results")
+		addResultFiles("go.results")
 
 		// Dump additional information in case of error, and
 		// check for reasonable results in the case of no error.
-		for _, match := range matches {
-			benchmark := filepath.Base(filepath.Dir(match))
+		for _, resultFile := range resultFiles {
+			benchmark := filepath.Base(filepath.Dir(resultFile))
 			if runErr != nil {
 				t.Logf("output for %s:", benchmark)
+				logFile := resultFile[:len(resultFile)-len(filepath.Ext(resultFile))] + ".log"
+				log, err := os.ReadFile(logFile)
+				if err != nil {
+					t.Errorf("failed to read log for %s: %v", benchmark, err)
+					continue
+				}
+				t.Log(string(log))
 			}
-			data, err := os.ReadFile(match)
+			data, err := os.ReadFile(resultFile)
 			if err != nil {
-				t.Errorf("failed to read results for %si: %v", benchmark, err)
+				t.Errorf("failed to read results for %s: %v", benchmark, err)
 				continue
 			}
-			if runErr != nil {
-				t.Log(string(data))
-				continue
+			// TODO(mknyszek): Do some more exhaustive checking with the benchfmt package.
+			if !strings.Contains(string(data), "Benchmark") {
+				t.Errorf("no benchmark data found in result file for %s", benchmark)
 			}
-			// TODO(mknyszek): Check to make sure the results look reasonable.
 		}
 		if runErr != nil {
 			t.Logf("command output:\n%s", string(output))

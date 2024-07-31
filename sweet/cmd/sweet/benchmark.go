@@ -348,9 +348,15 @@ func (b *benchmark) execute(cfgs []*common.Config, r *runCfg) error {
 			args = append(args, dc.DriverArgs()...)
 		}
 
+		// Create log and results file.
 		results, err := os.Create(filepath.Join(resultsDir, fmt.Sprintf("%s.results", cfg.Name)))
 		if err != nil {
 			return fmt.Errorf("create %s results file for %s: %v", b.name, cfg.Name, err)
+		}
+		defer results.Close()
+		log, err := os.Create(filepath.Join(resultsDir, fmt.Sprintf("%s.log", cfg.Name)))
+		if err != nil {
+			return fmt.Errorf("create %s log file for %s: %v", b.name, cfg.Name, err)
 		}
 		defer results.Close()
 		setups = append(setups, common.RunConfig{
@@ -359,6 +365,7 @@ func (b *benchmark) execute(cfgs []*common.Config, r *runCfg) error {
 			AssetsDir: assetsDir,
 			Args:      args,
 			Results:   results,
+			Log:       log,
 			Short:     r.short,
 		})
 	}
@@ -384,11 +391,11 @@ func (b *benchmark) execute(cfgs []*common.Config, r *runCfg) error {
 			if err := b.harness.Run(cfgs[i], &setup); err != nil {
 				debug.SetGCPercent(gogc)
 				// Useful error messages are often in the log. Grab the end.
-				logTail, tailErr := readFileTail(setup.Results)
+				logTail, tailErr := readFileTail(setup.Log)
 				if tailErr != nil {
 					logTail = fmt.Sprintf("error reading log tail: %s", tailErr)
 				}
-				setup.Results.Close()
+				setup.Log.Close()
 				return fmt.Errorf("run benchmark %s for config %s: %v\nLog tail:\n%s", b.name, cfgs[i].Name, err, logTail)
 			}
 			debug.SetGCPercent(gogc)

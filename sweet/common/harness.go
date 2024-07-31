@@ -69,7 +69,15 @@ type RunConfig struct {
 
 	// Results is the file to which benchmark results should be appended
 	// in the Go benchmark format.
+	//
+	// By convention, this is the benchmark binary's stdout.
 	Results *os.File
+
+	// Log contains additional information information from the benchmark,
+	// for example for debugging.
+	//
+	// By convention, this is the benchmark binary's stderr.
+	Log *os.File
 
 	// Short indicates whether or not to run a short version of the benchmarks
 	// for testing. Guaranteed to be the same as GetConfig.Short and

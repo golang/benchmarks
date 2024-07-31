@@ -150,7 +150,7 @@ func (h GoBuild) Run(pcfg *common.Config, rcfg *common.RunConfig) error {
 		)
 		cmd.Env = cfg.ExecEnv.Collapse()
 		cmd.Stdout = rcfg.Results
-		cmd.Stderr = rcfg.Results
+		cmd.Stderr = rcfg.Log
 		log.TraceCommand(cmd, false)
 		if err := cmd.Run(); err != nil {
 			return err

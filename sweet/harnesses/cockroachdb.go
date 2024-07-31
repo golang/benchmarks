@@ -163,7 +163,7 @@ func (h CockroachDB) Run(cfg *common.Config, rcfg *common.RunConfig) error {
 		)
 		cmd.Env = cfg.ExecEnv.Collapse()
 		cmd.Stdout = rcfg.Results
-		cmd.Stderr = rcfg.Results
+		cmd.Stderr = rcfg.Log
 		log.TraceCommand(cmd, false)
 		if err := cmd.Start(); err != nil {
 			return err

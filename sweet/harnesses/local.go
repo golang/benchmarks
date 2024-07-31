@@ -16,7 +16,6 @@ type localBenchHarness struct {
 	binName   string
 	genArgs   func(cfg *common.Config, rcfg *common.RunConfig) []string
 	beforeRun func(cfg *common.Config, rcfg *common.RunConfig) error
-	noStdout  bool
 }
 
 func (h *localBenchHarness) CheckPrerequisites() error {
@@ -42,10 +41,8 @@ func (h *localBenchHarness) Run(cfg *common.Config, rcfg *common.RunConfig) erro
 		append(rcfg.Args, h.genArgs(cfg, rcfg)...)...,
 	)
 	cmd.Env = cfg.ExecEnv.Collapse()
-	if !h.noStdout {
-		cmd.Stdout = rcfg.Results
-	}
-	cmd.Stderr = rcfg.Results
+	cmd.Stdout = rcfg.Results
+	cmd.Stderr = rcfg.Log
 	log.TraceCommand(cmd, false)
 	return cmd.Run()
 }

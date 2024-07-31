@@ -387,7 +387,7 @@ func (b *B) report() {
 	})
 
 	// Write out stats.
-	var out io.Writer = os.Stderr
+	var out io.Writer = os.Stdout
 	if b.resultsWriter != nil {
 		out = b.resultsWriter
 	}
