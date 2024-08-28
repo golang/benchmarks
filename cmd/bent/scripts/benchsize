@@ -4,29 +4,31 @@ tmp=tmp-bench-size-$$
 
 if [ `uname` = "Darwin" ] ; then
 	# e.g., `total 20986192`
-	totalawk='$1 == "total" {print $2}'
+	totalawk='/^total/ {print $2}'
 	# e.g., `        Section __text: 1445477`
-	otherawk='$2 == "__%s:" {print $3}'
+	otherawk='$2 ~ "__.?%s:" {tot += $3} END {print tot}'
 	size -m "$1" > $tmp
+	wposix=
 else
 	x=`which gsize`
 	# e.g., `Total                3879861`
 	totalawk='$1 == "Total" {print $2}'
 	# e.g., `.text                1269331   4207296`
 	# Field 2 is size, field 3 is address.
-	otherawk='$1 == ".%s" {print $2}'
+	otherawk='$1 ~ ".%s" {tot += $2} END {print tot}'
 	if [ "x$x" = "x" ] ; then
 		size -A "$1" > $tmp
 	else
 		"$x" -A "$1" > $tmp
 	fi
+	wposix="-Wposix"
 fi
 
 # $1: size output file
 # $2: section name (without leading .)
 function find_section() {
 	cmd="$(printf "${otherawk}" $2)"
-	out=$(awk -Wposix "${cmd}" < $1)
+	out=$(awk ${wposix} "${cmd}" < $1)
 	if [[ "${out}" == "" ]]; then
 		echo 0
 	else
@@ -36,21 +38,21 @@ function find_section() {
 
 
 # note total is different
-total=$(awk -Wposix "${totalawk}" < ${tmp})
+total=$(awk ${wposix} "${totalawk}" < ${tmp})
 
 text=$(find_section "${tmp}" "text")
 gopclntab=$(find_section "${tmp}" "gopclntab")
 rodata=$(find_section "${tmp}" "rodata")
 data=$(find_section "${tmp}" "data")
 
-zdebug_info=$(find_section "${tmp}" "zdebug_info")
-zdebug_loc=$(find_section "${tmp}" "zdebug_loc")
-zdebug_line=$(find_section "${tmp}" "zdebug_line")
-zdebug_ranges=$(find_section "${tmp}" "zdebug_ranges")
-zdebug_frame=$(find_section "${tmp}" "zdebug_frame")
-zdebug_abbrev=$(find_section "${tmp}" "zdebug_abbrev")
-zdebug_pubname=$(find_section "${tmp}" "zdebug_pubname")
-zdebug_pubtype=$(find_section "${tmp}" "zdebug_pubtype")
+debug_info=$(find_section "${tmp}" "debug_info")
+debug_loc=$(find_section "${tmp}" "debug_loc")
+debug_line=$(find_section "${tmp}" "debug_line")
+debug_ranges=$(find_section "${tmp}" "debug_ranges")
+debug_frame=$(find_section "${tmp}" "debug_frame")
+debug_abbrev=$(find_section "${tmp}" "debug_abbrev")
+debug_pubname=$(find_section "${tmp}" "debug_pubname")
+debug_pubtype=$(find_section "${tmp}" "debug_pubtype")
 
 echo "goos: $GOOS"
 echo "goarch: $GOARCH"
@@ -81,11 +83,11 @@ if echo $gopclntab | egrep -q '[0-9]+' ; then
 	echo "Benchmark${2}" 1 ${gopclntab} pclntab-bytes
 fi
 
-zdebug=`expr ${zdebug_info} + ${zdebug_loc} + ${zdebug_line} + ${zdebug_ranges} + ${zdebug_frame} + ${zdebug_abbrev} + ${zdebug_pubname} + ${zdebug_pubtype}`
+debug=`expr ${debug_info} + ${debug_loc} + ${debug_line} + ${debug_ranges} + ${debug_frame} + ${debug_abbrev} + ${debug_pubname} + ${debug_pubtype}`
 
-if echo $zdebug | egrep -q '[0-9]+' ; then
-	echo Unit zdebug-bytes assume=exact
-	echo "Benchmark${2}" 1 ${zdebug} zdebug-bytes
+if echo $debug | egrep -q '[0-9]+' ; then
+	echo Unit debug-bytes assume=exact
+	echo "Benchmark${2}" 1 ${debug} debug-bytes
 fi
 
 rm $tmp
