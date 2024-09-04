@@ -106,7 +106,7 @@ func (Tile38) Generate(cfg *common.GenConfig) error {
 	if err != nil {
 		log.Printf("=== Server stdout+stderr ===")
 		for _, line := range strings.Split(buf.String(), "\n") {
-			log.Printf(line)
+			log.Print(line)
 		}
 		return fmt.Errorf("error: starting server: %w", err)
 	}
@@ -132,7 +132,7 @@ func (Tile38) Generate(cfg *common.GenConfig) error {
 		if err != nil && buf.Len() != 0 {
 			log.Printf("=== Server stdout+stderr ===")
 			for _, line := range strings.Split(buf.String(), "\n") {
-				log.Printf(line)
+				log.Print(line)
 			}
 		}
 		if err == nil {

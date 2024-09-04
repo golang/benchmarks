@@ -56,7 +56,7 @@ func makeOneRequest() bool {
 		log.Fatalf("ReadAll: %v", err)
 	}
 	if s := string(b); s != "Hello world.\n" {
-		log.Fatalf("Got body: " + s)
+		log.Fatalf("Got body: %q", s)
 	}
 	return true
 }
