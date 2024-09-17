@@ -6,7 +6,6 @@ package harnesses
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -66,11 +65,12 @@ func (h CockroachDB) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 	defer func() {
 		cmd := exec.Command(bazel(), "clean", "--expunge")
 		cmd.Dir = bcfg.SrcDir
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
 		// Cleanup is best effort, there might not be anything to clean up
 		// if we fail early enough in the build process.
-		_ = cmd.Run()
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			log.Printf("failed to run %q: %v: output:\n%s", cmd, err, out)
+		}
 	}()
 
 	// Configure the build env.
@@ -82,20 +82,16 @@ func (h CockroachDB) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 	cmd := exec.Command(bazel(), "run", "//pkg/gen:code")
 	cmd.Dir = bcfg.SrcDir
 	cmd.Env = env.Collapse()
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		return err
+	if out, err := cmd.CombinedOutput(); err != nil {
+		return fmt.Errorf("failed to run %q: %v: output:\n%s", cmd, err, out)
 	}
 
 	// Build the c-deps needed.
 	cmd = exec.Command(bazel(), "run", "//pkg/cmd/generate-cgo:generate-cgo", "--run_under", fmt.Sprintf("cd %s && ", bcfg.SrcDir))
 	cmd.Dir = bcfg.SrcDir
 	cmd.Env = env.Collapse()
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		return err
+	if out, err := cmd.CombinedOutput(); err != nil {
+		return fmt.Errorf("failed to run %q: %v: output:\n%s", cmd, err, out)
 	}
 
 	// Get the Go version. Then, finall build the cockroach binary with `go build`.
