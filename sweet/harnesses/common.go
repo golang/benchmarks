@@ -5,6 +5,8 @@
 package harnesses
 
 import (
+	"bytes"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -17,37 +19,48 @@ func gitShallowClone(dir, url, ref string) error {
 	// Git 2.46+ has a global --no-advice flag, but that's extremely recent as of this writing.
 	cmd := exec.Command("git", "-c", "advice.detachedHead=false", "clone", "--depth", "1", "-b", ref, url, dir)
 	log.TraceCommand(cmd, false)
-	cmd.Stderr = os.Stderr
-	_, err := cmd.Output()
-	return err
+	var buf bytes.Buffer
+	cmd.Stderr = &buf
+	if _, err := cmd.Output(); err != nil {
+		return fmt.Errorf("git shallow clone: %v: stderr:\n%s", err, &buf)
+	}
+	return nil
 }
 
 func gitRecursiveCloneToCommit(dir, url, branch, hash string) error {
 	cloneCmd := exec.Command("git", "clone", "--recursive", "--shallow-submodules", "-b", branch, url, dir)
 	log.TraceCommand(cloneCmd, false)
-	cloneCmd.Stderr = os.Stderr
+	var buf bytes.Buffer
+	cloneCmd.Stderr = &buf
 	if _, err := cloneCmd.Output(); err != nil {
-		return err
+		return fmt.Errorf("git recursive clone: %v: stderr:\n%s", err, &buf)
 	}
+	buf.Reset()
 	checkoutCmd := exec.Command("git", "-C", dir, "-c", "advice.detachedHead=false", "checkout", hash)
 	log.TraceCommand(checkoutCmd, false)
-	checkoutCmd.Stderr = os.Stderr
-	_, err := checkoutCmd.Output()
-	return err
+	checkoutCmd.Stderr = &buf
+	if _, err := checkoutCmd.Output(); err != nil {
+		return fmt.Errorf("git checkout: %v: stderr:\n%s", err, &buf)
+	}
+	return nil
 }
 
 func gitCloneToCommit(dir, url, branch, hash string) error {
 	cloneCmd := exec.Command("git", "clone", "-b", branch, url, dir)
 	log.TraceCommand(cloneCmd, false)
-	cloneCmd.Stderr = os.Stderr
+	var buf bytes.Buffer
+	cloneCmd.Stderr = &buf
 	if _, err := cloneCmd.Output(); err != nil {
-		return err
+		return fmt.Errorf("git recursive clone: %v: stderr:\n%s", err, &buf)
 	}
+	buf.Reset()
 	checkoutCmd := exec.Command("git", "-C", dir, "-c", "advice.detachedHead=false", "checkout", hash)
 	log.TraceCommand(checkoutCmd, false)
-	checkoutCmd.Stderr = os.Stderr
-	_, err := checkoutCmd.Output()
-	return err
+	checkoutCmd.Stderr = &buf
+	if _, err := checkoutCmd.Output(); err != nil {
+		return fmt.Errorf("git checkout: %v: stderr:\n%s", err, &buf)
+	}
+	return nil
 }
 
 func copyFile(dst, src string) error {
