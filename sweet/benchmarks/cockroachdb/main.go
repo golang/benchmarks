@@ -13,6 +13,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -255,6 +256,15 @@ func (i *cockroachdbInstance) ping(cfg *config) error {
 	if err := cmd.Run(); err != nil {
 		return err
 	}
+	// Check to see if profiling works. We don't care what the data is, we just want to
+	// make sure that it doesn't fail. We've unfortunately seen this fail before.
+	// See #56958.
+	endpoint := fmt.Sprintf("http://%s:%d/%s", cfg.host, i.httpPort, diagnostics.MemProfile.HTTPEndpoint())
+	resp, err := http.Get(endpoint)
+	if err != nil {
+		return err
+	}
+	resp.Body.Close()
 	return nil
 }
 
