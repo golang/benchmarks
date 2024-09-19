@@ -379,18 +379,18 @@ func (c *runCmd) Run(args []string) error {
 	}
 
 	// Execute each benchmark for all configs.
-	var errEncountered bool
+	var failedBenchmarks []string
 	for _, b := range benchmarks {
 		if err := b.execute(configs, &c.runCfg); err != nil {
 			if c.stopOnError {
 				return err
 			}
-			errEncountered = true
+			failedBenchmarks = append(failedBenchmarks, b.name)
 			log.Error(err)
 		}
 	}
-	if errEncountered {
-		return fmt.Errorf("failed to execute benchmarks, see log for details")
+	if len(failedBenchmarks) != 0 {
+		return fmt.Errorf("failed to execute benchmarks: %s", strings.Join(failedBenchmarks, " "))
 	}
 	return nil
 }
