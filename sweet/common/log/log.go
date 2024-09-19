@@ -5,6 +5,7 @@
 package log
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -47,7 +48,7 @@ func SetActivityLog(on bool) {
 	actOn = on
 }
 
-func filterEnviron(env []string) []string {
+func filterAndQuoteEnviron(env []string) []string {
 	fenv := make([]string, 0, len(env))
 	for _, e := range env {
 		s := strings.SplitN(e, "=", 2)
@@ -57,7 +58,7 @@ func filterEnviron(env []string) []string {
 		if v, ok := envMap[s[0]]; ok && v == s[1] {
 			continue
 		}
-		fenv = append(fenv, e)
+		fenv = append(fenv, fmt.Sprintf("%s=%s", s[0], shellquote.Join(s[1])))
 	}
 	return fenv
 }
@@ -68,7 +69,7 @@ func TraceCommand(cmd *exec.Cmd, background bool) {
 	}
 	senv := ""
 	if len(cmd.Env) != 0 {
-		senv = strings.Join(filterEnviron(cmd.Env), " ")
+		senv = strings.Join(filterAndQuoteEnviron(cmd.Env), " ")
 	}
 	if cmd.Dir != "" {
 		cmdLog.Printf("pushd %s", cmd.Dir)
