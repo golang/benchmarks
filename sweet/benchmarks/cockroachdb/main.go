@@ -20,6 +20,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -163,15 +164,19 @@ func launchCockroachCluster(cfg *config) ([]*cockroachdbInstance, error) {
 }
 
 // waitForCluster pings nodes in the cluster until one responds, or
-// we time out. We only care to wait for one node to respond as the
-// workload will work as long as it can connect to one node initially.
-// The --ramp flag will take care of startup noise.
+// we time out. We wait for all nodes to respond because even if the
+// workload can start before all nodes are ready, that's not true for
+// collecting diagnostic data.
 func waitForCluster(instances []*cockroachdbInstance, cfg *config) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	var wg sync.WaitGroup
 	for _, inst := range instances {
 		inst := inst
-		go func(ctx context.Context) {
+		wg.Add(1)
+		go func(context.Context) {
+			defer wg.Done()
 			for {
 				select {
 				case <-ctx.Done():
@@ -181,16 +186,20 @@ func waitForCluster(instances []*cockroachdbInstance, cfg *config) error {
 					// 5 seconds first and between pings. 5 seconds was chosen through
 					// trial and error as a time that nodes are *usually* ready by.
 					if err := inst.ping(cfg); err == nil {
-						cancel()
 						return
 					}
 				}
 			}
 		}(ctx)
 	}
+	done := make(chan struct{})
+	go func() {
+		wg.Wait()
+		done <- struct{}{}
+	}()
 
 	select {
-	case <-ctx.Done():
+	case <-done:
 	case <-time.After(time.Minute):
 		return errors.New("benchmark timed out waiting for cluster to be ready")
 	}
