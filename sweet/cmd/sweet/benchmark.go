@@ -55,6 +55,12 @@ var allBenchmarks = []benchmark{
 		generator:   generators.None{},
 	},
 	{
+		name:        "esbuild",
+		description: "JavaScript/Typescript bundler",
+		harness:     &harnesses.ESBuild{},
+		generator:   generators.None{},
+	},
+	{
 		name:        "go-build",
 		description: "Go build command",
 		harness:     harnesses.GoBuild{},
@@ -101,6 +107,7 @@ var benchmarkGroups = func() map[string][]*benchmark {
 		allBenchmarksMap["bleve-index"],
 		allBenchmarksMap["cockroachdb"],
 		allBenchmarksMap["etcd"],
+		allBenchmarksMap["esbuild"],
 		allBenchmarksMap["go-build"],
 		allBenchmarksMap["gopher-lua"],
 	}

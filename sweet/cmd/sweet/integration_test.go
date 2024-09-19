@@ -209,6 +209,7 @@ func TestSweetEndToEnd(t *testing.T) {
 		{"go-build", 4},
 		{"cockroachdb", 1},
 		{"etcd", 1},
+		{"esbuild", 1},
 		{"bleve-index", 1},
 		{"gopher-lua", 1},
 		{"markdown", 1},
