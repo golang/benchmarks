@@ -67,7 +67,7 @@ var suiteFile = "suites.toml"        // default list of suites
 var container = ""
 var N = 1 // benchmark repeat count
 var R = 0 // randomized build/benchmark repeat count
-var groupRuns = true
+var groupRuns = false
 var list = false
 var initialize = false
 var test = false
@@ -192,15 +192,18 @@ the host OS is not linux this will exclude some benchmarks that cannot
 be cross-compiled.
 
 -R and -G help with timing noise studies; -R builds a binary for each
- index (builds can be parameterised by BENT_I) and -G groups benchmark
- runs together so that they experience most-similar platform noise
- (i.e., at a nearby time).
+index (builds can be parameterised by BENT_I) and -G groups benchmark
+runs together so that they experience most-similar platform noise
+(i.e., at a nearby time).  -R > 0 will set each configurations blank
+LdFlags to "-randlayout=0x${BENT_K}a${BENT_I}".  Bent supplies BENT_I,
+setting BENT_K allows runs with different sets of random link orders
 
 All the test binaries will appear in the subdirectory 'testbin', and
 test (benchmark) output will appear in the subdirectory 'bench' with
 the suffix '.stdout'.  The test output is grouped by configuration to
 allow easy benchmark comparisons with benchstat.  Other benchmarking
-results will also appear in 'bench'. `, os.Args[0], benchFile,
+results will also appear in 'bench'.
+`, os.Args[0], benchFile,
 			confFile)
 	}
 
@@ -349,28 +352,24 @@ results will also appear in 'bench'. `, os.Args[0], benchFile,
 	// Process command-line-specified configurations.
 	// Expand environment variables mentioned there.
 	duplicates := make(map[string]bool)
-	for i, trial := range todo.Configurations {
+	for i := range todo.Configurations {
+		trial := &todo.Configurations[i]
 		trial.Name = os.ExpandEnv(trial.Name)
-		todo.Configurations[i].Name = trial.Name
 		if duplicates[trial.Name] {
-			if trial.Name == todo.Configurations[i].Name {
-				fmt.Printf("Saw duplicate configuration %s at index %d\n", trial.Name, i)
-			} else {
-				fmt.Printf("Saw duplicate configuration %s (originally %s) at index %d\n", trial.Name, todo.Configurations[i].Name, i)
-			}
+			fmt.Printf("Saw duplicate configuration %s at index %d\n", trial.Name, i)
 			os.Exit(1)
 		}
 		duplicates[trial.Name] = true
 		if configurations != nil {
 			_, present := configurations[trial.Name]
-			todo.Configurations[i].Disabled = !present
+			trial.Disabled = !present
 			if present {
 				configurations[trial.Name] = false
 			}
 		}
 		if root := trial.Root; len(root) != 0 {
 			// TODO(jfaller): I don't think we need this "/" anymore... investigate.
-			todo.Configurations[i].Root = os.ExpandEnv(root) + "/"
+			trial.Root = os.ExpandEnv(root) + "/"
 		}
 		if len(trial.RunWrapper) > 0 {
 			// Args will be expanded later with BENT_ environment variables injected.
@@ -380,6 +379,9 @@ results will also appear in 'bench'. `, os.Args[0], benchFile,
 		// TODO would anyone ever make these depend on BENT_I etc?
 		trial.PgoGen = os.ExpandEnv(trial.PgoGen)
 		trial.PgoUse = os.ExpandEnv(trial.PgoUse)
+		if R > 0 && trial.LdFlags == "" {
+			trial.LdFlags = "-randlayout=0x${BENT_K}a${BENT_I}"
+		}
 	}
 	for b, v := range configurations {
 		if v {

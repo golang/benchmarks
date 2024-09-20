@@ -1,6 +1,10 @@
 # A sample configuration for benchmarking binaries whose function ordering has been randomized.
 # This is intended for use with the "-R n" flag and also requires Go > 1.22.
-# BENT_K can be provided externally, for example ina shell script doing iterated benchmarking
+# This is no longer necessary to use randomized linking because bent will automatically
+# insert LdFlags for randomized linking if nothing is supplied in the configuration, unless
+# a configuration needs to set additional LdFlags.
+#
+# BENT_K can be provided externally, for example in a shell script doing iterated benchmarking
 # or two create a different set of randomized link orders.
 #
 # Randomized function ordering creates differences in branch/target alignment which can then be

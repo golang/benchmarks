@@ -197,7 +197,7 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int,
 	if config.GcFlags != "" {
 		cmd.Args = append(cmd.Args, "-gcflags="+expandEnv(config.GcFlags, cmd.Env))
 	}
-	if config.LdFlags != "" {
+	if strings.TrimSpace(config.LdFlags) != "" {
 		cmd.Args = append(cmd.Args, "-ldflags="+expandEnv(config.LdFlags, cmd.Env))
 	}
 	cmd.Args = append(cmd.Args, bench.Repo)

@@ -56,7 +56,7 @@ Flags for your use:
 | | Less useful flags | |
 | -r string | skip get and build, just run.<br>string names Docker image if needed,<br>if not using Docker any non-empty will do. | -r f10cecc3eaac |
 | -s k | (build) shuffle flag, k = 0,1,2,3.<br>Randomize build order to reduce<br>sensitivity to other machine load  | -s 2 |
-| -G t/f | group runs by benchmark to reduce<br>time-of-day background noise (default true) | |
+| -G t/f | group runs by benchmark to reduce<br>time-of-day background noise (default false) | |
 | -X | do not reset go.mod<br>for experiments involving modifications<br>to build/\*/go.mod | |
 | -g | get benchmarks, but do not build or run | |
 | -W | print benchmark information as a markdown table | |
