@@ -1,6 +1,6 @@
 #!/bin/bash
 # Run args as command, but run cpuprofile and then pprof to capture test cpuprofile output
-if [ -n ${BENT_PGO} ] ; then
+if [ -n "${BENT_PGO}" ] ; then
     pf="${BENT_PGO}/${BENT_BENCH}.prof"
     mkdir -p ${BENT_PGO}
 else
