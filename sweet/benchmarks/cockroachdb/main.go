@@ -301,7 +301,9 @@ func (i *cockroachdbInstance) shutdown() (killed bool, err error) {
 	case <-time.After(1 * time.Minute):
 		// If it takes a full minute to shut down, just kill the instance
 		// and report that we did it. We *probably* won't need it again.
-		if err := i.cmd.Process.Signal(syscall.SIGKILL); err != nil {
+		// We're also racing here with the process exiting, so we could see
+		// ErrProcessDone; ignore it if we do.
+		if err := i.cmd.Process.Signal(syscall.SIGKILL); err != nil && !errors.Is(err, os.ErrProcessDone) {
 			return false, fmt.Errorf("failed to send SIGKILL to instance %s: %v", i.name, err)
 		}
 		killed = true
