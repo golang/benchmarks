@@ -372,7 +372,7 @@ func (c *runCmd) Run(args []string) error {
 
 	// Collect profiles from baseline runs and create new PGO'd configs.
 	if c.pgo {
-		configs, err = c.preparePGO(configs, benchmarks)
+		configs, benchmarks, err = c.preparePGO(configs, benchmarks)
 		if err != nil {
 			return fmt.Errorf("error preparing PGO profiles: %w", err)
 		}
@@ -395,7 +395,7 @@ func (c *runCmd) Run(args []string) error {
 	return nil
 }
 
-func (c *runCmd) preparePGO(configs []*common.Config, benchmarks []*benchmark) ([]*common.Config, error) {
+func (c *runCmd) preparePGO(configs []*common.Config, benchmarks []*benchmark) ([]*common.Config, []*benchmark, error) {
 	profileConfigs := make([]*common.Config, 0, len(configs))
 	for _, c := range configs {
 		cc := c.Copy()
@@ -410,22 +410,24 @@ func (c *runCmd) preparePGO(configs []*common.Config, benchmarks []*benchmark) (
 	log.Printf("Running profile collection runs")
 
 	// Execute benchmarks to collect profiles.
-	var errEncountered bool
+	var successfullyExecutedBenchmarks []*benchmark
 	for _, b := range benchmarks {
 		if err := b.execute(profileConfigs, &profileRunCfg); err != nil {
 			if c.stopOnError {
-				return nil, err
+				return nil, nil, err
 			}
-			errEncountered = true
-			log.Error(err)
+			log.Error(fmt.Errorf("failed to execute profile collection for %s: %v", b.name, err))
+		} else {
+			successfullyExecutedBenchmarks = append(successfullyExecutedBenchmarks, b)
 		}
 	}
-	if errEncountered {
-		return nil, fmt.Errorf("failed to execute profile collection benchmarks, see log for details")
+	if len(successfullyExecutedBenchmarks) == 0 {
+		return nil, nil, fmt.Errorf("failed to execute any profile benchmarks, see logs for more details")
 	}
 
 	// Merge all the profiles and add new PGO configs.
 	newConfigs := configs
+	var successfullyMergedBenchmarks []*benchmark
 	for i := range configs {
 		origConfig := configs[i]
 		profileConfig := profileConfigs[i]
@@ -433,18 +435,23 @@ func (c *runCmd) preparePGO(configs []*common.Config, benchmarks []*benchmark) (
 		pgoConfig.Name += ".pgo"
 		pgoConfig.PGOFiles = make(map[string]string)
 
-		for _, b := range benchmarks {
+		for _, b := range successfullyExecutedBenchmarks {
 			p, err := mergeCPUProfiles(profileRunCfg.runProfilesDir(b, profileConfig))
 			if err != nil {
-				return nil, fmt.Errorf("error merging profiles for %s/%s: %w", b.name, profileConfig.Name, err)
+				log.Error(fmt.Errorf("error merging profiles for %s/%s: %w", b.name, profileConfig.Name, err))
+			} else {
+				successfullyMergedBenchmarks = append(successfullyMergedBenchmarks, b)
+				pgoConfig.PGOFiles[b.name] = p
 			}
-			pgoConfig.PGOFiles[b.name] = p
 		}
 
 		newConfigs = append(newConfigs, pgoConfig)
 	}
+	if len(successfullyExecutedBenchmarks) == 0 {
+		return nil, nil, fmt.Errorf("failed to merge profiles for any benchmarks, see logs for more details")
+	}
 
-	return newConfigs, nil
+	return newConfigs, successfullyMergedBenchmarks, nil
 }
 
 var cpuProfileRe = regexp.MustCompile(`-cpu\.prof$`)
