@@ -207,8 +207,6 @@ func TestSweetEndToEnd(t *testing.T) {
 	for i, shard := range []shard{
 		{"tile38", 2},
 		{"go-build", 4},
-		{"biogo-igor", 1},
-		{"biogo-krishna", 1},
 		{"cockroachdb", 1},
 		{"etcd", 1},
 		{"bleve-index", 1},

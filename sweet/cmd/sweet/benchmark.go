@@ -98,8 +98,6 @@ var benchmarkGroups = func() map[string][]*benchmark {
 	m := make(map[string][]*benchmark)
 
 	m["default"] = []*benchmark{
-		allBenchmarksMap["biogo-igor"],
-		allBenchmarksMap["biogo-krishna"],
 		allBenchmarksMap["bleve-index"],
 		allBenchmarksMap["cockroachdb"],
 		allBenchmarksMap["etcd"],
