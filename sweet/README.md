@@ -21,9 +21,13 @@ The `sweet` tool only depends on having a stable version of Go and `git`.
 Some benchmarks, however, have various requirements for building. Notably
 they are:
 
-* `make` (tile38)
+* `make` (esbuild, tile38)
 * `bash` (tile38)
-* `binutils` (tile38)
+* `binutils` (esbuild, tile38)
+
+The CockroachDB benchmark also requires a myriad of additional tools commonly
+available in most Linux distributions. A full list is not available yet; try
+running it and see what happens (sorry!).
 
 Please ensure your system has these tools installed and available in your
 system's PATH.
@@ -47,7 +51,7 @@ The gVisor benchmark has additional requirements:
 $ go build ./cmd/sweet
 ```
 
-### Getting Assets
+### Getting assets
 
 ```sh
 $ ./sweet get
@@ -82,30 +86,14 @@ the `x/benchmarks` repository.
 To execute it from somewhere else, point `-bench-dir` at
 `/path/to/x/benchmarks/sweet/benchmarks`.
 
-## Tips and Rules of Thumb
-
-* If you're not confident if your experimental Go toolchain will work with all
-  the benchmarks, try the `-short` flag to run to get much faster feedback on
-  whether each benchmark builds and runs.
-* You can expect the benchmarks to take a few hours to run with the default
-  settings on a somewhat sizable Linux box.
-* If a benchmark fails to build, run with `-shell` and copy and re-run the
-  last command to get full output.
-  TODO(mknyszek): Dump the output to the terminal.
-* If a benchmark fails to run, the output should have been captured in the
-  corresponding results file (e.g. if biogo-igor failed, check
-  `/path/to/results/biogo-igor/myconfig.results`) which is really just the
-  stderr (and usually stdout too) of the benchmark. You can also try to re-run
-  it yourself with the output of `-shell`.
-
-## Memory Requirements
+## Memory requirements
 
 These benchmarks generally try to stress the Go runtime in interesting ways, and
 some may end up with very large heaps. Therefore, it's recommended to run the
 suite on a system with at least 16 GiB of RAM available to minimize the chance
 that results are lost due to an out-of-memory error.
 
-## Configuration Format
+## Configuration format
 
 The configuration is TOML-based and a more detailed description of fields may
 be found in the help docs for the `run` subcommand:
@@ -114,7 +102,7 @@ be found in the help docs for the `run` subcommand:
 $ ./sweet help run
 ```
 
-## Results Format
+## Results format
 
 Results are produced into a single directory containing each benchmark as a
 sub-directory. Within each sub-directory is one file per configuration
@@ -135,6 +123,15 @@ $ cat results/*/config2.results > config2.results
 $ benchstat config1.results config2.results
 ```
 
+## Logs
+
+If you encounter an error when running Sweet, the most helpful thing for
+debugging will be to look at the "log" output for each benchmark. This data can
+found next to the [results file](#results-format) in a file named after the
+Sweet configuration that produced it with the file extension `.log`. For
+example, the log for `etcd` for `config1` can be found at
+`results/etcd/config1.log` assuming the default results directory is used.
+
 ## Noise
 
 This benchmark suite tries to keep noise low in measurements where possible.
@@ -147,7 +144,18 @@ This benchmark suite tries to keep noise low in measurements where possible.
   of its co-tenancy with the benchmark and throttles itself when the benchmarks
   are running).
 
-### Tips for Reducing Noise
+## General tips and rules of thumb
+
+* If you're not confident if your experimental Go toolchain will work with all
+  the benchmarks, try the `-short` flag to run to get much faster feedback on
+  whether each benchmark builds and runs.
+* You can expect the benchmarks to take a few hours to run with the default
+  settings.
+* If a benchmark fails to build or run, run with `-shell` and copy and re-run
+  the last command to get full output.
+  TODO(mknyszek): Dump the output to the terminal.
+
+### Tips for reducing noise
 
 * Sweet should be run on a dedicated machine where a [perflock
   daemon](https://github.com/aclements/perflock) is running (to avoid noise due
