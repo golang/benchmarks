@@ -337,6 +337,7 @@ type benchmark struct {
 	args        []string
 	longArgs    []string // if !config.short
 	shortArgs   []string // if config.short
+	pingArgs    []string
 	metricTypes []string
 	timeout     time.Duration
 }
@@ -367,7 +368,7 @@ func kvBenchmark(readPercent int, nodeCount int) benchmark {
 			"--max-block-bytes=1024",
 			"--concurrency=10000",
 			"--max-rate=30000",
-			//Pre-splitting and scattering the ranges should help stabilize results.
+			// Pre-splitting and scattering the ranges should help stabilize results.
 			"--scatter",
 			"--splits=5",
 		},
@@ -380,6 +381,11 @@ func kvBenchmark(readPercent int, nodeCount int) benchmark {
 		shortArgs: []string{
 			"--ramp=5s",
 			"--duration=30s",
+		},
+		// Just to ping whether the workload is ready.
+		pingArgs: []string{
+			"--ramp=0s",
+			"--duration=500ms",
 		},
 	}
 }
@@ -407,17 +413,28 @@ func runBenchmark(b *driver.B, cfg *config, instances []*cockroachdbInstance) (e
 	var stdout, stderr bytes.Buffer
 	initCmd.Stdout = &stdout
 	initCmd.Stderr = &stderr
-	if err = initCmd.Run(); err != nil {
+	if err := initCmd.Run(); err != nil {
 		return err
 	}
 
-	log.Println("sleeping")
-
-	// If we try and start the workload right after loading in the schema
-	// it will spam us with database does not exist errors. We could repeatedly
-	// retry until the database exists by parsing the output, or we can just
-	// wait 5 seconds.
-	time.Sleep(5 * time.Second)
+	// Make sure the server is ready to accept work by pinging it with very short
+	// benchmark runs. If they fail, we assume that the server isn't ready.
+	log.Println("pinging server with benchmark tool")
+	pingArgs := cfg.bench.args
+	pingArgs = append(pingArgs, cfg.bench.pingArgs...)
+	pingArgs = append(pingArgs, pgurls...)
+	pingCmd := exec.Command(cfg.cockroachdbBin, pingArgs...)
+	pingStart := time.Now()
+	var pingOutput []byte
+	var pingErr error
+	for time.Now().Sub(pingStart) < 30*time.Second {
+		if pingOutput, pingErr = pingCmd.CombinedOutput(); pingErr == nil {
+			break
+		}
+	}
+	if pingErr != nil {
+		return fmt.Errorf("workload failed to become available within timeout: error: %v: output:\n%s", pingErr, pingOutput)
+	}
 
 	args := cfg.bench.args
 	if cfg.short {
@@ -427,7 +444,7 @@ func runBenchmark(b *driver.B, cfg *config, instances []*cockroachdbInstance) (e
 	}
 	args = append(args, pgurls...)
 
-	log.Println("running benchmark timeout")
+	log.Println("running benchmark tool")
 	cmd := exec.Command(cfg.cockroachdbBin, args...)
 	fmt.Fprintln(os.Stderr, cmd.String())
 
@@ -446,7 +463,7 @@ func runBenchmark(b *driver.B, cfg *config, instances []*cockroachdbInstance) (e
 	var benchmarkErr error
 	go func() {
 		b.ResetTimer()
-		if err = cmd.Run(); err != nil {
+		if err := cmd.Run(); err != nil {
 			benchmarkErr = err
 		}
 		b.StopTimer()
