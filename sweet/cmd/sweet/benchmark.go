@@ -363,7 +363,6 @@ func (b *benchmark) execute(cfgs []*common.Config, r *runCfg) error {
 		if err != nil {
 			return fmt.Errorf("create %s log file for %s: %v", b.name, cfg.Name, err)
 		}
-		defer results.Close()
 		setups = append(setups, common.RunConfig{
 			BinDir:    binDir,
 			TmpDir:    tmpDir,
@@ -400,8 +399,9 @@ func (b *benchmark) execute(cfgs []*common.Config, r *runCfg) error {
 				if tailErr != nil {
 					logTail = fmt.Sprintf("error reading log tail: %s", tailErr)
 				}
+				logName := setup.Log.Name()
 				setup.Log.Close()
-				return fmt.Errorf("run benchmark %s for config %s: %v\nLog tail:\n%s", b.name, cfgs[i].Name, err, logTail)
+				return fmt.Errorf("run benchmark %s for config %s: %v\nTail of log (%s):\n%s", b.name, cfgs[i].Name, err, logName, logTail)
 			}
 			debug.SetGCPercent(gogc)
 
