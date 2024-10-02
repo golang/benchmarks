@@ -23,6 +23,8 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/benchmarks/sweet/common/fileutil"
+
 	"github.com/BurntSushi/toml"
 )
 
@@ -78,7 +80,6 @@ var runContainer = ""       // if nonempty, skip builds and use existing named c
 var wikiTable = false       // emit the tests in a form usable in a wiki table
 var explicitAll counterFlag // Include "-a" on "go test -c" test build ; repeating flag causes multiple rebuilds, useful for build benchmarking.
 var shuffle = 2             // Dimensionality of (build) shuffling; 0 = none, 1 = per-benchmark, configuration ordering, 2 = bench, config pairs, 3 = across repetitions.
-var haveRsync = true
 var reportBuildTime = true
 var experiment = false    // Don't reset go.mod, for testing purposes
 var minGoVersion = "1.22" // This is the release the toolchain started caring about versions of Go that are too new.
@@ -232,12 +233,6 @@ results will also appear in 'bench'.
 	if N > 1000000 {
 		fmt.Println("N must be less than or equal to 1,000,000 (1e6)")
 		os.Exit(1)
-	}
-
-	_, errRsync := exec.LookPath("rsync")
-	if errRsync != nil {
-		haveRsync = false
-		fmt.Println("Warning: using cp instead of rsync")
 	}
 
 	if requireSandbox {
@@ -680,23 +675,9 @@ results will also appear in 'bench'.
 			todo.Configurations[ci] = config
 
 			docopy := func(from, to string) {
-				mkdir := exec.Command("mkdir", "-p", to)
-				s, _ := config.runBinary("", mkdir, false)
-				if s != "" {
-					fmt.Println("Error creating directory, ", to)
-					config.Disabled = true
-				}
-
-				var cp *exec.Cmd
-				if haveRsync {
-					cp = exec.Command("rsync", "-a", from+"/", to)
-				} else {
-					cp = exec.Command("cp", "-a", from+"/.", to)
-				}
-				s, _ = config.runBinary("", cp, false)
-				if s != "" {
-					fmt.Println("Error copying directory tree, ", from, to)
-					// Not disabling because gollvm uses a different directory structure
+				fileutil.CopyDir(to, from, nil)
+				if verbose > 0 || err != nil {
+					fmt.Printf("rsync -a %s %s, error=%v\n", from, to, err)
 				}
 			}
 
@@ -926,23 +907,29 @@ benchmarks_loop:
 			testdata := path.Join(rundir, subdir)
 			if stat, err := os.Stat(testdata); err == nil {
 				testdataCopy := path.Join(bench.RunDir, subdir)
-				var cp *exec.Cmd
+				var err error
+				var commandLine string
 				os.RemoveAll(testdataCopy) // clean out what can be cleaned
 				if stat.IsDir() {
 					if verbose > 0 {
 						fmt.Printf("mkdir -p %s\n", testdataCopy)
 					}
 					os.Mkdir(testdataCopy, fs.FileMode(0755))
-					cp = copyCommand(testdata, testdataCopy)
+					err = fileutil.CopyDir(testdataCopy, testdata, nil)
+					if verbose > 0 || err != nil {
+						commandLine = fmt.Sprintf("rsync -a %s/ %s", testdata, testdataCopy)
+					}
 				} else {
-					cp = copyFile(testdata, testdataCopy)
+					err = fileutil.CopyFile(testdataCopy, testdata, nil, nil)
+					if verbose > 0 || err != nil {
+						commandLine = fmt.Sprintf("cp -p %s %s", testdata, testdataCopy)
+					}
 				}
 				if verbose > 0 {
-					fmt.Println(asCommandLine(dirs.wd, cp))
+					fmt.Println(commandLine)
 				}
-				_, err := cp.Output()
 				if err != nil {
-					s := fmt.Sprintf(`could not %s, err=%v`, asCommandLine(dirs.wd, cp), err)
+					s := fmt.Sprintf(`could not %s, err=%v`, commandLine, err)
 					fmt.Println(s + "\nDISABLING benchmark " + bench.Name)
 					getAndBuildFailures = append(getAndBuildFailures, s+"("+bench.Name+")\n")
 					todo.Benchmarks[i].Disabled = true
@@ -1292,18 +1279,6 @@ ADD . /
 		os.Exit(0)
 	}
 	return nil
-}
-
-func copyCommand(from, to string) *exec.Cmd {
-	if haveRsync {
-		return exec.Command("rsync", "-a", from+"/", to)
-	} else {
-		return exec.Command("cp", "-a", from+"/.", to)
-	}
-}
-
-func copyFile(from, to string) *exec.Cmd {
-	return exec.Command("cp", "-p", from, to)
 }
 
 func copyAsset(fs embed.FS, dir, file string) {
