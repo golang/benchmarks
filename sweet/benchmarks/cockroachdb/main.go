@@ -423,12 +423,15 @@ func runBenchmark(b *driver.B, cfg *config, instances []*cockroachdbInstance) (e
 	pingArgs := cfg.bench.args
 	pingArgs = append(pingArgs, cfg.bench.pingArgs...)
 	pingArgs = append(pingArgs, pgurls...)
-	pingCmd := exec.Command(cfg.cockroachdbBin, pingArgs...)
-	pingStart := time.Now()
 	var pingOutput []byte
 	var pingErr error
-	for time.Now().Sub(pingStart) < 30*time.Second {
-		if pingOutput, pingErr = pingCmd.CombinedOutput(); pingErr == nil {
+	pingStart := time.Now()
+	for time.Since(pingStart) < 30*time.Second {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		pingCmd := exec.CommandContext(ctx, cfg.cockroachdbBin, pingArgs...)
+		pingOutput, pingErr = pingCmd.CombinedOutput()
+		cancel()
+		if pingErr == nil {
 			break
 		}
 	}
