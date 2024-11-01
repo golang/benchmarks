@@ -14,7 +14,7 @@ func goTest(tcs []*toolchain) error {
 	for _, tc := range tcs {
 		log.Printf("Running Go test benchmarks for %s", tc.Name)
 		fmt.Printf("toolchain: %s\n", tc.Name)
-		err := tc.Do("", "test", "-v", "-run=none", "-short", "-bench=.", "-count=5", "golang.org/x/benchmarks/...")
+		err := tc.Do("", "test", "-v", "-run=none", "-short", "-bench=.", "-count=6", "golang.org/x/benchmarks/...")
 		if err != nil {
 			return fmt.Errorf("error running gotest with toolchain %s: %w", tc.Name, err)
 		}
@@ -68,7 +68,7 @@ func goTestSubrepo(tc *toolchain, subRepo, baselineDir, experimentDir string) er
 			fmt.Printf("toolchain: %s\n", test.name) // set the toolchain tag
 
 			goplsPath := filepath.Join(test.goplsDir, "gopls")
-			err = tc.Do(benchmarkDir, "test", "-short", "-bench=.", fmt.Sprintf(`-gopls_path=%s`, goplsPath), "-count=5", "-timeout=180m")
+			err = tc.Do(benchmarkDir, "test", "-short", "-bench=.", fmt.Sprintf(`-gopls_path=%s`, goplsPath), "-count=6", "-timeout=180m")
 			if err != nil {
 				return fmt.Errorf("error running sub-repo %s benchmark %q with toolchain %s in dir %s: %w", subRepo, test.name, tc.Name, benchmarkDir, err)
 			}
