@@ -497,12 +497,19 @@ func reportFromBenchmarkOutput(b *driver.B, cfg *config, output string) (err err
 		}
 	}()
 
-	for _, metricType := range cfg.bench.metricTypes {
-		err = getAndReportMetrics(b, metricType, output)
+	metrics := make([]benchmarkMetrics, len(cfg.bench.metricTypes))
+	for i, metricType := range cfg.bench.metricTypes {
+		metrics[i], err = getMetrics(metricType, output)
 		if err != nil {
 			return err
 		}
 	}
+	totalOps := float64(0)
+	for i, metricType := range cfg.bench.metricTypes {
+		reportMetrics(b, metricType, metrics[i])
+		totalOps += metrics[i].totalOps
+	}
+	b.Report("ns/op", uint64(metrics[0].totalSec/totalOps*1e9))
 
 	if err != nil {
 		return err
@@ -511,13 +518,14 @@ func reportFromBenchmarkOutput(b *driver.B, cfg *config, output string) (err err
 }
 
 type benchmarkMetrics struct {
-	totalOps       uint64
-	opsPerSecond   uint64
-	averageLatency uint64
-	p50Latency     uint64
-	p95Latency     uint64
-	p99Latency     uint64
-	p100Latency    uint64
+	totalSec       float64
+	totalOps       float64
+	opsPerSecond   float64
+	averageLatency float64
+	p50Latency     float64
+	p95Latency     float64
+	p99Latency     float64
+	p100Latency    float64
 }
 
 func getAndReportMetrics(b *driver.B, metricType string, output string) error {
@@ -538,43 +546,49 @@ func getMetrics(metricType string, output string) (benchmarkMetrics, error) {
 	match = strings.Split(match, "\n")[1]
 	fields := strings.Fields(match)
 
-	stringToUint64 := func(field string) (uint64, error) {
+	stringToFloat64 := func(field string) (float64, error) {
 		number, err := strconv.ParseFloat(field, 64)
 		if err != nil {
 			return 0, fmt.Errorf("error parsing metrics to uint64: %w", err)
 		}
-		return uint64(number), nil
+		return number, nil
 	}
 
-	uint64Fields := make([]uint64, len(fields[2:])-1)
-	for i := range uint64Fields {
+	float64Fields := make([]float64, len(fields[2:])-1)
+	for i := range float64Fields {
 		var err error
-		uint64Fields[i], err = stringToUint64(fields[2+i])
+		float64Fields[i], err = stringToFloat64(fields[2+i])
 		if err != nil {
 			return benchmarkMetrics{}, err
 		}
 	}
+	// Parse benchmark duration.
+	dur, err := time.ParseDuration(fields[0])
+	if err != nil {
+		return benchmarkMetrics{}, err
+	}
 
 	metrics := benchmarkMetrics{
-		totalOps:       uint64Fields[0],
-		opsPerSecond:   uint64Fields[1],
-		averageLatency: uint64Fields[2] * 1e6,
-		p50Latency:     uint64Fields[3] * 1e6,
-		p95Latency:     uint64Fields[4] * 1e6,
-		p99Latency:     uint64Fields[5] * 1e6,
-		p100Latency:    uint64Fields[6] * 1e6,
+		totalSec:       dur.Seconds(),
+		totalOps:       float64Fields[0],
+		opsPerSecond:   float64Fields[1],
+		averageLatency: float64Fields[2] * 1e6,
+		p50Latency:     float64Fields[3] * 1e6,
+		p95Latency:     float64Fields[4] * 1e6,
+		p99Latency:     float64Fields[5] * 1e6,
+		p100Latency:    float64Fields[6] * 1e6,
 	}
 	return metrics, nil
 }
 
 func reportMetrics(b *driver.B, metricType string, metrics benchmarkMetrics) {
-	b.Report(fmt.Sprintf("%s-ops/sec", metricType), metrics.opsPerSecond)
-	b.Report(fmt.Sprintf("%s-ops", metricType), metrics.totalOps)
-	b.Report(fmt.Sprintf("%s-ns/op", metricType), metrics.averageLatency)
-	b.Report(fmt.Sprintf("%s-p50-latency-ns", metricType), metrics.p50Latency)
-	b.Report(fmt.Sprintf("%s-p95-latency-ns", metricType), metrics.p95Latency)
-	b.Report(fmt.Sprintf("%s-p99-latency-ns", metricType), metrics.p99Latency)
-	b.Report(fmt.Sprintf("%s-p100-latency-ns", metricType), metrics.p100Latency)
+	b.Report(fmt.Sprintf("%s-ops/sec", metricType), uint64(metrics.opsPerSecond))
+	b.Report(fmt.Sprintf("%s-ops", metricType), uint64(metrics.totalOps))
+	b.Report(fmt.Sprintf("%s-avg-latency-ns", metricType), uint64(metrics.averageLatency))
+	b.Report(fmt.Sprintf("%s-p50-latency-ns", metricType), uint64(metrics.p50Latency))
+	b.Report(fmt.Sprintf("%s-p95-latency-ns", metricType), uint64(metrics.p95Latency))
+	b.Report(fmt.Sprintf("%s-p99-latency-ns", metricType), uint64(metrics.p99Latency))
+	b.Report(fmt.Sprintf("%s-p100-latency-ns", metricType), uint64(metrics.p100Latency))
 }
 
 func run(cfg *config) (err error) {
