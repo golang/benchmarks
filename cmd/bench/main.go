@@ -31,6 +31,7 @@ var (
 	repository        = flag.String("repository", "", "repository name of the commits we're testing against (default $BENCH_REPOSITORY or 'go')")
 	subRepoExperiment = flag.String("subrepo", "", "Sub-repo dir to test (default $BENCH_SUBREPO_PATH)")
 	subRepoBaseline   = flag.String("subrepo-baseline", "", "Sub-repo baseline to test against (default $BENCH_SUBREPO_BASELINE_PATH)")
+	builderName       = flag.String("builder", "", "The name of the CI builder the benchmarks were produced on (default $GO_BUILDER_NAME)")
 )
 
 func determineGOROOT() (string, error) {
@@ -169,6 +170,15 @@ func main() {
 		branch = "unknown"
 	}
 	fmt.Printf("branch: %s\n", branch)
+
+	// Try to identify the builder. Just omit the key if there isn't one.
+	builder := *builderName
+	if builder == "" {
+		builder = os.Getenv("GO_BUILDER_NAME")
+	}
+	if builder != "" {
+		fmt.Printf("builder: %s\n", builder)
+	}
 
 	subRepoExperiment := *subRepoExperiment
 	if subRepoExperiment == "" {
