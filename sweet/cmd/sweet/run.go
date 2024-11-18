@@ -427,6 +427,7 @@ func (c *runCmd) preparePGO(configs []*common.Config, benchmarks []*benchmark) (
 
 	// Merge all the profiles and add new PGO configs.
 	newConfigs := configs
+	mergeFailCount := 0
 	for i := range configs {
 		origConfig := configs[i]
 		profileConfig := profileConfigs[i]
@@ -446,11 +447,34 @@ func (c *runCmd) preparePGO(configs []*common.Config, benchmarks []*benchmark) (
 		}
 
 		if noMergeError {
-			newConfigs = append(newConfigs, pgoConfig)
+			if len(pgoConfig.PGOConfigs) == 0 {
+				newConfigs = append(newConfigs, pgoConfig)
+			} else {
+				for _, env := range pgoConfig.PGOConfigs {
+					cfg := pgoConfig.Copy()
+					cfg.Name += "." + env.Name
+
+					vals := env.BuildEnv.Collapse()
+					noSetBuildEnvError := true
+					for _, v := range vals {
+						var err error
+						cfg.BuildEnv.Env, err = cfg.BuildEnv.Set(v)
+						if err != nil {
+							log.Error(fmt.Errorf("error setting buildenv %s in %+v: %w", v, cfg, err))
+							noSetBuildEnvError = false
+						}
+					}
+					if noSetBuildEnvError {
+						newConfigs = append(newConfigs, cfg)
+					}
+				}
+			}
+		} else {
+			mergeFailCount++
 		}
 	}
-	if len(successfullyExecutedBenchmarks) == 0 {
-		return nil, nil, fmt.Errorf("failed to merge profiles for any benchmarks, see logs for more details")
+	if mergeFailCount == len(configs) {
+		return nil, nil, fmt.Errorf("failed to merge profiles for any configs, see logs for more details")
 	}
 
 	return newConfigs, successfullyExecutedBenchmarks, nil

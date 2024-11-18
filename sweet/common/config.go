@@ -24,6 +24,8 @@ called 'config'. Each element of the array consists of the following fields:
                each variable should take the form "X=Y" (optional)
      pgofiles: a map of benchmark names (see 'sweet help run') to profile files
                to be passed to the Go compiler for optimization (optional)
+  pgoenvbuild: a list of named build environment variables to be run on based
+               on the same pgo profile. They have the same format as envbuild.
   diagnostics: profile types to collect for each benchmark run of this
                configuration, which may be one of: cpuprofile, memprofile,
                perf[=flags], trace (optional)
@@ -37,6 +39,16 @@ A simple example configuration might look like:
 [[config]]
   name = "improved"
   goroot = "/path/to/go-but-better"
+
+[[config]]
+    name = "pgo"
+    goroot = "/path/to/go/"
+    [[config.pgoconfig]]
+        name = "baseline"
+        envbuild = ["GOFLAGS=-gcflags=all=-d=pgodevirtualize=0"]
+    [[config.pgoconfig]]
+        name = "devirtall"
+        envbuild = ["GOFLAGS=-gcflags=all=-d=pgodevirtualize=1"]
 
 Note that because 'config' is an array field, one may have multiple
 configurations present in a single file.
@@ -60,7 +72,13 @@ type Config struct {
 	BuildEnv    ConfigEnv             `toml:"envbuild"`
 	ExecEnv     ConfigEnv             `toml:"envexec"`
 	PGOFiles    map[string]string     `toml:"pgofiles"`
+	PGOConfigs  []PGOConfig           `toml:"pgoconfig"`
 	Diagnostics diagnostics.ConfigSet `toml:"diagnostics"`
+}
+
+type PGOConfig struct {
+	Name     string    `toml:"name"`
+	BuildEnv ConfigEnv `toml:"envbuild"`
 }
 
 func (c *Config) GoTool() *Go {
@@ -79,6 +97,10 @@ func (c *Config) Copy() *Config {
 	for k, v := range c.PGOFiles {
 		cc.PGOFiles[k] = v
 	}
+	cc.PGOConfigs = make([]PGOConfig, len(c.PGOConfigs))
+	for i, v := range c.PGOConfigs {
+		cc.PGOConfigs[i] = v
+	}
 	cc.Diagnostics = c.Diagnostics.Copy()
 	return &cc
 }
@@ -91,12 +113,17 @@ func ConfigFileMarshalTOML(c *ConfigFile) ([]byte, error) {
 	// So instead we work around this by implementing MarshalTOML
 	// on Config and use dummy types that have a straightforward
 	// mapping that *does* work.
+	type pgoConfig struct {
+		Name     string   `toml:"name"`
+		BuildEnv []string `toml:"envbuild"`
+	}
 	type config struct {
 		Name        string            `toml:"name"`
 		GoRoot      string            `toml:"goroot"`
 		BuildEnv    []string          `toml:"envbuild"`
 		ExecEnv     []string          `toml:"envexec"`
 		PGOFiles    map[string]string `toml:"pgofiles"`
+		PGOConfigs  []pgoConfig       `toml:"pgoconfig"`
 		Diagnostics []string          `toml:"diagnostics"`
 	}
 	type configFile struct {
@@ -111,6 +138,12 @@ func ConfigFileMarshalTOML(c *ConfigFile) ([]byte, error) {
 		cfg.ExecEnv = c.ExecEnv.Collapse()
 		cfg.PGOFiles = c.PGOFiles
 		cfg.Diagnostics = c.Diagnostics.Strings()
+
+		cfg.PGOConfigs = make([]pgoConfig, len(c.PGOConfigs))
+		for i, v := range c.PGOConfigs {
+			cfg.PGOConfigs[i].Name = v.Name
+			cfg.PGOConfigs[i].BuildEnv = v.BuildEnv.Collapse()
+		}
 
 		cfgs.Configs = append(cfgs.Configs, &cfg)
 	}
