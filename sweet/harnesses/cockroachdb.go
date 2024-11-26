@@ -94,6 +94,15 @@ func (h CockroachDB) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 		return fmt.Errorf("failed to run %q: %v: output:\n%s", cmd, err, out)
 	}
 
+	// Limit build parallelism. Letting build parallelism go arbitrarily high causes
+	// OOM crashes on high core-count machines for PGO builds.
+	//
+	// TODO(mknyszek): Consider only doing this for PGO builds. Currently we have no way
+	// to tell if we're doing a PGO build from this context without somewhat fragile checks.
+	if _, ok := env.Lookup("GOMAXPROCS"); !ok && runtime.NumCPU() > 32 {
+		env = env.MustSet("GOMAXPROCS=32")
+	}
+
 	// Get the Go version. Then, finall build the cockroach binary with `go build`.
 	//
 	// Build the cockroach-short binary as it is functionally the same, but without
