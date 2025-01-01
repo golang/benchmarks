@@ -40,7 +40,7 @@ func WritePprof(filename string, p *profile.Profile) error {
 	return nil
 }
 
-// ReadDir reads all pprof profiles in dir whose name matches match(name).
+// ReadDirPprof reads all pprof profiles in dir whose name matches match(name).
 func ReadDirPprof(dir string, match func(string) bool) ([]*profile.Profile, error) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {

@@ -166,7 +166,7 @@ func (p ByVolume) Len() int           { return len(p) }
 func (p ByVolume) Less(i, j int) bool { return Volume(p[i]) > Volume(p[j]) }
 func (p ByVolume) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 
-// ByVolume allows a collection of pals.Pile to be sorted by the number
+// ByDepth allows a collection of pals.Pile to be sorted by the number
 // images in each pile.
 type ByDepth []*pals.Pile
 
