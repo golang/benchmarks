@@ -66,9 +66,9 @@ func main() {
 			Procs:             runtime.GOMAXPROCS(0),
 		})
 		cc := igor.Group(clusters, igor.GroupConfig{
-			pileDiff,
-			imageDiff,
-			false,
+			PileDiff:  pileDiff,
+			ImageDiff: imageDiff,
+			Classic:   false,
 		})
 		err = igor.WriteJSON(cc, &out)
 		if err != nil {

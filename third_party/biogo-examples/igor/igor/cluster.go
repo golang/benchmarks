@@ -48,7 +48,7 @@ func (pi pileInterval) Overlap(b interval.IntRange) bool {
 	return pi.p.Start() < b.End && pi.p.End() > b.Start
 }
 func (pi pileInterval) Range() interval.IntRange {
-	return interval.IntRange{pi.p.Start(), pi.p.End()}
+	return interval.IntRange{Start: pi.p.Start(), End: pi.p.End()}
 }
 
 // ClusterConfig specifies Cluster behaviour.

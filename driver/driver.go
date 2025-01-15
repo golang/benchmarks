@@ -372,8 +372,6 @@ func roundUp(n uint64) uint64 {
 	default:
 		return 10 * base
 	}
-	panic("unreachable")
-	return 0
 }
 
 func min(a, b uint64) uint64 {
