@@ -213,7 +213,8 @@ func TestSweetEndToEnd(t *testing.T) {
 		{"bleve-index", 1},
 		{"gopher-lua", 1},
 		{"markdown", 1},
-		{"gvisor", 1},
+		// TODO(go.dev/issue/72042): re-enable once fixed upstream.
+		// {"gvisor", 1},
 	} {
 		sema.Acquire(context.Background(), shard.weight)
 		wg.Add(1)

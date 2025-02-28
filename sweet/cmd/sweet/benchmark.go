@@ -111,9 +111,12 @@ var benchmarkGroups = func() map[string][]*benchmark {
 		allBenchmarksMap["go-build"],
 		allBenchmarksMap["gopher-lua"],
 	}
-	if runtime.GOARCH == "amd64" {
-		m["default"] = append(m["default"], allBenchmarksMap["gvisor"])
-	}
+	// TODO(go.dev/issue/72042): gVisor is broken at Go tip as of
+	// https://go.dev/cl/652276 due to unsafe dependence on field offsets.
+	// Disable until gVisor upstream is fixed.
+	// if runtime.GOARCH == "amd64" {
+	// 	m["default"] = append(m["default"], allBenchmarksMap["gvisor"])
+	// }
 	m["default"] = append(m["default"],
 		allBenchmarksMap["markdown"],
 		allBenchmarksMap["tile38"],
