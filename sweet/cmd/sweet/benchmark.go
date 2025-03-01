@@ -215,7 +215,7 @@ func readFileTail(f *os.File) (data string, err error) {
 		}
 
 		if readErr != nil {
-			return "", err
+			return "", readErr
 		}
 	}
 
