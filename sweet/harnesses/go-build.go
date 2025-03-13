@@ -56,6 +56,21 @@ var (
 				)
 			},
 		},
+		{
+			// Added for #72815. This codebase has at least a few packages
+			// that are difficult for the Go compiler to handle, performance-wise,
+			// as of Mar. 13 2025.
+			name: "tsgo",
+			pkg:  "cmd/tsgo",
+			clone: func(outDir string) error {
+				return gitCloneToCommit(
+					outDir,
+					"https://github.com/microsoft/typescript-go",
+					"main",
+					"1fffa1c05909adddbf2db7e14afeb8f63ed1e12c",
+				)
+			},
+		},
 	}
 	// For short mode, only build pkgsite. It's the smallest of
 	// the set, and it's hosted on go.googlesource.com, so fetching
