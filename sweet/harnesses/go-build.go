@@ -10,7 +10,6 @@ import (
 	"go/version"
 	"os/exec"
 	"path/filepath"
-	"strings"
 
 	"golang.org/x/benchmarks/sweet/common"
 	"golang.org/x/benchmarks/sweet/common/fileutil"
@@ -204,13 +203,6 @@ func goBuildBenchmarks(cfg *common.Config, short bool) ([]*buildBenchmark, error
 		if err != nil {
 			return nil, fmt.Errorf("error reading build info from Go toolchain: %v", err)
 		}
-
-		// NOTE(go.dev/issue/73369): Tip toolchain versions look like
-		// "devel go1.25-9ce47e66e8 Wed Mar 26 03:48:50 2025 -0700".
-		// This is not a valid go/version version, so it sorts before
-		// every valid version. If we strip "devel", then the remainder
-		// is valid.
-		bi.GoVersion = strings.TrimPrefix(bi.GoVersion, "devel ")
 	}
 
 	base := buildBenchmarks
