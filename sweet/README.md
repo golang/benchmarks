@@ -45,6 +45,13 @@ The gVisor benchmark has additional requirements:
   `/proc/sys/kernel/yama/ptrace_scope` appropriately (0 and 1 work, 2 might,
   3 will not).
 
+### Download
+
+```sh
+$ git clone https://go.googlesource.com/benchmarks
+$ cd benchmarks/sweet
+```
+
 ### Build
 
 ```sh
