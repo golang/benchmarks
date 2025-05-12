@@ -105,12 +105,16 @@ var benchmarkGroups = func() map[string][]*benchmark {
 
 	m["default"] = []*benchmark{
 		allBenchmarksMap["bleve-index"],
-		allBenchmarksMap["cockroachdb"],
 		allBenchmarksMap["etcd"],
 		allBenchmarksMap["esbuild"],
 		allBenchmarksMap["go-build"],
 		allBenchmarksMap["gopher-lua"],
 	}
+	// TODO(go.dev/issue/73474): cockroachdb has a flaky benchmark in the CockroachDB tree
+	// we can benchmark against (anything including master/6819a3e60849345808aa88932b5f52c43f329979).
+	// Disable until CockroachDB upstream is fixed.
+	// m["default"] = append(m["default"], allBenchmarksMap["cockroachdb"])
+
 	// TODO(go.dev/issue/72042): gVisor is broken at Go tip as of
 	// https://go.dev/cl/652276 due to unsafe dependence on field offsets.
 	// Disable until gVisor upstream is fixed.
