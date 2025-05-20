@@ -13,8 +13,6 @@ go install golang.org/x/benchmarks/cmd/bent@latest
 
 Depends on burntsushi/toml.
 
-Install `rsync` for slightly improved copy performance.
-
 Initial usage :
 
 ```

@@ -677,7 +677,7 @@ results will also appear in 'bench'.
 			docopy := func(from, to string) {
 				fileutil.CopyDir(to, from, nil)
 				if verbose > 0 || err != nil {
-					fmt.Printf("rsync -a %s %s, error=%v\n", from, to, err)
+					fmt.Printf("Copying directory %s to %s, error=%v\n", from, to, err)
 				}
 			}
 
@@ -917,12 +917,12 @@ benchmarks_loop:
 					os.Mkdir(testdataCopy, fs.FileMode(0755))
 					err = fileutil.CopyDir(testdataCopy, testdata, nil)
 					if verbose > 0 || err != nil {
-						commandLine = fmt.Sprintf("rsync -a %s/ %s", testdata, testdataCopy)
+						commandLine = fmt.Sprintf("Copying directory %s %s", testdata, testdataCopy)
 					}
 				} else {
 					err = fileutil.CopyFile(testdataCopy, testdata, nil, nil)
 					if verbose > 0 || err != nil {
-						commandLine = fmt.Sprintf("cp -p %s %s", testdata, testdataCopy)
+						commandLine = fmt.Sprintf("Copying %s to %s", testdata, testdataCopy)
 					}
 				}
 				if verbose > 0 {
