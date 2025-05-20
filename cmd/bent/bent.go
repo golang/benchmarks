@@ -675,7 +675,7 @@ results will also appear in 'bench'.
 			todo.Configurations[ci] = config
 
 			docopy := func(from, to string) {
-				fileutil.CopyDir(to, from, nil)
+				err := fileutil.CopyDir(to, from, nil)
 				if verbose > 0 || err != nil {
 					fmt.Printf("Copying directory %s to %s, error=%v\n", from, to, err)
 				}
