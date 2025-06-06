@@ -5,7 +5,6 @@
 package main
 
 import (
-	"archive/zip"
 	"errors"
 	"flag"
 	"fmt"
@@ -18,7 +17,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"golang.org/x/benchmarks/sweet/cli/bootstrap"
+	"golang.org/x/benchmarks/sweet/cli/assets"
 	"golang.org/x/benchmarks/sweet/common"
 	"golang.org/x/benchmarks/sweet/common/diagnostics"
 	"golang.org/x/benchmarks/sweet/common/log"
@@ -68,7 +67,7 @@ type runCfg struct {
 
 func (r *runCfg) logCopyDirCommand(fromRelDir, toDir string) {
 	if r.assetsDir == "" {
-		assetsFile, _ := bootstrap.CachedAssets(r.assetsCache, common.Version)
+		assetsFile, _ := assets.CachedAssets(r.assetsCache, common.Version)
 		log.CommandPrintf("unzip %s '%s/*' -d %s", assetsFile, fromRelDir, toDir)
 	} else {
 		log.CommandPrintf("cp -r %s/* %s", filepath.Join(r.assetsDir, fromRelDir), toDir)
@@ -145,7 +144,7 @@ func (c *runCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.runCfg.benchDir, "bench-dir", "./benchmarks", "the benchmarks directory in the sweet source")
 	f.StringVar(&c.runCfg.assetsDir, "assets-dir", "", "a directory containing uncompressed assets for sweet benchmarks, usually for debugging Sweet (overrides -cache)")
 	f.StringVar(&c.runCfg.workDir, "work-dir", "", "work directory for benchmarks (default: temporary directory)")
-	f.StringVar(&c.runCfg.assetsCache, "cache", bootstrap.CacheDefault(), "cache location for assets")
+	f.StringVar(&c.runCfg.assetsCache, "cache", assets.CacheDefault(), "cache location for assets")
 	f.BoolVar(&c.runCfg.dumpCore, "dump-core", false, "whether to dump core files for each benchmark process when it completes a benchmark")
 	f.BoolVar(&c.pgo, "pgo", false, "perform PGO testing; for each config, collect profiles from a baseline run which are used to feed into a generated PGO config")
 	f.IntVar(&c.runCfg.pgoCount, "pgo-count", 0, "the number of times to run profiling runs for -pgo; defaults to the value of -count if <=5, or 5 if higher")
@@ -231,25 +230,13 @@ func (c *runCmd) Run(args []string) error {
 		} else if info.Mode()&os.ModeDir == 0 {
 			return fmt.Errorf("%q (-assets-dir) is not a directory", c.assetsDir)
 		}
-		assetsFile, err := bootstrap.CachedAssets(c.assetsCache, common.Version)
-		if err == bootstrap.ErrNotInCache {
+		assetsDir, err := assets.CachedAssets(c.assetsCache, common.Version)
+		if err == assets.ErrNotInCache {
 			return fmt.Errorf("assets for version %q not found in %q", common.Version, c.assetsCache)
 		} else if err != nil {
 			return err
 		}
-		f, err := os.Open(assetsFile)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-		fi, err := f.Stat()
-		if err != nil {
-			return err
-		}
-		c.assetsFS, err = zip.NewReader(f, fi.Size())
-		if err != nil {
-			return err
-		}
+		c.assetsFS = os.DirFS(assetsDir)
 	}
 	// Validate c.benchDir and provide helpful error messages..
 	if fi, err := os.Stat(c.benchDir); errors.Is(err, fs.ErrNotExist) {

@@ -5,7 +5,6 @@
 package fileutil
 
 import (
-	"fmt"
 	"io"
 	"io/fs"
 	"os"
@@ -72,8 +71,7 @@ func CopyFile(dst, src string, sfinfo fs.FileInfo, srcFS fs.FS) error {
 
 // CopyDir recursively copies the directory at path src to
 // a new directory at path dst. If a symlink is encountered
-// along the way, its link is copied verbatim and installed
-// in the destination directory hierarchy, as in CopySymlink.
+// along the way, it is deep-copied.
 //
 // If srcFS != nil, then src is assumed to be a path within
 // srcFS.
@@ -110,8 +108,6 @@ func CopyDir(dst, src string, srcFS fs.FS) error {
 			if err := CopyDir(d, s, srcFS); err != nil {
 				return err
 			}
-		} else if fi.Mode()&os.ModeSymlink != 0 {
-			return fmt.Errorf("symbolic links not supported")
 		} else {
 			if err := CopyFile(d, s, fi, srcFS); err != nil {
 				return err

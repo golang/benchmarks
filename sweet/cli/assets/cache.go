@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package bootstrap
+package assets
 
 import (
 	"errors"
@@ -14,7 +14,7 @@ import (
 var ErrNotInCache = errors.New("not found in cache")
 
 func CachedAssets(cache, version string) (string, error) {
-	name := VersionArchiveName(version)
+	name := version
 	if err := os.MkdirAll(cache, os.ModePerm); err != nil {
 		return "", fmt.Errorf("failed to create cache directory: %w", err)
 	}
@@ -34,3 +34,5 @@ func CacheDefault() string {
 	}
 	return cache
 }
+
+const CIPDCacheDir = ".cipd-cache"

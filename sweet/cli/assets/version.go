@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package bootstrap
+package assets
 
 import (
 	"fmt"
@@ -18,6 +18,6 @@ func ValidateVersion(version string) error {
 	return nil
 }
 
-func VersionArchiveName(version string) string {
-	return fmt.Sprintf("assets-%s.zip", version)
+func ToCIPDVersion(version string) string {
+	return version[1:]
 }

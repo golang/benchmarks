@@ -81,12 +81,7 @@ func sweet(tcs []*toolchain, pgo bool) (err error) {
 	} else {
 		assetsCacheDir = filepath.Join(tmpDir, "assets")
 	}
-	cmd := exec.Command(
-		sweetBin, "get",
-		"-cache", assetsCacheDir,
-		"-auth", "none",
-		"-assets-hash-file", filepath.Join(sweetRoot, "assets.hash"),
-	)
+	cmd := exec.Command(sweetBin, "get", "-cache", assetsCacheDir)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {

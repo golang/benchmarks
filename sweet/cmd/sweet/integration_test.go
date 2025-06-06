@@ -101,11 +101,7 @@ func TestSweetEndToEnd(t *testing.T) {
 	phaseDone("setup")
 
 	// Download assets.
-	getCmd := exec.Command(sweetBin, "get",
-		"-auth", "none",
-		"-cache", assetsCacheDir, // Make a full copy so we can mutate it.
-		"-assets-hash-file", filepath.Join(sweetRoot, "assets.hash"),
-	)
+	getCmd := exec.Command(sweetBin, "get", "-cache", assetsCacheDir)
 	if output, err := getCmd.CombinedOutput(); err != nil {
 		t.Logf("command output:\n%s", string(output))
 		t.Fatal(err)
