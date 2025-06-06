@@ -28,14 +28,13 @@ func (h CockroachDB) CheckPrerequisites() error {
 }
 
 func (h CockroachDB) Get(gcfg *common.GetConfig) error {
-	// Build against a commit that includes https://github.com/cockroachdb/cockroach/pull/125588.
 	// Recursive clone the repo as we need certain submodules, i.e.
 	// PROJ, for the build to work.
 	return gitRecursiveCloneToCommit(
 		gcfg.SrcDir,
 		"https://github.com/cockroachdb/cockroach",
 		"master",
-		"c4a0d997e0da6ba3ebede61b791607aa452b9bbc",
+		"de6ca871fb4b0536d308d6468ab1f57a0fe83cee", // v25.2.0
 	)
 }
 
