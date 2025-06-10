@@ -9,6 +9,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"os"
 	"path/filepath"
 
 	"golang.org/x/benchmarks/sweet/cli/assets"
@@ -32,6 +33,7 @@ type getCmd struct {
 	cache   string
 	copyDir string
 	version string
+	clean   bool
 }
 
 func (*getCmd) Name() string     { return "get" }
@@ -44,11 +46,36 @@ func (c *getCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.cache, "cache", assets.CacheDefault(), "cache location for assets")
 	f.StringVar(&c.version, "version", common.Version, "the version to download assets for")
 	f.StringVar(&c.copyDir, "copy", "", "location to extract assets into, useful for development")
+	f.BoolVar(&c.clean, "clean", false, "delete all cached assets before installing new ones")
 }
 
 func (c *getCmd) Run(_ []string) error {
 	log.SetActivityLog(true)
 	ctx := context.Background()
+
+	// Do some cleanup, if needed.
+	if c.clean {
+		for {
+			log.Printf("Deleting cache directory %s", c.cache)
+			fmt.Print("This is a destructive action. Please confirm. (y/n): ")
+			var r string
+			_, err := fmt.Scanf("%s\n", &r)
+			if err != nil {
+				fmt.Printf("Invalid input: %v\n", err)
+			} else {
+				if r == "y" {
+					break
+				} else if r == "n" {
+					return nil
+				} else {
+					fmt.Println("Input must be exactly 'y' or 'n'.")
+				}
+			}
+		}
+		if err := os.RemoveAll(c.cache); err != nil {
+			return fmt.Errorf("failed to delete cache directory %s: %v", c.cache, err)
+		}
+	}
 
 	// Load CIPD options, including auth, cache dir, etc. from env. The package is public, but we
 	// want to be authenticated transparently when we pull the assets down on the builders.
