@@ -366,7 +366,7 @@ func kvBenchmark(readPercent int, nodeCount int) benchmark {
 			fmt.Sprintf("--read-percent=%d", readPercent),
 			"--min-block-bytes=1024",
 			"--max-block-bytes=1024",
-			"--concurrency=10000",
+			"--concurrency=5000", // Changed from 10000, see go.dev/issue/73474.
 			"--max-rate=30000",
 			// Pre-splitting and scattering the ranges should help stabilize results.
 			"--scatter",
