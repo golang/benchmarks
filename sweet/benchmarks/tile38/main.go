@@ -197,7 +197,6 @@ func launchServer(cfg *config, diag *driver.Diagnostics, out io.Writer) (*exec.C
 		"-d", cfg.dataPath,
 		"-h", cfg.host,
 		"-p", strconv.Itoa(cfg.port),
-		"-threads", strconv.Itoa(cfg.serverProcs),
 		"-pprofport", strconv.Itoa(pprofPort),
 	}
 
