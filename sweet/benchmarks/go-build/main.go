@@ -58,10 +58,15 @@ func run(pkgPath string) error {
 	if err := os.MkdirAll(tmpResultsDir(), 0777); err != nil {
 		return err
 	}
+	tmpCacheDir, err := os.MkdirTemp(tmpDir, "cache")
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(tmpCacheDir)
 
 	name := "GoBuild" + strings.Title(filepath.Base(pkgPath))
 
-	cmdArgs := []string{goTool, "build", "-a"}
+	cmdArgs := []string{goTool, "build"}
 
 	// Build a command comprised of this binary to pass to -toolexec.
 	selfPath, err := filepath.Abs(os.Args[0])
@@ -103,9 +108,19 @@ func run(pkgPath string) error {
 
 	baseCmd := exec.Command(cmdArgs[0], cmdArgs[1:]...)
 	baseCmd.Dir = pkgPath
-	baseCmd.Env = common.NewEnvFromEnviron().MustSet("GOROOT=" + filepath.Dir(filepath.Dir(goTool))).Collapse()
+	baseCmd.Env = common.NewEnvFromEnviron().MustSet("GOCACHE="+tmpCacheDir, "GOROOT="+filepath.Dir(filepath.Dir(goTool))).Collapse()
 	baseCmd.Stdout = os.Stderr // Redirect all tool output to stderr.
 	baseCmd.Stderr = os.Stderr
+
+	buildRuntime := exec.Command(goTool, "build", "runtime")
+	buildRuntime.Dir = pkgPath
+	buildRuntime.Env = baseCmd.Env
+	buildRuntime.Stdout = os.Stderr
+	buildRuntime.Stderr = os.Stderr
+	if err := buildRuntime.Run(); err != nil {
+		return err
+	}
+
 	cmd, err := cgroups.WrapCommand(baseCmd, "test.scope")
 	if err != nil {
 		return err
