@@ -89,11 +89,11 @@ func run(pkgPath string) error {
 
 	cmdArgs = append(cmdArgs, "-toolexec", strings.Join(selfCmd, " "))
 
-	if df, err := diag.Create(diagnostics.Perf); err != nil {
+	df, err := diag.Create(diagnostics.Perf)
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to create %s diagnostics: %s\n", diagnostics.Perf, err)
 	} else if df != nil {
 		df.Close()
-		defer df.Commit()
 
 		perfArgs := []string{"perf", "record", "-o", df.Name()}
 		perfArgs = append(perfArgs, driver.PerfFlags()...)
@@ -112,6 +112,9 @@ func run(pkgPath string) error {
 	}
 	err = driver.RunBenchmark(name, func(d *driver.B) error {
 		defer diag.Commit(d)
+		if df != nil {
+			defer df.Commit()
+		}
 		return cmd.Run()
 	}, append(benchOpts, driver.DoAvgRSS(cmd.RSSFunc()))...)
 	if err != nil {
