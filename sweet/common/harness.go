@@ -73,7 +73,7 @@ type RunConfig struct {
 	// By convention, this is the benchmark binary's stdout.
 	Results *os.File
 
-	// Log contains additional information information from the benchmark,
+	// Log contains additional information from the benchmark,
 	// for example for debugging.
 	//
 	// By convention, this is the benchmark binary's stderr.
