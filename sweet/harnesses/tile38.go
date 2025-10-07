@@ -53,7 +53,7 @@ func (h Tile38) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 	if err := copyFile(filepath.Join(bcfg.BinDir, server), filepath.Join(bcfg.SrcDir, server)); err != nil {
 		return err
 	}
-	return cfg.GoTool().BuildPath(bcfg.BenchDir, filepath.Join(bcfg.BinDir, "tile38-bench"))
+	return cfg.GoTool(bcfg.BuildLog).BuildPath(bcfg.BenchDir, filepath.Join(bcfg.BinDir, "tile38-bench"))
 }
 
 func (h Tile38) Run(cfg *common.Config, rcfg *common.RunConfig) error {

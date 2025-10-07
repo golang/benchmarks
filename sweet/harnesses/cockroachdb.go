@@ -47,7 +47,7 @@ func (h CockroachDB) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 	// Install bazel via bazelisk which is used by `dev`. Install it in the
 	// BinDir to ensure we get a new copy every run and avoid reuse. This is
 	// done by setting the `GOBIN` env var for the `go install` cmd.
-	goInstall := cfg.GoTool()
+	goInstall := cfg.GoTool(bcfg.BuildLog)
 	goInstall.Env = goInstall.Env.MustSet(fmt.Sprintf("GOBIN=%s", bcfg.BinDir))
 	if err := goInstall.Do(bcfg.BinDir, "install", "github.com/bazelbuild/bazelisk@latest"); err != nil {
 		return fmt.Errorf("error building bazelisk: %v", err)
@@ -115,7 +115,7 @@ func (h CockroachDB) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 	// Note that since the version of CockroachDB is pinned, we can generally rely on
 	// the checking below. However as CockroachDB and Go evolve, the logic below may need
 	// to change.
-	ver, err := cfg.GoTool().Version()
+	ver, err := cfg.GoTool(bcfg.BuildLog).Version()
 	if err != nil {
 		return fmt.Errorf("getting go version for toolchain: %v", err)
 	}
@@ -126,7 +126,7 @@ func (h CockroachDB) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 	if v := strings.TrimPrefix(ver, "go version "); strings.HasPrefix(v, "devel ") || v >= "go1.24" {
 		goBuildArgs = append(goBuildArgs, "-tags=untested_go_version")
 	}
-	if err := cfg.GoTool().BuildPath(filepath.Join(bcfg.SrcDir, "pkg/cmd/cockroach-short"), bcfg.BinDir, goBuildArgs...); err != nil {
+	if err := cfg.GoTool(bcfg.BuildLog).BuildPath(filepath.Join(bcfg.SrcDir, "pkg/cmd/cockroach-short"), bcfg.BinDir, goBuildArgs...); err != nil {
 		return err
 	}
 
@@ -137,7 +137,7 @@ func (h CockroachDB) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 	}
 
 	// Build the benchmark wrapper.
-	if err := cfg.GoTool().BuildPath(bcfg.BenchDir, filepath.Join(bcfg.BinDir, "cockroachdb-bench")); err != nil {
+	if err := cfg.GoTool(bcfg.BuildLog).BuildPath(bcfg.BenchDir, filepath.Join(bcfg.BinDir, "cockroachdb-bench")); err != nil {
 		return err
 	}
 	return nil

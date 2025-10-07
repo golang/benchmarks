@@ -7,6 +7,7 @@ package common
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"path/filepath"
 
 	"github.com/BurntSushi/toml"
@@ -81,12 +82,13 @@ type PGOConfig struct {
 	BuildEnv ConfigEnv `toml:"envbuild"`
 }
 
-func (c *Config) GoTool() *Go {
+func (c *Config) GoTool(buildLog io.Writer) *Go {
 	return &Go{
 		Tool: filepath.Join(c.GoRoot, "bin", "go"),
 		// Update the GOROOT so the wrong one doesn't propagate from
 		// the environment.
-		Env: c.BuildEnv.Env.MustSet("GOROOT=" + c.GoRoot),
+		Env:      c.BuildEnv.Env.MustSet("GOROOT=" + c.GoRoot),
+		BuildLog: buildLog,
 	}
 }
 

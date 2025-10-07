@@ -58,11 +58,11 @@ func (h Etcd) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 	}
 	// Build etcd's benchmarking tool. Our benchmark is just a wrapper around that.
 	benchmarkPkg := filepath.Join(bcfg.SrcDir, "tools", "benchmark")
-	if err := cfg.GoTool().BuildPath(benchmarkPkg, filepath.Join(bcfg.BinDir, "benchmark")); err != nil {
+	if err := cfg.GoTool(bcfg.BuildLog).BuildPath(benchmarkPkg, filepath.Join(bcfg.BinDir, "benchmark")); err != nil {
 		return err
 	}
 	// Build the benchmark wrapper.
-	return cfg.GoTool().BuildPath(bcfg.BenchDir, filepath.Join(bcfg.BinDir, "etcd-bench"))
+	return cfg.GoTool(bcfg.BuildLog).BuildPath(bcfg.BenchDir, filepath.Join(bcfg.BinDir, "etcd-bench"))
 }
 
 func (h Etcd) Run(cfg *common.Config, rcfg *common.RunConfig) error {

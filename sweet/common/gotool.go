@@ -6,6 +6,7 @@ package common
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -17,6 +18,7 @@ type Go struct {
 	Tool       string
 	Env        *Env
 	PassOutput bool
+	BuildLog   io.Writer
 }
 
 func SystemGoTool() (*Go, error) {
@@ -39,9 +41,12 @@ func (g *Go) Do(dir string, args ...string) error {
 	if g.PassOutput {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
+	} else if g.BuildLog != nil {
+		cmd.Stderr = g.BuildLog
+		cmd.Stdout = g.BuildLog
 	}
 	log.TraceCommand(cmd, false)
-	if g.PassOutput {
+	if g.PassOutput || g.BuildLog != nil {
 		return cmd.Run()
 	}
 	// Use cmd.Output to get an ExitError with Stderr populated.

@@ -319,16 +319,26 @@ func (b *benchmark) execute(cfgs []*common.Config, r *runCfg) error {
 		goflags += fmt.Sprintf("-pgo=%s", pgo)
 		cfg.BuildEnv.Env = cfg.BuildEnv.MustSet("GOFLAGS=" + goflags)
 
+		// Create a build log file.
+		buildLogPath := filepath.Join(resultsDir, fmt.Sprintf("%s.build.log", cfg.Name))
+		buildLog, err := os.Create(buildLogPath)
+		if err != nil {
+			return fmt.Errorf("create %s build log file for %s: %v", b.name, cfg.Name, err)
+		}
+
 		// Build the benchmark (application and any other necessary components).
 		bcfg := common.BuildConfig{
 			BinDir:   binDir,
 			SrcDir:   srcDir,
 			BenchDir: benchDir,
 			Short:    r.short,
+			BuildLog: buildLog,
 		}
 		if err := b.harness.Build(cfg, &bcfg); err != nil {
+			buildLog.Close()
 			return fmt.Errorf("build %s for %s: %v", b.name, cfg.Name, err)
 		}
+		buildLog.Close()
 
 		// Generate any args to funnel through to benchmarks.
 		args := []string{}

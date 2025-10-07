@@ -117,7 +117,7 @@ func (h GoBuild) Build(pcfg *common.Config, bcfg *common.BuildConfig) error {
 		return fmt.Errorf("error copying GOROOT: %v", err)
 	}
 	cfg.GoRoot = goroot
-	if err := cfg.GoTool().Do("", "install", "cmd/go", "cmd/compile", "cmd/link"); err != nil {
+	if err := cfg.GoTool(bcfg.BuildLog).Do("", "install", "cmd/go", "cmd/compile", "cmd/link"); err != nil {
 		return fmt.Errorf("error building cmd/go, cmd/compile, and cmd/link: %v", err)
 	}
 
@@ -147,14 +147,14 @@ func (h GoBuild) Build(pcfg *common.Config, bcfg *common.BuildConfig) error {
 		// when benchmarking.
 		pkgPath := filepath.Join(bcfg.BinDir, bench.name, bench.pkg)
 		dummyBin := filepath.Join(bcfg.BinDir, "dummy")
-		goTool := cfg.GoTool()
+		goTool := cfg.GoTool(bcfg.BuildLog)
 		goTool.Env = cfg.ExecEnv.MustSet("GOROOT=" + cfg.GoRoot)
 		if err := goTool.BuildPath(pkgPath, dummyBin); err != nil {
 			return fmt.Errorf("error building %s %s: %w", bench.name, bench.pkg, err)
 		}
 	}
 
-	if err := cfg.GoTool().BuildPath(bcfg.BenchDir, filepath.Join(bcfg.BinDir, "go-build-bench")); err != nil {
+	if err := cfg.GoTool(bcfg.BuildLog).BuildPath(bcfg.BenchDir, filepath.Join(bcfg.BinDir, "go-build-bench")); err != nil {
 		return fmt.Errorf("error building go-build tool: %w", err)
 	}
 	return nil
@@ -174,7 +174,7 @@ func (h GoBuild) Run(pcfg *common.Config, rcfg *common.RunConfig) error {
 		cmd := exec.Command(
 			filepath.Join(rcfg.BinDir, "go-build-bench"),
 			append(rcfg.Args, []string{
-				"-go", cfg.GoTool().Tool,
+				"-go", cfg.GoTool(nil).Tool,
 				"-tmp", rcfg.TmpDir,
 				filepath.Join(rcfg.BinDir, bench.name, bench.pkg),
 			}...)...,
@@ -199,7 +199,7 @@ func goBuildBenchmarks(cfg *common.Config, short bool) ([]*buildBenchmark, error
 	var bi *buildinfo.BuildInfo
 	if cfg != nil {
 		var err error
-		bi, err = buildinfo.ReadFile(cfg.GoTool().Tool)
+		bi, err = buildinfo.ReadFile(cfg.GoTool(nil).Tool)
 		if err != nil {
 			return nil, fmt.Errorf("error reading build info from Go toolchain: %v", err)
 		}

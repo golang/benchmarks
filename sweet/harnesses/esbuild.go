@@ -71,11 +71,11 @@ func (h *ESBuild) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 		return err
 	}
 	// Build driver.
-	if err := cfg.GoTool().BuildPath(bcfg.BenchDir, filepath.Join(bcfg.BinDir, "esbuild-bench")); err != nil {
+	if err := cfg.GoTool(bcfg.BuildLog).BuildPath(bcfg.BenchDir, filepath.Join(bcfg.BinDir, "esbuild-bench")); err != nil {
 		return err
 	}
 	// Build esbuild.
-	return cfg.GoTool().BuildPath(filepath.Join(bcfg.SrcDir, "cmd", "esbuild"), filepath.Join(bcfg.BinDir, "esbuild"))
+	return cfg.GoTool(bcfg.BuildLog).BuildPath(filepath.Join(bcfg.SrcDir, "cmd", "esbuild"), filepath.Join(bcfg.BinDir, "esbuild"))
 }
 
 func (h *ESBuild) Run(cfg *common.Config, rcfg *common.RunConfig) error {

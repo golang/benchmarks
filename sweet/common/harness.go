@@ -4,7 +4,10 @@
 
 package common
 
-import "os"
+import (
+	"io"
+	"os"
+)
 
 type GetConfig struct {
 	// SrcDir is the path to the directory that the harness should write
@@ -40,6 +43,9 @@ type BuildConfig struct {
 	// for testing. Guaranteed to be the same as GetConfig.Short and
 	// RunConfig.Short.
 	Short bool
+
+	// BuildLog is used to pass the build log to a file.
+	BuildLog io.Writer
 }
 
 type RunConfig struct {

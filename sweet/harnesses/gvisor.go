@@ -38,7 +38,7 @@ func (h GVisor) Get(gcfg *common.GetConfig) error {
 
 func (h GVisor) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 	// Build benchmarking client which will handle a bunch of coordination.
-	if err := cfg.GoTool().BuildPath(filepath.Join(bcfg.BenchDir), filepath.Join(bcfg.BinDir, "gvisor-bench")); err != nil {
+	if err := cfg.GoTool(bcfg.BuildLog).BuildPath(filepath.Join(bcfg.BenchDir), filepath.Join(bcfg.BinDir, "gvisor-bench")); err != nil {
 		return err
 	}
 
@@ -46,7 +46,7 @@ func (h GVisor) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 	// See https://github.com/google/gvisor#using-go-get.
 	cfg.BuildEnv.Env = cfg.BuildEnv.MustSet("CGO_ENABLED=0")
 	bin := filepath.Join(bcfg.BinDir, "runsc")
-	if err := cfg.GoTool().BuildPath(filepath.Join(bcfg.SrcDir, "runsc"), bin); err != nil {
+	if err := cfg.GoTool(bcfg.BuildLog).BuildPath(filepath.Join(bcfg.SrcDir, "runsc"), bin); err != nil {
 		return err
 	}
 
