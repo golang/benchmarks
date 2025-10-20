@@ -275,7 +275,7 @@ func runBenchmarkOnce(f func(uint64), N uint64) Result {
 	return res
 }
 
-// Parallel is a public helper function that runs f N times in P*GOMAXPROCS goroutines.
+// Parallel is a public helper function that runs f N times in total across P*GOMAXPROCS goroutines.
 func Parallel(N uint64, P int, f func()) {
 	numProcs := P * runtime.GOMAXPROCS(0)
 	var wg sync.WaitGroup

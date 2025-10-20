@@ -111,7 +111,7 @@ func edmx(input []float64, delta int) int {
 
 // EDMX runs the EDM-X algorithm on a slice of floats.
 func EDMX(input []float64, delta int) int {
-	// edmx modfies the input, don't do that.
+	// edmx modifies the input, don't do that.
 	c := make([]float64, len(input))
 	copy(c, input)
 	return edmx(c, delta)

@@ -142,7 +142,7 @@ func flags() (string, bool) {
 	case "stack", "heap", "global":
 		break
 	default:
-		fmt.Fprintf(os.Stderr, "-how needs to be one of 'heap', 'stack' or 'global, saw '%s' instead\n", howAllocated)
+		fmt.Fprintf(os.Stderr, "-how needs to be one of 'heap', 'stack' or 'global', saw '%s' instead\n", howAllocated)
 		os.Exit(1)
 	}
 	return howAllocated, doFluff

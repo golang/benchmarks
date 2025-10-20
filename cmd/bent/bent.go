@@ -1232,7 +1232,7 @@ func asCommandLine(cwd string, cmd *exec.Cmd) string {
 // run properly.
 //
 // First, it makes sure we're not going to accidentally overwrite previous results.
-// Then, it shouldInit is true, it:
+// Then, if shouldInit is true, it:
 //   - Creates a Dockerfile.
 //   - Creates all the configuration files.
 //   - Exits.

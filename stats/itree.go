@@ -50,7 +50,7 @@ func (it *IntervalTree) Insert(v float64) {
 	it.walk(v, 1)
 }
 
-// Remove removes an element from an interview tree.
+// Remove removes an element from an interval tree.
 func (it *IntervalTree) Remove(v float64) {
 	it.walk(v, -1)
 }
