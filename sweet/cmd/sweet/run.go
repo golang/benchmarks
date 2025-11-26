@@ -148,7 +148,7 @@ func (c *runCmd) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&c.runCfg.dumpCore, "dump-core", false, "whether to dump core files for each benchmark process when it completes a benchmark")
 	f.BoolVar(&c.pgo, "pgo", false, "perform PGO testing; for each config, collect profiles from a baseline run which are used to feed into a generated PGO config")
 	f.IntVar(&c.runCfg.pgoCount, "pgo-count", 0, "the number of times to run profiling runs for -pgo; defaults to the value of -count if <=5, or 5 if higher")
-	f.IntVar(&c.runCfg.count, "count", 0, fmt.Sprintf("the number of times to run each benchmark (default %d)", countDefault))
+	f.IntVar(&c.runCfg.count, "count", -1, fmt.Sprintf("the number of times to run each benchmark (default %d)", countDefault))
 
 	f.BoolVar(&c.quiet, "quiet", false, "whether to suppress activity output on stderr (no effect on -shell)")
 	f.BoolVar(&c.printCmd, "shell", false, "whether to print the commands being executed to stdout")
@@ -166,7 +166,7 @@ func (c *runCmd) Run(args []string) error {
 	log.SetCommandTrace(c.printCmd)
 	log.SetActivityLog(!c.quiet)
 
-	if c.runCfg.count == 0 {
+	if c.runCfg.count == -1 {
 		if c.short {
 			c.runCfg.count = 1
 		} else {
