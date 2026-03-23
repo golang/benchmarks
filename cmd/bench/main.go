@@ -76,6 +76,10 @@ func run(tcs []*toolchain, pgo bool) error {
 		pass = false
 		log.Printf("Error running Go tests: %v", err)
 	}
+	if err := distsizes(tcs); err != nil {
+		pass = false
+		log.Printf("Error determining distribution size: %v", err)
+	}
 	if err := bent(tcs, pgo); err != nil {
 		pass = false
 		log.Printf("Error running bent: %v", err)

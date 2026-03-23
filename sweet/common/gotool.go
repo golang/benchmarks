@@ -5,6 +5,7 @@
 package common
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -78,14 +79,14 @@ func (g *Go) BuildPackage(pkg, out string) error {
 }
 
 func (g *Go) Version() (string, error) {
-	cmd := exec.Command(g.Tool, "version")
+	cmd := exec.Command(g.Tool, "env", "GOVERSION")
 	cmd.Env = g.Env.Collapse()
 	log.TraceCommand(cmd, false)
 	out, err := cmd.Output()
 	if err != nil {
-		return "", fmt.Errorf("error running 'go version': %w", err)
+		return "", fmt.Errorf("error running 'go env GOVERSION': %w", err)
 	}
-	return string(out), nil
+	return string(bytes.TrimSpace(out)), nil
 }
 
 func (g *Go) BuildPath(path, out string, args ...string) error {

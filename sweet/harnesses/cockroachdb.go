@@ -6,10 +6,10 @@ package harnesses
 
 import (
 	"fmt"
+	"go/version"
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"strings"
 	"time"
 
 	"golang.org/x/benchmarks/sweet/common"
@@ -120,10 +120,10 @@ func (h CockroachDB) Build(cfg *common.Config, bcfg *common.BuildConfig) error {
 		return fmt.Errorf("getting go version for toolchain: %v", err)
 	}
 	var goBuildArgs []string
-	if v := strings.TrimPrefix(ver, "go version "); strings.HasPrefix(v, "devel ") || v >= "go1.23" {
+	if version.Compare(ver, "go1.23") >= 0 {
 		goBuildArgs = append(goBuildArgs, "-ldflags=-checklinkname=0")
 	}
-	if v := strings.TrimPrefix(ver, "go version "); strings.HasPrefix(v, "devel ") || v >= "go1.24" {
+	if version.Compare(ver, "go1.24") >= 0 {
 		goBuildArgs = append(goBuildArgs, "-tags=untested_go_version")
 	}
 	if err := cfg.GoTool(bcfg.BuildLog).BuildPath(filepath.Join(bcfg.SrcDir, "pkg/cmd/cockroach-short"), bcfg.BinDir, goBuildArgs...); err != nil {
