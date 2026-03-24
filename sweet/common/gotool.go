@@ -5,7 +5,7 @@
 package common
 
 import (
-	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -78,15 +78,20 @@ func (g *Go) BuildPackage(pkg, out string) error {
 	return g.Do("", "build", "-o", out, pkg)
 }
 
+// Version returns the 'go env GOVERSION' value by invoking the go command.
 func (g *Go) Version() (string, error) {
-	cmd := exec.Command(g.Tool, "env", "GOVERSION")
+	cmd := exec.Command(g.Tool, "env", "-json", "GOVERSION")
 	cmd.Env = g.Env.Collapse()
 	log.TraceCommand(cmd, false)
 	out, err := cmd.Output()
 	if err != nil {
-		return "", fmt.Errorf("error running 'go env GOVERSION': %w", err)
+		return "", fmt.Errorf("error running 'go env -json GOVERSION': %w", err)
 	}
-	return string(bytes.TrimSpace(out)), nil
+	var env struct{ GOVERSION string }
+	if err := json.Unmarshal(out, &env); err != nil {
+		return "", fmt.Errorf("error JSON unmarshaling output from 'go env -json GOVERSION': %v", err)
+	}
+	return env.GOVERSION, nil
 }
 
 func (g *Go) BuildPath(path, out string, args ...string) error {
