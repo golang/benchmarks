@@ -119,6 +119,7 @@
   Repo = "github.com/ethereum/go-ethereum/whisper/whisperv6"
   Benchmarks = "Benchmark"
   NotSandboxed = true # Won't cross-compile to Linux on MacOS
+  Disabled = true # Whisper protocol has been deprecated and removed from v1.9.24+ versions. v1.9.2 has missing dependency.
   Version = "@v1.9.2"
 
 [[Suites]]
