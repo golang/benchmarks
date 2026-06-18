@@ -113,9 +113,10 @@ func bent(tcs []*toolchain, pgo bool) (err error) {
 	// N.B. bent prints the "toolchain" tag to indicate which toolchain is being used.
 	// It's passed to bent via the TOML configuration.
 	cmd = exec.Command(bentPath,
-		"-R", "10",
+		"-N", "10",
 		"-C", confFile,
 		"-B", filepath.Join(dir, "benchmarks-50.toml"),
+		"-report-build-time=false", // We only run builds once, which won't yield statistically significant results.
 		"-v",
 	)
 	cmd.Dir = dir
