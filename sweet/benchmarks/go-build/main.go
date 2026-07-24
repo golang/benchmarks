@@ -66,7 +66,7 @@ func run(pkgPath string) error {
 
 	name := "GoBuild" + strings.Title(filepath.Base(pkgPath))
 
-	cmdArgs := []string{goTool, "build"}
+	cmdArgs := []string{goTool, "build", "-o", filepath.Join(tmpCacheDir, "target.bin")}
 
 	// Build a command comprised of this binary to pass to -toolexec.
 	selfPath, err := filepath.Abs(os.Args[0])

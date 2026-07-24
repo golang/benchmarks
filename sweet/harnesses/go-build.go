@@ -32,7 +32,7 @@ var (
 				return gitShallowClone(
 					outDir,
 					"https://github.com/kubernetes/kubernetes",
-					"v1.22.1",
+					"v1.36.2",
 				)
 			},
 		},
@@ -43,7 +43,7 @@ var (
 				return gitShallowClone(
 					outDir,
 					"https://github.com/istio/istio",
-					"1.11.1",
+					"1.30.0",
 				)
 			},
 		},
@@ -55,7 +55,7 @@ var (
 					outDir,
 					"https://go.googlesource.com/pkgsite",
 					"master",
-					"0a8194a898a1ceff6a0b29e3419650daf43d8567",
+					"95d18f84b8d26222de17dcd0ed885623fab0e8a3",
 				)
 			},
 		},
@@ -71,7 +71,7 @@ var (
 					outDir,
 					"https://github.com/microsoft/typescript-go",
 					"main",
-					"1fffa1c05909adddbf2db7e14afeb8f63ed1e12c",
+					"7da5af557158a4d4b6b6826ac1e0ccd393b1a89b",
 				)
 			},
 		},
