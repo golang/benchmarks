@@ -34,7 +34,7 @@ func (h CockroachDB) Get(gcfg *common.GetConfig) error {
 		gcfg.SrcDir,
 		"https://github.com/cockroachdb/cockroach",
 		"master",
-		"de6ca871fb4b0536d308d6468ab1f57a0fe83cee", // v25.2.0
+		"3d2773444f3ed07326a5daf43bc1555457d6964b", // v26.2.0
 	)
 }
 

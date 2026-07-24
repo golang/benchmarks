@@ -29,7 +29,7 @@ func (h Etcd) Get(gcfg *common.GetConfig) error {
 	return gitShallowClone(
 		gcfg.SrcDir,
 		"https://github.com/etcd-io/etcd",
-		"v3.6.0-alpha.0",
+		"v3.6.0",
 	)
 }
 

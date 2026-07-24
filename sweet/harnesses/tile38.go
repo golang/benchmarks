@@ -26,7 +26,7 @@ func (h Tile38) Get(gcfg *common.GetConfig) error {
 	return gitShallowClone(
 		gcfg.SrcDir,
 		"https://github.com/tidwall/tile38",
-		"1.29.1",
+		"1.34.0",
 	)
 }
 

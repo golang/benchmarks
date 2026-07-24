@@ -32,7 +32,7 @@ func (h *ESBuild) Get(gcfg *common.GetConfig) error {
 	err := gitShallowClone(
 		gcfg.SrcDir,
 		"https://github.com/evanw/esbuild",
-		"v0.23.1",
+		"v0.28.1",
 	)
 	if err != nil {
 		return err

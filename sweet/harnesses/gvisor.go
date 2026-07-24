@@ -32,7 +32,7 @@ func (h GVisor) Get(gcfg *common.GetConfig) error {
 		gcfg.SrcDir,
 		"https://github.com/google/gvisor",
 		"go",
-		"b75aeea", // release-20240513.0-37-g4f08fc481
+		"a29997e6c741", // release-20260706.0
 	)
 }
 
