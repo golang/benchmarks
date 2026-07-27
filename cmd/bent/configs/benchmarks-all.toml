@@ -20,20 +20,13 @@
 [[Benchmarks]]
   Name = "aws_restjson"
   Benchmarks = "Benchmark"
-  Disabled = true # no benchmarks
 
 [[Benchmarks]]
   Name = "aws_restxml"
   Benchmarks = "Benchmark"
-  Disabled = true # no benchmarks
 
 [[Benchmarks]]
   Name = "aws_jsonrpc"
-  Benchmarks = "Benchmark"
-  Disabled = true # no benchmarks
-
-[[Benchmarks]]
-  Name = "aws_jsonutil"
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
@@ -50,7 +43,7 @@
 
 [[Benchmarks]]
   Name = "ethereum_core"
-  Benchmarks = "Benchmark([^ICBH]|H[^a]|B[^l]|C[^h]|I[^n])"
+  Benchmarks = "Benchmark"
 
 [[Benchmarks]]
   Name = "ethereum_sha3"
@@ -107,11 +100,11 @@
 
 [[Benchmarks]]
   Name = "hugo_hugolib"
-  Benchmarks = "Benchmark"
+  Benchmarks = "Benchmark([^P]|Page[^P])" # not BenchmarkPagePageCollections
 
 [[Benchmarks]]
   Name = "k8s_cache"
-  Benchmarks = "Benchmark"
+  Benchmarks = "Benchmark[^S]" # BenchmarkSharedIndexInformer starts an endless goroutine
 
 [[Benchmarks]]
   Name = "k8s_workqueue"
@@ -123,7 +116,22 @@
 
 [[Benchmarks]]
   Name = "gonum_topo"
-  Benchmarks = "Benchmark"
+  Benchmarks = "Benchmark(Tarjan|UndirectedCyclesInGnp_100|UndirectedCyclesInGnp_10_half|BenchmarkSortGnp_10_tenth|SortPath|SortStabilizedGnp_10_tenth|SortStabilizedPath|BronKerbosch|Clique)"
+
+# BenchmarkSortGnp_10_tenth-16                      159045        7126 ns/op
+# FAIL: BenchmarkSortGnp_100_tenth
+# FAIL: BenchmarkSortGnp_1000_tenth
+# FAIL: BenchmarkSortGnp_10_half
+# FAIL: BenchmarkSortGnp_100_half
+# FAIL: BenchmarkSortGnp_1000_half
+
+# BenchmarkSortStabilizedGnp_10_tenth-16            135801        8834 ns/op
+# FAIL: BenchmarkSortStabilizedGnp_100_tenth
+# FAIL: BenchmarkSortStabilizedGnp_1000_tenth
+# FAIL: BenchmarkSortStabilizedGnp_10_half
+# FAIL: BenchmarkSortStabilizedGnp_100_half
+# FAIL: BenchmarkSortStabilizedGnp_1000_half
+
 
 [[Benchmarks]]
   Name = "gonum_path"
@@ -187,7 +195,7 @@
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
-  Name = "benhoyt_goawk_1_18"
+  Name = "benhoyt_goawk"
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
@@ -288,10 +296,20 @@
 
 [[Benchmarks]]
   Name = "uber_tchannel"
-  Benchmarks = "Benchmark"
-  Disabled = true # fails to compile
+  Benchmarks = "Benchmark([^CR]|Call[^s]|Calls[^C]|R[^e])"
+  # BenchmarkCallsS
+  Disabled = true # fails to compile on Darwin at least
+# go test -vet=off -c -o /blahblahblah/bent-test/testbin/uber_tchannel_Control -a github.com/uber/tchannel-go )
+# There was an error running 'go test', output = # github.com/uber/tchannel-go [github.com/uber/tchannel-go.test]
+# ../../gopath/pkg/mod/github.com/uber/tchannel-go@v1.34.6/sockio_darwin.go:28:6: getSendQueueLen redeclared in this block
+#   ../../gopath/pkg/mod/github.com/uber/tchannel-go@v1.34.6/sockio_bsd.go:28:6: other declaration of getSendQueueLen
 
 [[Benchmarks]]
   Name = "uber_tchannel_benchmark"
   Benchmarks = "Benchmark"
-  Disabled = true # fails to compile
+  Disabled = true # fails to compile on Darwin at least
+
+[[Benchmarks]]
+  Name = "ipaddress"
+  Benchmarks = "Benchmark"
+

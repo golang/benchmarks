@@ -4,12 +4,12 @@
  [[Suites]]
   Name = "wazero"
   Repo = "github.com/tetratelabs/wazero/internal/integration_test/bench"
-  Version = "@v1.7.3"
+  Version = "@v1.12.0"
 
  [[Suites]]
   Name = "toml"
   Repo = "github.com/BurntSushi/toml"
-  Version = "@v1.3.2"
+  Version = "@v1.6.0"
   ExtraFiles = ["_example"]
 
 [[Suites]]
@@ -30,42 +30,45 @@
 [[Suites]]
   Name = "dustin_humanize"
   Repo = "github.com/dustin/go-humanize"
-  Version = "@v1.0.0"
+  Version = "@v1.0.1"
 
 [[Suites]]
   Name = "rcrowley_metrics"
   Repo = "github.com/rcrowley/go-metrics"
-  Version = "@v0.0.0-20201227073835-cf1acfcdf475"
+  Version = "@v0.0.0-20250401214520-65e299d6c5c9"
 
 [[Suites]]
   Name = "shopify_sarama"
-  Repo = "github.com/Shopify/sarama"
-  Version = "@v1.30.0"
+  Repo = "github.com/IBM/sarama"
+  Version = "@v1.60.0"
 
 [[Suites]]
   Name = "aws_restjson"
-  Repo = "github.com/aws/aws-sdk-go/private/protocol/restjson"
-  Version = "@v1.41.1"
+  Repo = "github.com/aws/aws-sdk-go-v2/internal/protocoltest/awsrestjson"
+  Version = "@release-2026-07-24"
+  Disabled = true # fails to get; too large for proxy/sumdb server?
 
 [[Suites]]
   Name = "aws_restxml"
-  Repo = "github.com/aws/aws-sdk-go/private/protocol/restxml"
-  Version = "@v1.41.1"
+  Repo = "github.com/aws/aws-sdk-go-v2/internal/protocoltest/restxml"
+  Version = "@release-2026-07-24"
+  Disabled = true # fails to get; too large for proxy/sumdb server?
 
 [[Suites]]
   Name = "aws_jsonrpc"
-  Repo = "github.com/aws/aws-sdk-go/private/protocol/jsonrpc"
-  Version = "@v1.41.1"
+  Repo = "github.com/aws/aws-sdk-go-v2/internal/protocoltest/jsonrpc"
+  Version = "@release-2026-07-24"
+  Disabled = true # fails to get; too large for proxy/sumdb server?
 
 [[Suites]]
-  Name = "aws_jsonutil"
-  Repo = "github.com/aws/aws-sdk-go/private/protocol/json/jsonutil"
-  Version = "@v1.41.1"
+  Name = "aws_query"
+  Repo = "github.com/aws/aws-sdk-go-v2/internal/protocoltest/query"
+  Version = "@release-2026-07-24"
 
 [[Suites]]
   Name = "kanzi"
-  Repo = "github.com/flanglet/kanzi-go/benchmark"
-  Version = "@v1.9.0"
+  Repo = "github.com/flanglet/kanzi-go/v2/benchmark"
+  Version = "@v2.3.0"
 
 [[Suites]]
   Name = "ethereum_bitutil"
@@ -83,36 +86,36 @@
   Name = "ethereum_ethash"
   Repo = "github.com/ethereum/go-ethereum/consensus/ethash"
   NotSandboxed = true # Won't cross-compile to Linux on MacOS
-  Version = "@v1.10.9"
+  Version = "@v1.17.4"
 
 [[Suites]]
   Name = "ethereum_core"
   Repo = "github.com/ethereum/go-ethereum/core"
-  Version = "@v1.10.9"
+  Version = "@v1.17.4"
 
 [[Suites]]
   Name = "ethereum_sha3"
   Repo = "github.com/ethereum/go-ethereum/crypto/sha3"
   Disabled = true # won't even get
-  Version = "@v1.10.9"
+  Version = "@v1.17.4"
 
 [[Suites]]
   Name = "ethereum_ecies"
   Repo = "github.com/ethereum/go-ethereum/crypto/ecies"
   NotSandboxed = true # Won't cross-compile to Linux on MacOS
-  Version = "@v1.10.9"
+  Version = "@v1.17.4"
 
 [[Suites]]
   Name = "ethereum_corevm"
   Repo = "github.com/ethereum/go-ethereum/core/vm"
   NotSandboxed = true # Won't cross-compile to Linux on MacOS
-  Version = "@v1.10.9"
+  Version = "@v1.17.4"
 
 [[Suites]]
   Name = "ethereum_trie"
   Repo = "github.com/ethereum/go-ethereum/trie"
   NotSandboxed = true # Won't cross-compile to Linux on MacOS
-  Version = "@v1.10.9"
+  Version = "@v1.17.4"
 
 [[Suites]]
   Name = "ethereum_whisper"
@@ -141,80 +144,79 @@
   Name = "minio"
   Repo = "github.com/minio/minio/cmd"
   Tests = "none" # Don't run these tests; they hang, etc.
-  Version = "@v0.0.0-20211012165317-13e41f2c6899"
+  Version = "@RELEASE.2025-10-15T17-29-55Z"
 
 [[Suites]]
   Name = "gonum_blas_native"
   Repo = "gonum.org/v1/gonum/blas/gonum"
   BuildFlags = ["-tags", "safe"]
-  Version = "@v0.9.3"
+  Version = "@v0.17.0"
 
 [[Suites]]
   Name = "gonum_lapack_native"
   Repo = "gonum.org/v1/gonum/lapack/gonum"
   BuildFlags = ["-tags", "safe"]
-  Version = "@v0.9.3"
+  Version = "@v0.17.0"
 
 [[Suites]]
   Name = "gonum_mat"
   Repo = "gonum.org/v1/gonum/mat"
   BuildFlags = ["-tags", "safe"]
-  Version = "@v0.9.3"
+  Version = "@v0.17.0"
 
 [[Suites]]
   Name = "semver"
-  Repo = "github.com/Masterminds/semver"
-  Version = "@v1.5.0"
+  Repo = "github.com/Masterminds/semver/v3"
+  Version = "@v3.3.1"
 
 [[Suites]]
   Name = "hugo_helpers"
   Repo = "github.com/gohugoio/hugo/helpers"
-  Version = "@v0.88.1"
+  Version = "@v0.164.0"
 
 [[Suites]]
   Name = "hugo_hugolib"
   Repo = "github.com/gohugoio/hugo/hugolib"
-  Version = "@v0.88.1"
+  Version = "@v0.164.0"
 
 [[Suites]]
   Name = "k8s_cache"
   Repo = "k8s.io/client-go/tools/cache"
-  Version = "@v0.22.2"
+  Version = "@v0.36.2"
 
 [[Suites]]
   Name = "k8s_workqueue"
   Repo = "k8s.io/client-go/util/workqueue"
-  Version = "@v0.22.2"
+  Version = "@v0.36.2"
 
 [[Suites]]
   Name = "uuid"
-  Repo = "github.com/satori/go.uuid/"
+  Repo = "github.com/google/uuid/"
   Version = "@v1.2.0"
-  Disabled = true # not a benchmark anymore
 
 [[Suites]]
   Name = "gonum_topo"
   Repo = "gonum.org/v1/gonum/graph/topo/"
   BuildFlags = ["-tags", "safe"]
-  Version = "@v0.9.3"
+  Version = "@v0.17.0"
 
 [[Suites]]
   Name = "gonum_path"
   Repo = "gonum.org/v1/gonum/graph/path/"
   BuildFlags = ["-tags", "safe"]
-  Version = "@v0.9.3"
+  Version = "@v0.17.0"
 
 [[Suites]]
   Name = "gonum_community"
   Repo = "gonum.org/v1/gonum/graph/community/"
   BuildFlags = ["-tags", "safe"]
-  Version = "@v0.9.3"
+  Version = "@v0.17.0"
 
 [[Suites]]
   Name = "gonum_traverse"
   Repo = "gonum.org/v1/gonum/graph/traverse/"
   BuildFlags = ["-tags", "safe"]
-  Version = "@v0.9.3"
+  Version = "@v0.17.0"
 
 [[Suites]]
   Name = "capnproto2"
@@ -225,27 +227,28 @@
 [[Suites]]
   Name = "uber_zap"
   Repo = "go.uber.org/zap/zapcore"
-  Version = "@v1.19.1"
+  Version = "@v1.27.0"
 
 [[Suites]]
   Name = "uber_tally"
-  Repo = "github.com/uber-go/tally"
-  Version = "@v3.4.2+incompatible"
+  Repo = "github.com/uber-go/tally/v4"
+  Version = "@v4.1.11"
 
 [[Suites]]
   Name = "bloom_bits"
   Repo = "github.com/bits-and-blooms/bitset"
-  Version = "@v1.2.1"
+  Version = "@v1.22.0"
 
 [[Suites]]
   Name = "bloom_bloom"
   Repo = "github.com/bits-and-blooms/bloom/v3"
-  Version = "@v3.1.0"
+  Version = "@v3.7.0"
 
 [[Suites]]
   Name = "bindata"
   Repo = "github.com/kevinburke/go-bindata"
   Version = "@v3.22.1-0.20211006210656-12dca65da1b8+incompatible"
+  Disabled = true # obsolete
 
 [[Suites]]
   Name = "cespare_mph"
@@ -255,9 +258,9 @@
 # Used by InfluxDB and Prometheus
 [[Suites]]
   Name = "cespare_xxhash"
-  Repo = "github.com/cespare/xxhash"
+  Repo = "github.com/cespare/xxhash/v2"
   BuildFlags = ["-tags", "purego"]
-  Version = "@v1.1.0"
+  Version = "@v2.3.0"
 
 [[Suites]]
   Name = "gtank_blake2s"
@@ -272,148 +275,156 @@
 [[Suites]]
   Name = "nelsam_gxui_interval"
   Repo = "git.sr.ht/~nelsam/gxui/interval"
-  Version = "@v0.2.0"
+  Version = "@v0.4.0"
 
 [[Suites]]
   Name = "ajstarks_deck_generate"
   Repo = "github.com/ajstarks/deck/generate"
-  Version = "@v0.0.0-20211012005819-a09e9c2a9a29"
+  Version = "@v0.0.0-20260618203703-cf77e587dfaa"
 
 # Turns out having benchmarks w/ overlapping packages makes for noisy results.
 # Do not use this until we deal with that problem.  It is, however, an interesting
 # collection of code, so don't forget about it.
 [[Suites]]
-  Name = "benhoyt_goawk"
+  Name = "benhoyt_goawk_old"
   Repo = "github.com/benhoyt/goawk/interp"
   Version = "@v1.8.1"
 
 [[Suites]]
-  Name = "benhoyt_goawk_1_18"
+  Name = "benhoyt_goawk"
   Repo = "github.com/benhoyt/goawk/interp"
-  Version = "@v1.18.0"
+  Version = "@v1.29.0"
 
 [[Suites]]
   Name = "ericlagergren_decimal"
-  Repo = "github.com/ericlagergren/decimal/benchmarks"
-  Version = "@v0.0.0-20210307182354-5f8425a47c58"
+  Repo = "github.com/ericlagergren/decimal_benchmarks"
+  Version = "@v0.0.0-20221016195653-12f81834bb00"
 
 [[Suites]]
   Name = "tidwall_tile38"
   Repo = "github.com/tidwall/tile38/tests"
-  Version = "@v0.0.0-20211002002505-72b3683f27da"
+  Version = "@v1.38.0"
 
 [[Suites]]
   Name = "commonmark_markdown"
   Repo = "gitlab.com/golang-commonmark/markdown"
-  Version = "@v0.0.0-20191127184510-91b5b3c99c19"
+  Version = "@v0.0.0-20211110145824-bf3e522c626a"
   ExtraFiles = ["spec"]
 
 [[Suites]]
   Name = "workiva_augmentedtree"
   Repo = "github.com/Workiva/go-datastructures/augmentedtree"
-  Version = "@v1.0.53"
+  Version = "@v1.1.7"
 
 [[Suites]]
   Name = "workiva_bitarray"
   Repo = "github.com/Workiva/go-datastructures/bitarray"
-  Version = "@v1.0.53"
+  Version = "@v1.1.7"
 
 [[Suites]]
   Name = "workiva_btree_palm"
   Repo = "github.com/Workiva/go-datastructures/btree/palm"
-  Version = "@v1.0.53"
+  Version = "@v1.1.7"
 
 [[Suites]]
   Name = "workiva_btree_plus"
   Repo = "github.com/Workiva/go-datastructures/btree/plus"
-  Version = "@v1.0.53"
+  Version = "@v1.1.7"
 
 [[Suites]]
   Name = "workiva_fibheap"
   Repo = "github.com/Workiva/go-datastructures/fibheap"
-  Version = "@v1.0.53"
+  Version = "@v1.1.7"
 
 [[Suites]]
   Name = "workiva_queue"
   Repo = "github.com/Workiva/go-datastructures/queue"
-  Version = "@v1.0.53"
+  Version = "@v1.1.7"
 
 [[Suites]]
   Name = "workiva_rangetree"
   Repo = "github.com/Workiva/go-datastructures/rangetree"
-  Version = "@v1.0.53"
+  Version = "@v1.1.7"
 
 [[Suites]]
   Name = "workiva_hilbert"
   Repo = "github.com/Workiva/go-datastructures/rtree/hilbert"
-  Version = "@v1.0.53"
+  Version = "@v1.1.7"
 
 [[Suites]]
   Name = "workiva_rangetree_skiplist"
   Repo = "github.com/Workiva/go-datastructures/rangetree/skiplist"
-  Version = "@v1.0.53"
+  Version = "@v1.1.7"
 
 [[Suites]]
   Name = "workiva_set"
   Repo = "github.com/Workiva/go-datastructures/set"
-  Version = "@v1.0.53"
+  Version = "@v1.1.7"
 
 [[Suites]]
   Name = "workiva_slice"
   Repo = "github.com/Workiva/go-datastructures/slice/skip"
-  Version = "@v1.0.53"
+  Version = "@v1.1.7"
 
 [[Suites]]
   Name = "workiva_avl"
   Repo = "github.com/Workiva/go-datastructures/tree/avl"
-  Version = "@v1.0.53"
+  Version = "@v1.1.7"
 
 [[Suites]]
   Name = "workiva_sort"
   Repo = "github.com/Workiva/go-datastructures/sort"
-  Version = "@v1.0.53"
+  Version = "@v1.1.7"
 
 [[Suites]]
   Name = "workiva_ctrie"
   Repo = "github.com/Workiva/go-datastructures/trie/ctrie"
-  Version = "@v1.0.53"
+  Version = "@v1.1.7"
 
 [[Suites]]
   Name = "workiva_dtrie"
   Repo = "github.com/Workiva/go-datastructures/trie/dtrie"
-  Version = "@v1.0.53"
+  Version = "@v1.1.7"
 
 [[Suites]]
   Name = "workiva_triex"
   Repo = "github.com/Workiva/go-datastructures/trie/xfast"
-  Version = "@v1.0.53"
+  Version = "@v1.1.7"
 
 [[Suites]]
   Name = "workiva_triey"
   Repo = "github.com/Workiva/go-datastructures/trie/yfast"
-  Version = "@v1.0.53"
+  Version = "@v1.1.7"
 
 [[Suites]]
   Name = "thriftrw_gen"
   Repo = "go.uber.org/thriftrw/gen"
-  Version = "@v1.29.2"
+  Version = "@v1.34.0"
 
 [[Suites]]
   Name = "thriftrw_protocol"
   Repo = "go.uber.org/thriftrw/protocol/binary"
-  Version = "@v1.29.2"
+  Version = "@v1.34.0"
 
 [[Suites]]
   Name = "yarpc"
   Repo = "go.uber.org/yarpc"
-  Version = "@v1.58.0"
+  Version = "@v1.89.0"
 
 [[Suites]]
   Name = "uber_tchannel"
   Repo = "github.com/uber/tchannel-go"
-  Version = "@v1.22.0"
+  Version = "@v1.34.6"
+  Disabled = true # fails to compile
 
 [[Suites]]
   Name = "uber_tchannel_benchmark"
   Repo = "github.com/uber/tchannel-go/benchmark"
-  Version = "@v1.22.0"
+  Version = "@v1.34.6"
+  Disabled = true # fails to compile
+
+[[Suites]]
+  Name = "ipaddress"
+  Repo = "github.com/seancfoley/ipaddress-go/ipaddr/test"
+  Version = "@v1.7.1"
+

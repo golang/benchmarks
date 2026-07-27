@@ -81,8 +81,8 @@ var wikiTable = false       // emit the tests in a form usable in a wiki table
 var explicitAll counterFlag // Include "-a" on "go test -c" test build ; repeating flag causes multiple rebuilds, useful for build benchmarking.
 var shuffle = 2             // Dimensionality of (build) shuffling; 0 = none, 1 = per-benchmark, configuration ordering, 2 = bench, config pairs, 3 = across repetitions.
 var reportBuildTime = true
-var experiment = false    // Don't reset go.mod, for testing purposes
-var minGoVersion = "1.22" // This is the release the toolchain started caring about versions of Go that are too new.
+var experiment = false // Don't reset go.mod, for testing purposes
+var minGoVersion = "1.26"
 
 //go:embed scripts/*
 var scripts embed.FS
@@ -562,7 +562,7 @@ results will also appear in 'bench'.
 			fmt.Print("Go getting")
 		}
 
-		// Obtain (go get -d -t -v bench.Repo) all benchmarks, once, populating src
+		// Obtain (go get -t -v bench.Repo) all benchmarks, once, populating src
 		for i := range todo.Benchmarks {
 			bench := &todo.Benchmarks[i]
 
@@ -610,7 +610,7 @@ results will also appear in 'bench'.
 					fmt.Print(".")
 				}
 
-				cmd := exec.Command("go", "get", "-d", "-t", "-v", bench.Repo+bench.Version)
+				cmd := exec.Command("go", "get", "-t", "-v", bench.Repo+bench.Version)
 				cmd.Env = DefaultEnv()
 				cmd.Dir = bench.BuildDir
 

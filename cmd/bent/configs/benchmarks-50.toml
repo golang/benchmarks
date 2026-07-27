@@ -4,7 +4,7 @@
 
 [[Benchmarks]]
   Name = "wazero"
-  Benchmarks = "BenchmarkInvocation/interpreter/(string_manipulation_size_50|fib_for_20|random_mat_mul_size_20)|BenchmarkCompilation/with"
+  Benchmarks = "BenchmarkInvocation/interpreter/(string_manipulation_size_50|fib_for_20|random_mat_mul_size_20)|BenchmarkCompilation/without"
 
 [[Benchmarks]]
   Name = "toml"
@@ -22,7 +22,7 @@
 
 [[Benchmarks]]
   Name = "ethereum_core"
-  Benchmarks = "BenchmarkP.*10000"
+  Benchmarks = "Benchmark(InsertChain_ring1000_memdb|BlockChain_1x1000ValueTransferToExisting)"
 
 [[Benchmarks]]
   Name = "shopify_sarama"
@@ -41,16 +41,12 @@
   Benchmarks = "Benchmark"
 
 [[Benchmarks]]
-  Name = "aws_jsonutil"
-  Benchmarks = "Benchmark"
-
-[[Benchmarks]]
   Name = "ethereum_bitutil"
   Benchmarks = "Benchmark(BaseTest2KB|FastTest2KB|Encoding4KBVerySparse)"
 
 [[Benchmarks]]
   Name = "ethereum_ethash"
-  Benchmarks = "BenchmarkHashimotoLight"
+  Benchmarks = "BenchmarkDifficultyCalculator/big-homestead-16"
 
 [[Benchmarks]]
   Name = "ethereum_sha3"
@@ -90,7 +86,7 @@
 
 [[Benchmarks]]
   Name = "k8s_cache"
-  Benchmarks = "Benchmark"
+  Benchmarks = "Benchmark[^S]" # BenchmarkSharedIndexInformer spawns an non-exiting goroutine
 
 [[Benchmarks]]
   Name = "k8s_workqueue"
@@ -106,7 +102,11 @@
 
 [[Benchmarks]]
   Name = "gonum_path"
-  Benchmarks = "Benchmark(AStarUndirectedmallWorld_10_2_2_2_Heur|Dominators/nested_if_n256)"
+  Benchmarks = "Benchmark(AStarUndirected|AllShortest)/(NSW_Undirected_100_5_20_2_heuristic|FloydWarshall_AllBetweenFunc_1000×4[|]0.25.1137|DijkstraAllPaths_AllBetween_1000×16[|]0.1.828)"
+# BenchmarkAStarUndirected/NSW_Undirected_100_5_20_2_heuristic
+# BenchmarkBellmanFordFrom/500_tenth_incremental
+# BenchmarkAllShortest/FloydWarshall_AllBetweenFunc_1000×4|0.25(1137)
+# BenchmarkAllShortest/DijkstraAllPaths_AllBetween_1000×16|0.1(828)
 
 [[Benchmarks]]
   Name = "gonum_community"
@@ -154,7 +154,7 @@
   Benchmarks = "Benchmark(Polygon|Arc)"
 
 [[Benchmarks]]
-  Name = "benhoyt_goawk_1_18"
+  Name = "benhoyt_goawk"
   Benchmarks = "BenchmarkR"
 
 [[Benchmarks]]
