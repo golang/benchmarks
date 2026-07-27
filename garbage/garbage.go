@@ -6,8 +6,8 @@
 // It repeatedly parses net/http package with go/parser and then discards results.
 package main
 
-// The source of net/http was captured at git tag go1.5.2 by
-//go:generate sh -c "(echo 'package garbage'; echo 'var src = `'; bundle net/http http '' | sed 's/`/`+\"`\"+`/g'; echo '`') > nethttp.go"
+// The source of net/http was captured from standard library net/http by
+//go:generate sh -c "(echo 'package main'; echo ''; echo 'var src = `'; go run golang.org/x/tools/cmd/bundle@latest net/http | sed 's/`/`+\"`\"+`/g'; echo '`') > nethttp.go"
 
 import (
 	"fmt"

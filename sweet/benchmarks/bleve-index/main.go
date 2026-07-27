@@ -16,8 +16,8 @@ import (
 	"golang.org/x/benchmarks/sweet/benchmarks/internal/driver"
 	blevebench "golang.org/x/benchmarks/third_party/bleve-bench"
 
-	"github.com/blevesearch/bleve"
-	_ "github.com/blevesearch/bleve/analysis/analyzer/keyword"
+	"github.com/blevesearch/bleve/v2"
+	_ "github.com/blevesearch/bleve/v2/analysis/analyzer/keyword"
 	wikiparse "github.com/dustin/go-wikiparse"
 )
 
