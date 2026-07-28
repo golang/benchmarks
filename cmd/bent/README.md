@@ -22,7 +22,7 @@ cd scratch
 bent -I
 cp configurations-sample.toml configurations.toml
 nano configurations.toml # or use your favorite editor
-bent -v -N 10 # will run default set of ~50 benchmarks 10 times using supplied configuration(s)
+bent -v -N 10 # will run default set of ~100 benchmarks 10 times using supplied configuration(s)
 ```
 
 The output binaries are placed in subdirectory `testbin`, various

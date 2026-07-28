@@ -1,10 +1,10 @@
 
-# A sample of about 50 different benchmark runs, not noisy, run quickly enough,
+# A sample of about 100 different benchmark runs, not noisy, run quickly enough,
 # that appear to be somewhat diverse.
 
 [[Benchmarks]]
   Name = "wazero"
-  Benchmarks = "BenchmarkInvocation/interpreter/(string_manipulation_size_50|fib_for_20|random_mat_mul_size_20)|BenchmarkCompilation/without"
+  Benchmarks = "BenchmarkInvocation/interpreter/(string_manipulation_size_50|random_mat_mul_size_20)|BenchmarkCompilation/without"
 
 [[Benchmarks]]
   Name = "toml"
@@ -46,7 +46,7 @@
 
 [[Benchmarks]]
   Name = "ethereum_ethash"
-  Benchmarks = "BenchmarkDifficultyCalculator/big-homestead-16"
+  Benchmarks = "BenchmarkDifficultyCalculator/big-homestead"
 
 [[Benchmarks]]
   Name = "ethereum_sha3"
@@ -86,15 +86,15 @@
 
 [[Benchmarks]]
   Name = "k8s_cache"
-  Benchmarks = "Benchmark[^S]" # BenchmarkSharedIndexInformer spawns an non-exiting goroutine
+  Benchmarks = "Benchmark([^SELIA]|Listener|Lister_Match_1[^_]*_1[^_]*)" # SharedIndexInformer spawns an non-exiting goroutine, AddSlowListeners leaks a thread.
 
 [[Benchmarks]]
   Name = "k8s_workqueue"
-  Benchmarks = "BenchmarkParallelizeUntil" # DelayingQueue is noisy
+  Benchmarks = "BenchmarkParallelizeUntil/(pieces:999,workers:10,chunkSize:13|pieces:1000,workers:10,chunkSize:1)" # DelayingQueue is noisy
 
 [[Benchmarks]]
   Name = "uuid"
-  Benchmarks = "Benchmark"
+  Benchmarks = "Benchmark([^P]|ParseBytesCopy)"
 
 [[Benchmarks]]
   Name = "gonum_topo"
@@ -122,7 +122,7 @@
 
 [[Benchmarks]]
   Name = "uber_zap"
-  Benchmarks = "Benchmark"
+  Benchmarks = "Benchmark([^MSBT]|Standard)"
 
 [[Benchmarks]]
   Name = "uber_tally"
@@ -155,7 +155,7 @@
 
 [[Benchmarks]]
   Name = "benhoyt_goawk"
-  Benchmarks = "BenchmarkR"
+  Benchmarks = "Benchmark(Re[^p]|Repeat[^N])"
 
 [[Benchmarks]]
   Name = "ericlagergren_decimal"

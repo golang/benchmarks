@@ -58,7 +58,7 @@ func TestBent(t *testing.T) {
 	}
 	t.Log(string(output))
 	Cs := []string{"sample", "cronjob", "cmpjob", "gollvm"}
-	Bs := []string{"all", "50", "gc", "gcplus", "trial"}
+	Bs := []string{"all", "100", "gc", "gcplus", "trial"}
 	for _, c := range Cs {
 		for _, b := range Bs {
 			cmd = bentCmd(t, "-l", "-C=configurations-"+c+".toml", "-B=benchmarks-"+b+".toml")
