@@ -5,6 +5,8 @@
 package fileutil
 
 import (
+	"bytes"
+	"errors"
 	"io"
 	"io/fs"
 	"os"
@@ -33,9 +35,10 @@ func FileExists(path string) (bool, error) {
 // In effect, sfinfo is just an optimization to avoid
 // querying the path for the os.FileInfo more than necessary.
 //
-// Thus, CopyFile always copies the bytes of the file at
-// src to a new file created at dst with the same file mode
-// as the old one.
+// Thus, CopyFile copies the bytes of the file at src to a file
+// created at dst with the same file mode as the old one.
+// If dst already exists and has the same contents as src, CopyFile
+// returns success without copying the file.
 //
 // If srcFS != nil, then src is assumed to be a path within
 // srcFS.
@@ -43,23 +46,55 @@ func FileExists(path string) (bool, error) {
 // Returns a non-nil error if copying or acquiring the
 // os.FileInfo for the file fails.
 func CopyFile(dst, src string, sfinfo fs.FileInfo, srcFS fs.FS) error {
-	var sf fs.File
-	var err error
-	if srcFS != nil {
-		sf, err = srcFS.Open(src)
-	} else {
-		sf, err = os.Open(src)
+	openSrc := func() (fs.File, error) {
+		if srcFS != nil {
+			return srcFS.Open(src)
+		}
+		return os.Open(src)
 	}
+	sf, err := openSrc()
 	if err != nil {
 		return err
 	}
-	defer sf.Close()
+	defer func() {
+		if sf != nil {
+			sf.Close()
+		}
+	}()
+
 	if sfinfo == nil || sfinfo.Mode()&os.ModeSymlink != 0 {
 		sfinfo, err = sf.Stat()
 		if err != nil {
 			return err
 		}
 	}
+
+	if df, err := os.Open(dst); err == nil {
+		dfinfo, err := df.Stat()
+		if err == nil && dfinfo.Mode().IsRegular() && dfinfo.Size() == sfinfo.Size() {
+			same, err := sameContent(sf, df)
+			df.Close()
+			if err == nil && same {
+				return nil
+			}
+		} else {
+			df.Close()
+		}
+		if seeker, ok := sf.(io.Seeker); ok {
+			_, err = seeker.Seek(0, io.SeekStart)
+		} else {
+			err = errors.New("not seekable")
+		}
+		if err != nil {
+			sf.Close()
+			sf, err = openSrc()
+			if err != nil {
+				sf = nil
+				return err
+			}
+		}
+	}
+
 	df, err := os.OpenFile(dst, os.O_RDWR|os.O_CREATE|os.O_TRUNC, sfinfo.Mode())
 	if err != nil {
 		return err
@@ -67,6 +102,33 @@ func CopyFile(dst, src string, sfinfo fs.FileInfo, srcFS fs.FS) error {
 	defer df.Close()
 	_, err = io.Copy(df, sf)
 	return err
+}
+
+func sameContent(r1, r2 io.Reader) (bool, error) {
+	buf1 := make([]byte, 64*1024)
+	buf2 := make([]byte, 64*1024)
+	for {
+		n1, err1 := io.ReadFull(r1, buf1)
+		n2, err2 := io.ReadFull(r2, buf2)
+		if err1 != nil && err1 != io.EOF && err1 != io.ErrUnexpectedEOF {
+			return false, err1
+		}
+		if err2 != nil && err2 != io.EOF && err2 != io.ErrUnexpectedEOF {
+			return false, err2
+		}
+		if n1 != n2 {
+			return false, nil
+		}
+		if !bytes.Equal(buf1[:n1], buf2[:n2]) {
+			return false, nil
+		}
+		if err1 == io.EOF || err1 == io.ErrUnexpectedEOF {
+			if err2 == io.EOF || err2 == io.ErrUnexpectedEOF {
+				return true, nil
+			}
+			return false, nil
+		}
+	}
 }
 
 // CopyDir recursively copies the directory at path src to

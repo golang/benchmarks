@@ -56,7 +56,7 @@ func (c *Configuration) thingBenchName(suffix string) string {
 }
 
 func (c *Configuration) benchName(b *Benchmark, count int, randomizingBinaries bool) string {
-	n := b.Name + "_" + c.Name
+	n := b.Suite + "_" + c.Name
 	if randomizingBinaries {
 		n += "_" + strconv.FormatInt(int64(count), 10)
 	}
@@ -201,7 +201,7 @@ func (config *Configuration) compileOne(bench *Benchmark, cwd string, count int,
 		cmd.Args = append(cmd.Args, "-ldflags="+expandEnv(config.LdFlags, cmd.Env))
 	}
 	cmd.Args = append(cmd.Args, bench.Repo)
-	cmd.Dir = bench.BuildDir // use module-mode
+	cmd.Dir = bench.BuildDir() // use module-mode
 
 	if verbose > 0 {
 		fmt.Println(asCommandLine(cwd, cmd))

@@ -23,6 +23,7 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/benchmarks/sweet/common"
 	"golang.org/x/benchmarks/sweet/common/fileutil"
 
 	"github.com/BurntSushi/toml"
@@ -34,20 +35,22 @@ type BenchStat struct {
 }
 
 type Benchmark struct {
-	Name       string   // Short name for benchmark/test
-	Contact    string   // Contact not used, but may be present in description
-	Repo       string   // Repo + subdir where test resides, used for "go get -t -d ..."
-	Tests      string   // Tests to run (regex for -test.run= )
-	Benchmarks string   // Benchmarks to run (regex for -test.bench= )
-	GcEnv      []string // Environment variables supplied to 'go test -c' for building, getting
-	BuildFlags []string // Flags for building test (e.g., -tags purego)
-	RunWrapper []string // (Inner) Command and args to precede whatever the operation is; may fail in the sandbox.
+	Name                string     // Short name for benchmark/test
+	Suite               string     // Suite for the benchmark.  Default is from the name, but can be specified separately
+	SuiteRepresentative *Benchmark // If there are multiple benchmarks with the same suite, one is the "representative"
+	Contact             string     // Contact not used, but may be present in description
+	Repo                string     // Repo + subdir where test resides, used for "go get -t -d ..."
+	Tests               string     // Tests to run (regex for -test.run= )
+	Benchmarks          string     // Benchmarks to run (regex for -test.bench= )
+	GcEnv               []string   // Environment variables supplied to 'go test -c' for building, getting
+	BuildFlags          []string   // Flags for building test (e.g., -tags purego)
+	RunWrapper          []string   // (Inner) Command and args to precede whatever the operation is; may fail in the sandbox.
 	// e.g. benchmark may run as ConfigWrapper ConfigArg BenchWrapper BenchArg ActualBenchmark
 	NotSandboxed bool     // True if this benchmark cannot or should not be run in a container.
 	Disabled     bool     // True if this benchmark is temporarily disabled.
-	RunDir       string   // Parent directory of testdata.
+	runDir       string   // Parent directory of testdata.
 	ExtraFiles   []string // other directories expected for running tests/benchmarks
-	BuildDir     string   // Location of go.mod for this benchmark; download here, go test -c here.
+	buildDir     string   // Location of go.mod for this benchmark; download here, go test -c here.
 	Version      string   // To pin a benchmark at a version.
 }
 
@@ -56,9 +59,49 @@ type Suite struct {
 }
 
 type Todo struct {
-	Benchmarks     []Benchmark
-	Configurations []Configuration
-	Suites         []Suite
+	Benchmarks      []Benchmark
+	BenchmarkSuites []*Benchmark // a subset of Benchmarks, for build purposes
+	Configurations  []Configuration
+	Suites          []Suite
+}
+
+func (b *Benchmark) IsDisabled() bool {
+	for b != nil {
+		if b.Disabled {
+			return true
+		}
+		if b.SuiteRepresentative == b {
+			return false
+		}
+		b = b.SuiteRepresentative
+	}
+	return false
+}
+
+func (b *Benchmark) BuildDir() string {
+	for b != nil {
+		if b.buildDir != "" {
+			return b.buildDir
+		}
+		if b.SuiteRepresentative == b {
+			return b.buildDir
+		}
+		b = b.SuiteRepresentative
+	}
+	return b.buildDir
+}
+
+func (b *Benchmark) RunDir() string {
+	for b != nil {
+		if b.runDir != "" {
+			return b.runDir
+		}
+		if b.SuiteRepresentative == b {
+			return b.runDir
+		}
+		b = b.SuiteRepresentative
+	}
+	return b.runDir
 }
 
 var verbose counterFlag
@@ -127,15 +170,16 @@ func cleanup(gopath string) {
 
 func main() {
 
-	var benchmarksString, configurationsString, stampLog string
+	var benchmarksString, configurationsString, suitesString, stampLog string
 
 	flag.IntVar(&N, "N", N, "benchmark/test repeat count")
 	flag.IntVar(&R, "R", R, "randomize binary layouts to reduce alignment artifacts (subsumes and is incompatible with -a, -N)")
 	flag.BoolVar(&groupRuns, "G", groupRuns, "group runs by benchmark (give them similar platform noise)")
 
 	flag.Var(&explicitAll, "a", "add '-a' flag to 'go test -c' to demand full recompile. Repeat or assign a value for repeat builds for benchmarking")
-	flag.IntVar(&shuffle, "s", shuffle, "dimensionality of (build) shuffling (0-3), 0 = none, 1 = per-benchmark, configuration ordering, 2 = bench, config pairs, 3 = across repetitions.")
+	flag.IntVar(&shuffle, "S", shuffle, "dimensionality of (build) shuffling (0-3), 0 = none, 1 = per-benchmark, configuration ordering, 2 = bench, config pairs, 3 = across repetitions.")
 
+	flag.StringVar(&suitesString, "s", "", "comma-separated list of suite names, which may imply multiple benchmarks. (-b is normally what you want)")
 	flag.StringVar(&benchmarksString, "b", "", "comma-separated list of test/benchmark names (default is all)")
 	flag.StringVar(&benchFile, "B", benchFile, "name of file containing benchmarks to run")
 
@@ -303,7 +347,13 @@ results will also appear in 'bench'.
 
 	for i := range todo.Benchmarks {
 		b := &todo.Benchmarks[i]
-		s := suites[b.Name]
+
+		if common.HasEscapes(b.Name) {
+			b.Name = common.Escapify(b.Name)
+		}
+
+		update(&b.Suite, b.Name)
+		s := suites[b.Suite]
 		if s == nil {
 			fmt.Printf("Benchmark %s appearing in %s is not listed in %s\n", b.Name, benchFile, suiteFile)
 			os.Exit(1)
@@ -331,6 +381,7 @@ results will also appear in 'bench'.
 		}
 	}
 
+	benchmarkSuites := csToSet(suitesString)
 	benchmarks := csToSet(benchmarksString)
 	configurations := csToSet(configurationsString)
 
@@ -397,12 +448,27 @@ results will also appear in 'bench'.
 		}
 		duplicates[bench.Name] = true
 
-		if benchmarks != nil {
-			_, present := benchmarks[bench.Name]
-			todo.Benchmarks[i].Disabled = !present
-			if present {
-				benchmarks[bench.Name] = false
+		if benchmarkSuites != nil || benchmarks != nil {
+			bPresent := false
+			sPresent := false
+
+			if benchmarks != nil {
+				_, bPresent = benchmarks[bench.Name]
+				if bPresent {
+					benchmarks[bench.Name] = false
+				}
 			}
+
+			if benchmarkSuites != nil {
+				_, sPresent = benchmarkSuites[bench.Suite]
+				if sPresent {
+					benchmarkSuites[bench.Suite] = false
+				}
+			}
+
+			present := bPresent || sPresent
+			todo.Benchmarks[i].Disabled = !present
+
 		}
 		// Trim possible trailing slash, do not want
 		if '/' == bench.Repo[len(bench.Repo)-1] {
@@ -460,7 +526,7 @@ results will also appear in 'bench'.
 		fmt.Println("Benchmarks:")
 		for _, x := range todo.Benchmarks {
 			s := x.Name + " (repo=" + x.Repo + x.Version + ")"
-			if x.Disabled {
+			if x.IsDisabled() {
 				s += " (disabled)"
 			}
 			fmt.Printf("   %s\n", s)
@@ -545,16 +611,25 @@ results will also appear in 'bench'.
 		buildCount = 1
 	}
 
+	seenSuites := make(map[string]*Benchmark)
+
 	for i := range todo.Benchmarks {
 		bench := &todo.Benchmarks[i]
 
-		if bench.Disabled {
+		if bench.IsDisabled() {
 			continue
 		}
 
 		// Use a separate build directory and go.mod for each benchmark, otherwise there can be conflicts.
 		// Initialize before building because this information tells where to run the test, also.
-		bench.BuildDir = path.Join(dirs.build, bench.Name)
+		bench.buildDir = path.Join(dirs.build, bench.Suite)
+
+		if b := seenSuites[bench.Suite]; b != nil {
+			bench.SuiteRepresentative = b
+			continue
+		}
+		todo.BenchmarkSuites = append(todo.BenchmarkSuites, bench)
+		seenSuites[bench.Suite] = bench
 	}
 
 	if runContainer == "" { // If not reusing binaries/container...
@@ -563,22 +638,21 @@ results will also appear in 'bench'.
 		}
 
 		// Obtain (go get -t -v bench.Repo) all benchmarks, once, populating src
-		for i := range todo.Benchmarks {
-			bench := &todo.Benchmarks[i]
+		for i, bench := range todo.BenchmarkSuites {
 
-			if bench.Disabled {
+			if bench.IsDisabled() {
 				continue
 			}
 
 			// Use a separate go.mod for each benchmark, otherwise there can be conflicts.
-			if err := mkdirAsNeeded(bench.BuildDir); err != nil {
-				fmt.Printf("Couldn't create build subdirectory %s, error=%v", bench.BuildDir, err)
+			if err := mkdirAsNeeded(bench.buildDir); err != nil {
+				fmt.Printf("Couldn't create build subdirectory %s, error=%v", bench.buildDir, err)
 				os.Exit(2)
 			}
 
 			getFiles := true
 
-			goDotMod := path.Join(bench.BuildDir, "go.mod")
+			goDotMod := path.Join(bench.buildDir, "go.mod")
 			if _, err := os.Stat(goDotMod); err == nil {
 				if !experiment {
 					os.Remove(goDotMod) // always want a fresh go.mod
@@ -587,7 +661,7 @@ results will also appear in 'bench'.
 				}
 			}
 			if getFiles {
-				goModPath := filepath.Join(bench.BuildDir, "go.mod")
+				goModPath := filepath.Join(bench.buildDir, "go.mod")
 				f, err := os.Create(goModPath)
 				if err != nil {
 					fmt.Printf("Error creating go.mod: %v", err)
@@ -605,14 +679,14 @@ results will also appear in 'bench'.
 					os.Exit(2)
 				}
 				if verbose > 0 {
-					fmt.Printf("(cd %s; cat <<EOF > %s\n%s\nEOF)\n", bench.BuildDir, "go.mod", goMod)
+					fmt.Printf("(cd %s; cat <<EOF > %s\n%s\nEOF)\n", bench.buildDir, "go.mod", goMod)
 				} else {
 					fmt.Print(".")
 				}
 
 				cmd := exec.Command("go", "get", "-t", "-v", bench.Repo+bench.Version)
 				cmd.Env = DefaultEnv()
-				cmd.Dir = bench.BuildDir
+				cmd.Dir = bench.buildDir
 
 				if !bench.NotSandboxed { // Do this so that OS-dependent dependencies are done correctly.
 					cmd.Env = replaceEnv(cmd.Env, "GOOS", "linux")
@@ -733,15 +807,15 @@ results will also appear in 'bench'.
 		switch shuffle {
 		case 0: // N times, for each benchmark, for each configuration, build.
 			for yyy := 0; yyy < buildCount; yyy++ {
-				for bi, bench := range todo.Benchmarks {
-					if bench.Disabled {
+				for _, bench := range todo.BenchmarkSuites {
+					if bench.IsDisabled() {
 						continue
 					}
 					for ci, config := range todo.Configurations {
 						if config.Disabled {
 							continue
 						}
-						s := todo.Configurations[ci].compileOne(&todo.Benchmarks[bi], dirs.wd, yyy, R > 0)
+						s := todo.Configurations[ci].compileOne(bench, dirs.wd, yyy, R > 0)
 						if s != "" {
 							getAndBuildFailures = append(getAndBuildFailures, s)
 						}
@@ -755,8 +829,8 @@ results will also appear in 'bench'.
 			}
 
 			for yyy := 0; yyy < buildCount; yyy++ {
-				for bi, bench := range todo.Benchmarks {
-					if bench.Disabled {
+				for _, bench := range todo.BenchmarkSuites {
+					if bench.IsDisabled() {
 						continue
 					}
 
@@ -767,7 +841,7 @@ results will also appear in 'bench'.
 						if config.Disabled {
 							continue
 						}
-						s := config.compileOne(&todo.Benchmarks[bi], dirs.wd, yyy, R > 0)
+						s := config.compileOne(bench, dirs.wd, yyy, R > 0)
 						if s != "" {
 							getAndBuildFailures = append(getAndBuildFailures, s)
 						}
@@ -775,9 +849,9 @@ results will also appear in 'bench'.
 				}
 			}
 		case 2: // N times, shuffle combination of benchmarks and configuration, build them all
-			permute := make([]pair, len(todo.Configurations)*len(todo.Benchmarks))
+			permute := make([]pair, len(todo.Configurations)*len(todo.BenchmarkSuites))
 			i := 0
-			for bi := range todo.Benchmarks {
+			for bi := range todo.BenchmarkSuites {
 				for ci := range todo.Configurations {
 					permute[i] = pair{b: bi, c: ci}
 					i++
@@ -787,9 +861,9 @@ results will also appear in 'bench'.
 			for yyy := 0; yyy < buildCount; yyy++ {
 				rand.Shuffle(len(permute), func(i, j int) { permute[i], permute[j] = permute[j], permute[i] })
 				for _, p := range permute {
-					bench := &todo.Benchmarks[p.b]
+					bench := todo.BenchmarkSuites[p.b]
 					config := &todo.Configurations[p.c]
-					if bench.Disabled || config.Disabled {
+					if bench.IsDisabled() || config.Disabled {
 						continue
 					}
 					s := config.compileOne(bench, dirs.wd, yyy, R > 0)
@@ -800,10 +874,10 @@ results will also appear in 'bench'.
 			}
 
 		case 3: // Shuffle all the N copies of all the benchmark and configuration pairs, build them all.
-			permute := make([]triple, buildCount*len(todo.Configurations)*len(todo.Benchmarks))
+			permute := make([]triple, buildCount*len(todo.Configurations)*len(todo.BenchmarkSuites))
 			i := 0
 			for k := 0; k < buildCount; k++ {
-				for bi := range todo.Benchmarks {
+				for bi := range todo.BenchmarkSuites {
 					for ci := range todo.Configurations {
 						permute[i] = triple{b: bi, c: ci, k: k}
 						i++
@@ -813,9 +887,9 @@ results will also appear in 'bench'.
 			rand.Shuffle(len(permute), func(i, j int) { permute[i], permute[j] = permute[j], permute[i] })
 
 			for _, p := range permute {
-				bench := &todo.Benchmarks[p.b]
+				bench := todo.BenchmarkSuites[p.b]
 				config := &todo.Configurations[p.c]
-				if bench.Disabled || config.Disabled {
+				if bench.IsDisabled() || config.Disabled {
 					continue
 				}
 				s := config.compileOne(bench, dirs.wd, p.k, R > 0)
@@ -868,17 +942,17 @@ results will also appear in 'bench'.
 
 	// Initialize RunDir for benchmarks.
 benchmarks_loop:
-	for i := range todo.Benchmarks {
-		bench := &todo.Benchmarks[i]
-		if bench.Disabled {
+	for i, bench := range todo.BenchmarkSuites {
+		if bench.IsDisabled() {
 			continue
 		}
+
 		// Obtain directory containing testdata, if any:
 		// Capture output of "go list -f {{.Dir}} $PKG"
 
 		cmd := exec.Command("go", "list", "-f", "{{.Dir}}", bench.Repo)
 		cmd.Env = DefaultEnv()
-		cmd.Dir = bench.BuildDir
+		cmd.Dir = bench.buildDir
 
 		if verbose > 0 {
 			fmt.Println(asCommandLine(dirs.wd, cmd))
@@ -900,13 +974,13 @@ benchmarks_loop:
 			// if sandboxed, strip cwd from prefix of rundir.
 			rundir = rundir[len(dirs.wd):]
 		}
-		bench.RunDir = bench.BuildDir
+		bench.runDir = bench.buildDir
 
 		copy := func(subdir string, failIfMissing bool) bool {
 			// as necessary, make a copy of subdir
 			testdata := path.Join(rundir, subdir)
 			if stat, err := os.Stat(testdata); err == nil {
-				testdataCopy := path.Join(bench.RunDir, subdir)
+				testdataCopy := path.Join(bench.runDir, subdir)
 				var err error
 				var commandLine string
 				os.RemoveAll(testdataCopy) // clean out what can be cleaned
@@ -1001,7 +1075,7 @@ benchmarks_loop:
 
 			for k := range todo.Benchmarks {
 				b := &todo.Benchmarks[k]
-				if b.Disabled {
+				if b.IsDisabled() {
 					continue
 				}
 
@@ -1070,7 +1144,7 @@ func (r *Run) String() string {
 // if either the configuration or benchmark is disabled, return with empty output and no change (0)
 // to the return code.
 func benchOne(c *Configuration, b *Benchmark, i int, moreArgs []string) (s string, rc int) {
-	if c.Disabled || b.Disabled {
+	if c.Disabled || b.IsDisabled() {
 		return
 	}
 
@@ -1128,7 +1202,7 @@ func benchOne(c *Configuration, b *Benchmark, i int, moreArgs []string) (s strin
 		cmd.Args = append(cmd.Args, "-test.run="+b.Tests)
 		cmd.Args = append(cmd.Args, "-test.bench="+b.Benchmarks)
 
-		cmd.Dir = b.RunDir
+		cmd.Dir = b.RunDir()
 		cmd.Env = DefaultEnv()
 		if root != "" {
 			cmd.Env = replaceEnv(cmd.Env, "GOROOT", root)
@@ -1160,7 +1234,7 @@ func benchOne(c *Configuration, b *Benchmark, i int, moreArgs []string) (s strin
 		bin := "/" + path.Join(dirs.testBinDir, testBinaryName)
 		wrappersAndBin = append(wrappersAndBin, bin)
 
-		cmd := exec.Command("docker", "run", "--net=none", "-w", b.RunDir)
+		cmd := exec.Command("docker", "run", "--net=none", "-w", b.RunDir())
 
 		for _, e := range runEnv {
 			cmd.Args = append(cmd.Args, "-e", e)
