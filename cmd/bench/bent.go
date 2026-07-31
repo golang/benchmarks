@@ -115,7 +115,7 @@ func bent(tcs []*toolchain, pgo bool) (err error) {
 	cmd = exec.Command(bentPath,
 		"-N", "10",
 		"-C", confFile,
-		"-B", filepath.Join(dir, "benchmarks-50.toml"),
+		"-B", filepath.Join(dir, "benchmarks-100.toml"),
 		"-report-build-time=false", // We only run builds once, which won't yield statistically significant results.
 		"-v",
 	)
