@@ -2,6 +2,68 @@
 # for the benchmark specification files.
 
  [[Suites]]
+  Name = "gproto_proto"
+  Repo = "google.golang.org/protobuf/proto"
+  Version = "@v1.36.11"
+
+ [[Suites]]
+  Name = "gproto_reflect"
+  Repo = "google.golang.org/protobuf/reflect/protoreflect"
+  Version = "@v1.36.11"
+
+ [[Suites]]
+  Name = "gproto_impl"
+  Repo = "google.golang.org/protobuf/internal/impl"
+  Version = "@v1.36.11"
+
+ [[Suites]]
+  Name = "gproto_strs"
+  Repo = "google.golang.org/protobuf/internal/strs"
+  Version = "@v1.36.11"
+
+ [[Suites]]
+  Name = "gproto_json"
+  Repo = "google.golang.org/protobuf/internal/encoding/json"
+  Version = "@v1.36.11"
+
+ [[Suites]]
+  Name = "gproto_micro"
+  Repo = "google.golang.org/protobuf/internal/benchmarks/micro"
+  Version = "@v1.36.11"
+
+ [[Suites]]
+  Name = "gproto_benchmarks"
+  Repo = "google.golang.org/protobuf/internal/benchmarks"
+  Version = "@v1.36.11"
+  Disabled = true
+
+ [[Suites]]
+  Name = "gproto_detrand"
+  Repo = "google.golang.org/protobuf/internal/detrand"
+  Version = "@v1.36.11"
+
+ [[Suites]]
+  Name = "gproto_protojson"
+  Repo = "google.golang.org/protobuf/encoding/protojson"
+  Version = "@v1.36.11"
+
+ [[Suites]]
+  Name = "gproto_protodelim"
+  Repo = "google.golang.org/protobuf/encoding/protodelim"
+  Version = "@v1.36.11"
+
+ [[Suites]]
+  Name = "gproto_protowire"
+  Repo = "google.golang.org/protobuf/encoding/protowire"
+  Version = "@v1.36.11"
+
+ [[Suites]]
+  Name = "gproto_encoding"
+  Repo = "google.golang.org/protobuf/encoding"
+  Version = "@v1.36.11"
+
+
+ [[Suites]]
   Name = "wazero"
   Repo = "github.com/tetratelabs/wazero/internal/integration_test/bench"
   Version = "@v1.12.0"

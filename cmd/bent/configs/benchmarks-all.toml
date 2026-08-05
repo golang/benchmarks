@@ -1,6 +1,55 @@
 # Benchmarks that build, and that run quickly enough.
 # The noisy ones are listed at the bottom
 
+
+[[Benchmarks]]
+  Name = "gproto_proto"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "gproto_reflect"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "gproto_impl"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "gproto_strs"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "gproto_json"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "gproto_micro"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "gproto_benchmarks"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "gproto_detrand"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "gproto_protojson"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "gproto_protodelim"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "gproto_protowire"
+  Benchmarks = "Benchmark"
+
+[[Benchmarks]]
+  Name = "gproto_encoding"
+  Benchmarks = "Benchmark"
+
 [[Benchmarks]]
   Name = "dustin_broadcast"
   Benchmarks = "Benchmark"

@@ -9342,3 +9342,3713 @@
   Suite = "gonum_lapack_native"
   Benchmarks = "^BenchmarkDlaqr5$/^Laplacian1000$"
 
+[[Benchmarks]]
+  Name = "gproto_reflect-FullNameIsValid"
+  Suite = "gproto_reflect"
+  Benchmarks = "^BenchmarkFullNameIsValid$"
+
+[[Benchmarks]]
+  Name = "gproto_reflect-Value%2FBaseline"
+  Suite = "gproto_reflect"
+  Benchmarks = "^BenchmarkValue$/^Baseline$"
+
+[[Benchmarks]]
+  Name = "gproto_reflect-Value%2FInline"
+  Suite = "gproto_reflect"
+  Benchmarks = "^BenchmarkValue$/^Inline$"
+
+[[Benchmarks]]
+  Name = "gproto_reflect-Value%2FValue"
+  Suite = "gproto_reflect"
+  Benchmarks = "^BenchmarkValue$/^Value$"
+
+[[Benchmarks]]
+  Name = "gproto_reflect-Value%2FInterface"
+  Suite = "gproto_reflect"
+  Benchmarks = "^BenchmarkValue$/^Interface$"
+
+[[Benchmarks]]
+  Name = "gproto_protowire-SizeVarint"
+  Suite = "gproto_protowire"
+  Benchmarks = "^BenchmarkSizeVarint$"
+
+[[Benchmarks]]
+  Name = "gproto_protodelim-UnmarshalFrom%2Fbufio1mib"
+  Suite = "gproto_protodelim"
+  Benchmarks = "^BenchmarkUnmarshalFrom$/^bufio1mib$"
+
+[[Benchmarks]]
+  Name = "gproto_protodelim-UnmarshalFrom%2Fbufio16mib"
+  Suite = "gproto_protodelim"
+  Benchmarks = "^BenchmarkUnmarshalFrom$/^bufio16mib$"
+
+[[Benchmarks]]
+  Name = "gproto_protodelim-UnmarshalFrom%2Fnotbufio1mib"
+  Suite = "gproto_protodelim"
+  Benchmarks = "^BenchmarkUnmarshalFrom$/^notbufio1mib$"
+
+[[Benchmarks]]
+  Name = "gproto_protodelim-UnmarshalFrom%2Fnotbufio16mib"
+  Suite = "gproto_protodelim"
+  Benchmarks = "^BenchmarkUnmarshalFrom$/^notbufio16mib$"
+
+[[Benchmarks]]
+  Name = "gproto_encoding-TextEncode"
+  Suite = "gproto_encoding"
+  Benchmarks = "^BenchmarkTextEncode$"
+
+[[Benchmarks]]
+  Name = "gproto_encoding-TextDecode"
+  Suite = "gproto_encoding"
+  Benchmarks = "^BenchmarkTextDecode$"
+
+[[Benchmarks]]
+  Name = "gproto_encoding-JSONEncode"
+  Suite = "gproto_encoding"
+  Benchmarks = "^BenchmarkJSONEncode$"
+
+[[Benchmarks]]
+  Name = "gproto_encoding-JSONDecode"
+  Suite = "gproto_encoding"
+  Benchmarks = "^BenchmarkJSONDecode$"
+
+[[Benchmarks]]
+  Name = "gproto_detrand-"
+  Suite = "gproto_detrand"
+  Benchmarks = "^Benchmark$"
+
+[[Benchmarks]]
+  Name = "gproto_micro-EmptyMessage%2FWire%2FMarshal"
+  Suite = "gproto_micro"
+  Benchmarks = "^BenchmarkEmptyMessage$/^Wire$/^Marshal$"
+
+[[Benchmarks]]
+  Name = "gproto_micro-EmptyMessage%2FWire%2FUnmarshal"
+  Suite = "gproto_micro"
+  Benchmarks = "^BenchmarkEmptyMessage$/^Wire$/^Unmarshal$"
+
+[[Benchmarks]]
+  Name = "gproto_micro-EmptyMessage%2FWire%2FValidate"
+  Suite = "gproto_micro"
+  Benchmarks = "^BenchmarkEmptyMessage$/^Wire$/^Validate$"
+
+[[Benchmarks]]
+  Name = "gproto_micro-EmptyMessage%2FClone"
+  Suite = "gproto_micro"
+  Benchmarks = "^BenchmarkEmptyMessage$/^Clone$"
+
+[[Benchmarks]]
+  Name = "gproto_micro-EmptyMessage%2FNew"
+  Suite = "gproto_micro"
+  Benchmarks = "^BenchmarkEmptyMessage$/^New$"
+
+[[Benchmarks]]
+  Name = "gproto_micro-RepeatedInt32%2FWire%2FMarshal"
+  Suite = "gproto_micro"
+  Benchmarks = "^BenchmarkRepeatedInt32$/^Wire$/^Marshal$"
+
+[[Benchmarks]]
+  Name = "gproto_micro-RepeatedInt32%2FWire%2FUnmarshal"
+  Suite = "gproto_micro"
+  Benchmarks = "^BenchmarkRepeatedInt32$/^Wire$/^Unmarshal$"
+
+[[Benchmarks]]
+  Name = "gproto_micro-RepeatedInt32%2FWire%2FValidate"
+  Suite = "gproto_micro"
+  Benchmarks = "^BenchmarkRepeatedInt32$/^Wire$/^Validate$"
+
+[[Benchmarks]]
+  Name = "gproto_micro-RepeatedInt32%2FClone"
+  Suite = "gproto_micro"
+  Benchmarks = "^BenchmarkRepeatedInt32$/^Clone$"
+
+[[Benchmarks]]
+  Name = "gproto_micro-Required%2FWire%2FMarshal"
+  Suite = "gproto_micro"
+  Benchmarks = "^BenchmarkRequired$/^Wire$/^Marshal$"
+
+[[Benchmarks]]
+  Name = "gproto_micro-Required%2FWire%2FUnmarshal"
+  Suite = "gproto_micro"
+  Benchmarks = "^BenchmarkRequired$/^Wire$/^Unmarshal$"
+
+[[Benchmarks]]
+  Name = "gproto_micro-Required%2FWire%2FValidate"
+  Suite = "gproto_micro"
+  Benchmarks = "^BenchmarkRequired$/^Wire$/^Validate$"
+
+[[Benchmarks]]
+  Name = "gproto_micro-Required%2FClone"
+  Suite = "gproto_micro"
+  Benchmarks = "^BenchmarkRequired$/^Clone$"
+
+[[Benchmarks]]
+  Name = "gproto_micro-Extension%2FHas%2FNone"
+  Suite = "gproto_micro"
+  Benchmarks = "^BenchmarkExtension$/^Has$/^None$"
+
+[[Benchmarks]]
+  Name = "gproto_micro-Extension%2FHas%2FSet"
+  Suite = "gproto_micro"
+  Benchmarks = "^BenchmarkExtension$/^Has$/^Set$"
+
+[[Benchmarks]]
+  Name = "gproto_micro-Extension%2FGet%2FNone"
+  Suite = "gproto_micro"
+  Benchmarks = "^BenchmarkExtension$/^Get$/^None$"
+
+[[Benchmarks]]
+  Name = "gproto_micro-Extension%2FGet%2FSet"
+  Suite = "gproto_micro"
+  Benchmarks = "^BenchmarkExtension$/^Get$/^Set$"
+
+[[Benchmarks]]
+  Name = "gproto_micro-Extension%2FSet"
+  Suite = "gproto_micro"
+  Benchmarks = "^BenchmarkExtension$/^Set$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_scalar_types_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_scalar_types_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_scalar_types_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_scalar_types_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_scalar_types_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_scalar_types_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_scalar_types_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_scalar_types_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_scalar_types_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_scalar_types_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_scalar_types_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_scalar_types_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fzero_values_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^zero_values_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fzero_values_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^zero_values_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fzero_values_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^zero_values_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fzero_values_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^zero_values_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fzero_values_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^zero_values_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fzero_values_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^zero_values_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Feditions_zero_values_on_implicit_fields_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^editions_zero_values_on_implicit_fields_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Feditions_zero_values_on_implicit_fields_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^editions_zero_values_on_implicit_fields_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fgroups_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^groups_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fgroups_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^groups_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fgroups_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^groups_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fgroups_%28%2Atesteditions.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^groups_\\(\\*testeditions\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fgroups_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^groups_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fgroups_%28%2Atesteditions_opaque.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^groups_\\(\\*testeditions_opaque\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fgroups_%28field_overridden%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^groups_\\(field_overridden\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fgroups_%28field_overridden%29_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^groups_\\(field_overridden\\)_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fgroups_%28field_overridden%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^groups_\\(field_overridden\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fgroups_%28field_overridden%29_%28%2Atesteditions.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^groups_\\(field_overridden\\)_\\(\\*testeditions\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fgroups_%28field_overridden%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^groups_\\(field_overridden\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fgroups_%28field_overridden%29_%28%2Atesteditions_opaque.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^groups_\\(field_overridden\\)_\\(\\*testeditions_opaque\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmessages_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^messages_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmessages_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^messages_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmessages_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^messages_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmessages_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^messages_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmessages_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^messages_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmessages_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^messages_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmessages_%28split_across_multiple_tags%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^messages_\\(split_across_multiple_tags\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmessages_%28split_across_multiple_tags%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^messages_\\(split_across_multiple_tags\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmessages_%28split_across_multiple_tags%29_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^messages_\\(split_across_multiple_tags\\)_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmessages_%28split_across_multiple_tags%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^messages_\\(split_across_multiple_tags\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmessages_%28split_across_multiple_tags%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^messages_\\(split_across_multiple_tags\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmessages_%28split_across_multiple_tags%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^messages_\\(split_across_multiple_tags\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmessages_%28field_overridden%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^messages_\\(field_overridden\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmessages_%28field_overridden%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^messages_\\(field_overridden\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmessages_%28field_overridden%29_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^messages_\\(field_overridden\\)_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmessages_%28field_overridden%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^messages_\\(field_overridden\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmessages_%28field_overridden%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^messages_\\(field_overridden\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmessages_%28field_overridden%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^messages_\\(field_overridden\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_repeated_types_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_repeated_types_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_repeated_types_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_repeated_types_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_repeated_types_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_repeated_types_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_repeated_types_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_repeated_types_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_repeated_types_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_repeated_types_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_repeated_types_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_repeated_types_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_repeated_types_%28packed_encoding%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_repeated_types_\\(packed_encoding\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_repeated_types_%28packed_encoding%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_repeated_types_\\(packed_encoding\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_repeated_types_%28packed_encoding%29_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_repeated_types_\\(packed_encoding\\)_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_repeated_types_%28packed_encoding%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_repeated_types_\\(packed_encoding\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_repeated_types_%28packed_encoding%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_repeated_types_\\(packed_encoding\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_repeated_types_%28packed_encoding%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_repeated_types_\\(packed_encoding\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_repeated_types_%28zero-length_packed_encoding%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_repeated_types_\\(zero-length_packed_encoding\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_repeated_types_%28zero-length_packed_encoding%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_repeated_types_\\(zero-length_packed_encoding\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_repeated_types_%28zero-length_packed_encoding%29_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_repeated_types_\\(zero-length_packed_encoding\\)_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_repeated_types_%28zero-length_packed_encoding%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_repeated_types_\\(zero-length_packed_encoding\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_repeated_types_%28zero-length_packed_encoding%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_repeated_types_\\(zero-length_packed_encoding\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fbasic_repeated_types_%28zero-length_packed_encoding%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^basic_repeated_types_\\(zero-length_packed_encoding\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fpacked_repeated_types_%28%2Atest.TestPackedTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^packed_repeated_types_\\(\\*test\\.TestPackedTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fpacked_repeated_types_%28%2Atest.TestPackedExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^packed_repeated_types_\\(\\*test\\.TestPackedExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fpacked_repeated_types_%28zero_length%29_%28%2Atest.TestPackedTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^packed_repeated_types_\\(zero_length\\)_\\(\\*test\\.TestPackedTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fpacked_repeated_types_%28zero_length%29_%28%2Atest.TestPackedExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^packed_repeated_types_\\(zero_length\\)_\\(\\*test\\.TestPackedExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fpacked_repeated_types_%28zero_length%29_%28%2Atesteditions.TestPackedTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^packed_repeated_types_\\(zero_length\\)_\\(\\*testeditions\\.TestPackedTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fpacked_repeated_types_%28zero_length%29_%28%2Atesteditions.TestPackedExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^packed_repeated_types_\\(zero_length\\)_\\(\\*testeditions\\.TestPackedExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fpacked_repeated_types_%28zero_length%29_%28%2Atesteditions_opaque.TestPackedTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^packed_repeated_types_\\(zero_length\\)_\\(\\*testeditions_opaque\\.TestPackedTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fpacked_repeated_types_%28zero_length%29_%28%2Atesteditions_opaque.TestPackedExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^packed_repeated_types_\\(zero_length\\)_\\(\\*testeditions_opaque\\.TestPackedExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frepeated_messages_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^repeated_messages_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frepeated_messages_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^repeated_messages_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frepeated_messages_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^repeated_messages_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frepeated_messages_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^repeated_messages_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frepeated_messages_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^repeated_messages_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frepeated_messages_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^repeated_messages_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frepeated_nil_messages_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^repeated_nil_messages_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frepeated_nil_messages_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^repeated_nil_messages_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frepeated_nil_messages_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^repeated_nil_messages_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frepeated_nil_messages_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^repeated_nil_messages_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frepeated_nil_messages_%28%2Atesteditions.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^repeated_nil_messages_\\(\\*testeditions\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frepeated_groups_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^repeated_groups_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frepeated_groups_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^repeated_groups_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frepeated_groups_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^repeated_groups_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frepeated_groups_%28%2Atesteditions.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^repeated_groups_\\(\\*testeditions\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frepeated_groups_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^repeated_groups_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frepeated_groups_%28%2Atesteditions_opaque.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^repeated_groups_\\(\\*testeditions_opaque\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frepeated_nil_groups_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^repeated_nil_groups_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frepeated_nil_groups_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^repeated_nil_groups_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frepeated_nil_groups_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^repeated_nil_groups_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frepeated_nil_groups_%28%2Atesteditions.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^repeated_nil_groups_\\(\\*testeditions\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmaps_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^maps_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmaps_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^maps_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmaps_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^maps_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmaps_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^maps_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmaps_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^maps_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmap_with_value_before_key_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^map_with_value_before_key_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmap_with_value_before_key_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^map_with_value_before_key_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmap_with_value_before_key_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^map_with_value_before_key_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmap_with_value_before_key_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^map_with_value_before_key_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmap_with_value_before_key_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^map_with_value_before_key_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmap_with_repeated_key_and_value_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^map_with_repeated_key_and_value_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmap_with_repeated_key_and_value_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^map_with_repeated_key_and_value_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmap_with_repeated_key_and_value_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^map_with_repeated_key_and_value_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmap_with_repeated_key_and_value_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^map_with_repeated_key_and_value_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmap_with_repeated_key_and_value_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^map_with_repeated_key_and_value_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28uint32%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(uint32\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28uint32%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(uint32\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28uint32%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(uint32\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28uint32%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(uint32\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28uint32%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(uint32\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_with_required_message_and_uint32_%28%2Atest.TestOneofWithRequired%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_with_required_message_and_uint32_\\(\\*test\\.TestOneofWithRequired\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28message%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(message\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28message%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(message\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28message%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(message\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28message%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(message\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28message%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(message\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28empty_message%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(empty_message\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28empty_message%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(empty_message\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28empty_message%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(empty_message\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28empty_message%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(empty_message\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28empty_message%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(empty_message\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28merged_message%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(merged_message\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28merged_message%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(merged_message\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28merged_message%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(merged_message\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28merged_message%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(merged_message\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28merged_message%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(merged_message\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28group%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(group\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28group%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(group\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28group%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(group\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28empty_group%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(empty_group\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28empty_group%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(empty_group\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28empty_group%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(empty_group\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28merged_group%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(merged_group\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28merged_group%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(merged_group\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28merged_group%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(merged_group\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28string%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(string\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28string%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(string\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28string%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(string\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28string%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(string\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28string%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(string\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28bytes%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(bytes\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28bytes%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(bytes\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28bytes%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(bytes\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28bytes%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(bytes\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28bytes%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(bytes\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28bool%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(bool\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28bool%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(bool\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28bool%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(bool\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28bool%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(bool\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28bool%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(bool\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28uint64%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(uint64\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28uint64%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(uint64\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28uint64%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(uint64\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28uint64%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(uint64\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28uint64%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(uint64\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28float%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(float\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28float%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(float\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28float%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(float\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28float%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(float\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28float%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(float\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28double%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(double\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28double%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(double\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28double%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(double\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28double%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(double\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28double%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(double\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28enum%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(enum\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28enum%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(enum\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28enum%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(enum\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28enum%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(enum\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28enum%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(enum\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28zero%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(zero\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28zero%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(zero\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28zero%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(zero\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28zero%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(zero\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28zero%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(zero\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28overridden_value%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(overridden_value\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28overridden_value%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(overridden_value\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28overridden_value%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(overridden_value\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28overridden_value%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(overridden_value\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Foneof_%28overridden_value%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^oneof_\\(overridden_value\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Funknown_fields_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^unknown_fields_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Funknown_fields_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^unknown_fields_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Funknown_fields_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^unknown_fields_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Funknown_fields_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^unknown_fields_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Funknown_fields_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^unknown_fields_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Funknown_fields_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^unknown_fields_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fdiscarded_unknown_fields_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^discarded_unknown_fields_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fdiscarded_unknown_fields_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^discarded_unknown_fields_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fdiscarded_unknown_fields_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^discarded_unknown_fields_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fdiscarded_unknown_fields_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^discarded_unknown_fields_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fdiscarded_unknown_fields_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^discarded_unknown_fields_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fdiscarded_unknown_fields_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^discarded_unknown_fields_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Ffield_type_mismatch_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^field_type_mismatch_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Ffield_type_mismatch_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^field_type_mismatch_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Ffield_type_mismatch_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^field_type_mismatch_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Ffield_type_mismatch_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^field_type_mismatch_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Ffield_type_mismatch_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^field_type_mismatch_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Ffield_type_mismatch_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^field_type_mismatch_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmap_field_element_mismatch_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^map_field_element_mismatch_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmap_field_element_mismatch_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^map_field_element_mismatch_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmap_field_element_mismatch_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^map_field_element_mismatch_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmap_field_element_mismatch_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^map_field_element_mismatch_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fmap_field_element_mismatch_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^map_field_element_mismatch_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_nil_message_unset_%28%2Atest.TestRequired%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_nil_message_unset_\\(\\*test\\.TestRequired\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_int32_unset_%28%2Arequired.Int32%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_int32_unset_\\(\\*required\\.Int32\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_int32_unset_%28%2Arequired_opaque.Int32%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_int32_unset_\\(\\*required_opaque\\.Int32\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_int32_set_%28%2Arequired.Int32%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_int32_set_\\(\\*required\\.Int32\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_int32_set_%28%2Arequired_opaque.Int32%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_int32_set_\\(\\*required_opaque\\.Int32\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_fixed32_unset_%28%2Arequired.Fixed32%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_fixed32_unset_\\(\\*required\\.Fixed32\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_fixed32_unset_%28%2Arequired_opaque.Fixed32%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_fixed32_unset_\\(\\*required_opaque\\.Fixed32\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_fixed32_set_%28%2Arequired.Fixed32%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_fixed32_set_\\(\\*required\\.Fixed32\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_fixed32_set_%28%2Arequired_opaque.Fixed32%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_fixed32_set_\\(\\*required_opaque\\.Fixed32\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_fixed64_unset_%28%2Arequired.Fixed64%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_fixed64_unset_\\(\\*required\\.Fixed64\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_fixed64_unset_%28%2Arequired_opaque.Fixed64%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_fixed64_unset_\\(\\*required_opaque\\.Fixed64\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_fixed64_set_%28%2Arequired.Fixed64%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_fixed64_set_\\(\\*required\\.Fixed64\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_fixed64_set_%28%2Arequired_opaque.Fixed64%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_fixed64_set_\\(\\*required_opaque\\.Fixed64\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_bytes_unset_%28%2Arequired.Bytes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_bytes_unset_\\(\\*required\\.Bytes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_bytes_unset_%28%2Arequired_opaque.Bytes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_bytes_unset_\\(\\*required_opaque\\.Bytes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_bytes_set_%28%2Arequired.Bytes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_bytes_set_\\(\\*required\\.Bytes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_bytes_set_%28%2Arequired_opaque.Bytes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_bytes_set_\\(\\*required_opaque\\.Bytes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_message_unset_%28%2Arequired.Message%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_message_unset_\\(\\*required\\.Message\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_message_unset_%28%2Arequired_opaque.Message%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_message_unset_\\(\\*required_opaque\\.Message\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_message_set_%28%2Arequired.Message%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_message_set_\\(\\*required\\.Message\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_message_set_%28%2Arequired_opaque.Message%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_message_set_\\(\\*required_opaque\\.Message\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_group_unset_%28%2Arequired.Group%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_group_unset_\\(\\*required\\.Group\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_group_unset_%28%2Arequired_opaque.Group%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_group_unset_\\(\\*required_opaque\\.Group\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_group_set_%28%2Arequired.Group%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_group_set_\\(\\*required\\.Group\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_group_set_%28%2Arequired_opaque.Group%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_group_set_\\(\\*required_opaque\\.Group\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_with_incompatible_wire_type_%28%2Atest.TestRequired%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_with_incompatible_wire_type_\\(\\*test\\.TestRequired\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_with_incompatible_wire_type_%28%2Atesteditions.TestRequired%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_with_incompatible_wire_type_\\(\\*testeditions\\.TestRequired\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_optional_message_unset_%28%2Atest.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_optional_message_unset_\\(\\*test\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_optional_message_unset_%28%2Atesteditions.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_optional_message_unset_\\(\\*testeditions\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_optional_message_unset_%28%2Atesteditions_opaque.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_optional_message_unset_\\(\\*testeditions_opaque\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_optional_message_set_%28%2Atest.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_optional_message_set_\\(\\*test\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_optional_message_set_%28%2Atesteditions.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_optional_message_set_\\(\\*testeditions\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_optional_message_set_%28%2Atesteditions_opaque.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_optional_message_set_\\(\\*testeditions_opaque\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_optional_message_set_%28split_across_multiple_tags%29_%28%2Atest.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_optional_message_set_\\(split_across_multiple_tags\\)_\\(\\*test\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_optional_message_set_%28split_across_multiple_tags%29_%28%2Atesteditions.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_optional_message_set_\\(split_across_multiple_tags\\)_\\(\\*testeditions\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_optional_message_set_%28split_across_multiple_tags%29_%28%2Atesteditions_opaque.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_optional_message_set_\\(split_across_multiple_tags\\)_\\(\\*testeditions_opaque\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_repeated_message_unset_%28%2Atest.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_repeated_message_unset_\\(\\*test\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_repeated_message_unset_%28%2Atesteditions.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_repeated_message_unset_\\(\\*testeditions\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_repeated_message_unset_%28%2Atesteditions_opaque.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_repeated_message_unset_\\(\\*testeditions_opaque\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_repeated_message_set_%28%2Atest.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_repeated_message_set_\\(\\*test\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_repeated_message_set_%28%2Atesteditions.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_repeated_message_set_\\(\\*testeditions\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_repeated_message_set_%28%2Atesteditions_opaque.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_repeated_message_set_\\(\\*testeditions_opaque\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_map_message_unset_%28%2Atest.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_map_message_unset_\\(\\*test\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_map_message_unset_%28%2Atesteditions.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_map_message_unset_\\(\\*testeditions\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_map_message_unset_%28%2Atesteditions_opaque.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_map_message_unset_\\(\\*testeditions_opaque\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_absent_map_message_value_%28%2Atest.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_absent_map_message_value_\\(\\*test\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_absent_map_message_value_%28%2Atesteditions.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_absent_map_message_value_\\(\\*testeditions\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_absent_map_message_value_%28%2Atesteditions_opaque.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_absent_map_message_value_\\(\\*testeditions_opaque\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_map_message_set_%28%2Atest.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_map_message_set_\\(\\*test\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_map_message_set_%28%2Atesteditions.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_map_message_set_\\(\\*testeditions\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_map_message_set_%28%2Atesteditions_opaque.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_map_message_set_\\(\\*testeditions_opaque\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_optional_group_unset_%28%2Atest.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_optional_group_unset_\\(\\*test\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_optional_group_unset_%28%2Atesteditions.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_optional_group_unset_\\(\\*testeditions\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_optional_group_unset_%28%2Atesteditions_opaque.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_optional_group_unset_\\(\\*testeditions_opaque\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_optional_group_set_%28%2Atest.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_optional_group_set_\\(\\*test\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_optional_group_set_%28%2Atesteditions.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_optional_group_set_\\(\\*testeditions\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_optional_group_set_%28%2Atesteditions_opaque.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_optional_group_set_\\(\\*testeditions_opaque\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_repeated_group_unset_%28%2Atest.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_repeated_group_unset_\\(\\*test\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_repeated_group_unset_%28%2Atesteditions.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_repeated_group_unset_\\(\\*testeditions\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_repeated_group_unset_%28%2Atesteditions_opaque.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_repeated_group_unset_\\(\\*testeditions_opaque\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_repeated_group_set_%28%2Atest.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_repeated_group_set_\\(\\*test\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_repeated_group_set_%28%2Atesteditions.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_repeated_group_set_\\(\\*testeditions\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_repeated_group_set_%28%2Atesteditions_opaque.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_repeated_group_set_\\(\\*testeditions_opaque\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_oneof_message_unset_%28%2Atest.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_oneof_message_unset_\\(\\*test\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_oneof_message_unset_%28%2Atesteditions.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_oneof_message_unset_\\(\\*testeditions\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_oneof_message_unset_%28%2Atesteditions_opaque.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_oneof_message_unset_\\(\\*testeditions_opaque\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_oneof_message_set_%28%2Atest.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_oneof_message_set_\\(\\*test\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_oneof_message_set_%28%2Atesteditions.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_oneof_message_set_\\(\\*testeditions\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_oneof_message_set_%28%2Atesteditions_opaque.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_oneof_message_set_\\(\\*testeditions_opaque\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_extension_message_unset_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_extension_message_unset_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_extension_message_unset_%28%2Atesteditions.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_extension_message_unset_\\(\\*testeditions\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_extension_message_unset_%28%2Atesteditions_opaque.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_extension_message_unset_\\(\\*testeditions_opaque\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_extension_message_set_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_extension_message_set_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_extension_message_set_%28%2Atesteditions.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_extension_message_set_\\(\\*testeditions\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_extension_message_set_%28%2Atesteditions_opaque.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_extension_message_set_\\(\\*testeditions_opaque\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_repeated_extension_message_unset_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_repeated_extension_message_unset_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_repeated_extension_message_unset_%28%2Atesteditions.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_repeated_extension_message_unset_\\(\\*testeditions\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_repeated_extension_message_unset_%28%2Atesteditions_opaque.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_repeated_extension_message_unset_\\(\\*testeditions_opaque\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_repeated_extension_message_set_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_repeated_extension_message_set_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_repeated_extension_message_set_%28%2Atesteditions.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_repeated_extension_message_set_\\(\\*testeditions\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Frequired_field_in_repeated_extension_message_set_%28%2Atesteditions_opaque.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^required_field_in_repeated_extension_message_set_\\(\\*testeditions_opaque\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fnil_messages_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^nil_messages_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fnil_messages_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^nil_messages_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fnil_messages_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^nil_messages_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fnil_messages_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^nil_messages_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Flegacy_%28%2Alegacy.Legacy%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^legacy_\\(\\*legacy\\.Legacy\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Ffirst_reserved_field_number_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^first_reserved_field_number_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Ffirst_reserved_field_number_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^first_reserved_field_number_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Ffirst_reserved_field_number_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^first_reserved_field_number_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Ffirst_reserved_field_number_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^first_reserved_field_number_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Ffirst_reserved_field_number_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^first_reserved_field_number_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Ffirst_reserved_field_number_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^first_reserved_field_number_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Flast_reserved_field_number_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^last_reserved_field_number_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Flast_reserved_field_number_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^last_reserved_field_number_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Flast_reserved_field_number_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^last_reserved_field_number_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Flast_reserved_field_number_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^last_reserved_field_number_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Flast_reserved_field_number_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^last_reserved_field_number_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Flast_reserved_field_number_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^last_reserved_field_number_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fnested_unknown_extension_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^nested_unknown_extension_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fnested_unknown_extension_%28%2Atesteditions.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^nested_unknown_extension_\\(\\*testeditions\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fnested_unknown_extension_%28%2Atesteditions_opaque.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^nested_unknown_extension_\\(\\*testeditions_opaque\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Funder_recursion_limit%2C_but_with_many_varint_fields_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^under_recursion_limit,_but_with_many_varint_fields_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Funder_recursion_limit%2C_but_with_many_varint_fields_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^under_recursion_limit,_but_with_many_varint_fields_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Funder_recursion_limit%2C_but_with_many_varint_fields_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^under_recursion_limit,_but_with_many_varint_fields_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Funder_recursion_limit%2C_but_with_many_varint_fields_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^under_recursion_limit,_but_with_many_varint_fields_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Funder_recursion_limit%2C_but_with_many_varint_fields_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^under_recursion_limit,_but_with_many_varint_fields_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Funder_recursion_limit%2C_but_with_many_varint_fields_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^under_recursion_limit,_but_with_many_varint_fields_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fjust_at_recursion_limit_%28no_submessages%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^just_at_recursion_limit_\\(no_submessages\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fjust_at_recursion_limit_%28no_submessages%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^just_at_recursion_limit_\\(no_submessages\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fjust_at_recursion_limit_%28no_submessages%29_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^just_at_recursion_limit_\\(no_submessages\\)_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fjust_at_recursion_limit_%28no_submessages%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^just_at_recursion_limit_\\(no_submessages\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fjust_at_recursion_limit_%28no_submessages%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^just_at_recursion_limit_\\(no_submessages\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fjust_at_recursion_limit_%28no_submessages%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^just_at_recursion_limit_\\(no_submessages\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fjust_at_recursion_limit_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^just_at_recursion_limit_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fjust_at_recursion_limit_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^just_at_recursion_limit_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fjust_at_recursion_limit_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^just_at_recursion_limit_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fjust_at_recursion_limit_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^just_at_recursion_limit_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fjust_at_recursion_limit_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^just_at_recursion_limit_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fjust_at_recursion_limit_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^just_at_recursion_limit_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fjust_at_recursion_limit%3A_maps_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^just_at_recursion_limit:_maps_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fjust_at_recursion_limit%3A_maps_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^just_at_recursion_limit:_maps_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fjust_at_recursion_limit%3A_maps_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^just_at_recursion_limit:_maps_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fjust_at_recursion_limit%3A_maps_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^just_at_recursion_limit:_maps_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fjust_at_recursion_limit%3A_maps_of_messages_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^just_at_recursion_limit:_maps_of_messages_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fjust_at_recursion_limit%3A_maps_of_messages_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^just_at_recursion_limit:_maps_of_messages_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fjust_at_recursion_limit%3A_maps_of_messages_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^just_at_recursion_limit:_maps_of_messages_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Fjust_at_recursion_limit%3A_maps_of_messages_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^just_at_recursion_limit:_maps_of_messages_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Flazy_field_contains_wrong_wire_type_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^lazy_field_contains_wrong_wire_type_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Flazy_field_contains_wrong_wire_type_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^lazy_field_contains_wrong_wire_type_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Flazy_field_contains_wrong_wire_type_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^lazy_field_contains_wrong_wire_type_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Flazy_field_contains_wrong_wire_type_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^lazy_field_contains_wrong_wire_type_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Flazy_field_contains_wrong_wire_type_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^lazy_field_contains_wrong_wire_type_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Flazy_field_contains_wrong_wire_type_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^lazy_field_contains_wrong_wire_type_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Flazy_field_contains_right_and_wrong_wire_type_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^lazy_field_contains_right_and_wrong_wire_type_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Flazy_field_contains_right_and_wrong_wire_type_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^lazy_field_contains_right_and_wrong_wire_type_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Flazy_field_contains_right_and_wrong_wire_type_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^lazy_field_contains_right_and_wrong_wire_type_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Flazy_field_contains_right_and_wrong_wire_type_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^lazy_field_contains_right_and_wrong_wire_type_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Flazy_field_contains_right_and_wrong_wire_type_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^lazy_field_contains_right_and_wrong_wire_type_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Encode%2Flazy_field_contains_right_and_wrong_wire_type_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEncode$/^lazy_field_contains_right_and_wrong_wire_type_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_scalar_types_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_scalar_types_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_scalar_types_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_scalar_types_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_scalar_types_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_scalar_types_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_scalar_types_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_scalar_types_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_scalar_types_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_scalar_types_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_scalar_types_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_scalar_types_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fzero_values_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^zero_values_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fzero_values_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^zero_values_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fzero_values_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^zero_values_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fzero_values_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^zero_values_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fzero_values_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^zero_values_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fzero_values_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^zero_values_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Feditions_zero_values_on_implicit_fields_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^editions_zero_values_on_implicit_fields_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Feditions_zero_values_on_implicit_fields_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^editions_zero_values_on_implicit_fields_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fgroups_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^groups_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fgroups_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^groups_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fgroups_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^groups_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fgroups_%28%2Atesteditions.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^groups_\\(\\*testeditions\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fgroups_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^groups_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fgroups_%28%2Atesteditions_opaque.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^groups_\\(\\*testeditions_opaque\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fgroups_%28field_overridden%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^groups_\\(field_overridden\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fgroups_%28field_overridden%29_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^groups_\\(field_overridden\\)_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fgroups_%28field_overridden%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^groups_\\(field_overridden\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fgroups_%28field_overridden%29_%28%2Atesteditions.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^groups_\\(field_overridden\\)_\\(\\*testeditions\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fgroups_%28field_overridden%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^groups_\\(field_overridden\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fgroups_%28field_overridden%29_%28%2Atesteditions_opaque.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^groups_\\(field_overridden\\)_\\(\\*testeditions_opaque\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmessages_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^messages_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmessages_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^messages_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmessages_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^messages_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmessages_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^messages_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmessages_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^messages_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmessages_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^messages_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmessages_%28split_across_multiple_tags%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^messages_\\(split_across_multiple_tags\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmessages_%28split_across_multiple_tags%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^messages_\\(split_across_multiple_tags\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmessages_%28split_across_multiple_tags%29_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^messages_\\(split_across_multiple_tags\\)_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmessages_%28split_across_multiple_tags%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^messages_\\(split_across_multiple_tags\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmessages_%28split_across_multiple_tags%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^messages_\\(split_across_multiple_tags\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmessages_%28split_across_multiple_tags%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^messages_\\(split_across_multiple_tags\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmessages_%28field_overridden%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^messages_\\(field_overridden\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmessages_%28field_overridden%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^messages_\\(field_overridden\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmessages_%28field_overridden%29_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^messages_\\(field_overridden\\)_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmessages_%28field_overridden%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^messages_\\(field_overridden\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmessages_%28field_overridden%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^messages_\\(field_overridden\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmessages_%28field_overridden%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^messages_\\(field_overridden\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_repeated_types_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_repeated_types_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_repeated_types_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_repeated_types_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_repeated_types_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_repeated_types_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_repeated_types_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_repeated_types_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_repeated_types_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_repeated_types_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_repeated_types_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_repeated_types_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_repeated_types_%28packed_encoding%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_repeated_types_\\(packed_encoding\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_repeated_types_%28packed_encoding%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_repeated_types_\\(packed_encoding\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_repeated_types_%28packed_encoding%29_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_repeated_types_\\(packed_encoding\\)_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_repeated_types_%28packed_encoding%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_repeated_types_\\(packed_encoding\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_repeated_types_%28packed_encoding%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_repeated_types_\\(packed_encoding\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_repeated_types_%28packed_encoding%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_repeated_types_\\(packed_encoding\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_repeated_types_%28zero-length_packed_encoding%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_repeated_types_\\(zero-length_packed_encoding\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_repeated_types_%28zero-length_packed_encoding%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_repeated_types_\\(zero-length_packed_encoding\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_repeated_types_%28zero-length_packed_encoding%29_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_repeated_types_\\(zero-length_packed_encoding\\)_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_repeated_types_%28zero-length_packed_encoding%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_repeated_types_\\(zero-length_packed_encoding\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_repeated_types_%28zero-length_packed_encoding%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_repeated_types_\\(zero-length_packed_encoding\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fbasic_repeated_types_%28zero-length_packed_encoding%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_repeated_types_\\(zero-length_packed_encoding\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fpacked_repeated_types_%28%2Atest.TestPackedTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^packed_repeated_types_\\(\\*test\\.TestPackedTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fpacked_repeated_types_%28%2Atest.TestPackedExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^packed_repeated_types_\\(\\*test\\.TestPackedExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fpacked_repeated_types_%28zero_length%29_%28%2Atest.TestPackedTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^packed_repeated_types_\\(zero_length\\)_\\(\\*test\\.TestPackedTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fpacked_repeated_types_%28zero_length%29_%28%2Atest.TestPackedExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^packed_repeated_types_\\(zero_length\\)_\\(\\*test\\.TestPackedExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fpacked_repeated_types_%28zero_length%29_%28%2Atesteditions.TestPackedTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^packed_repeated_types_\\(zero_length\\)_\\(\\*testeditions\\.TestPackedTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fpacked_repeated_types_%28zero_length%29_%28%2Atesteditions.TestPackedExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^packed_repeated_types_\\(zero_length\\)_\\(\\*testeditions\\.TestPackedExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fpacked_repeated_types_%28zero_length%29_%28%2Atesteditions_opaque.TestPackedTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^packed_repeated_types_\\(zero_length\\)_\\(\\*testeditions_opaque\\.TestPackedTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fpacked_repeated_types_%28zero_length%29_%28%2Atesteditions_opaque.TestPackedExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^packed_repeated_types_\\(zero_length\\)_\\(\\*testeditions_opaque\\.TestPackedExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frepeated_messages_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^repeated_messages_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frepeated_messages_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^repeated_messages_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frepeated_messages_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^repeated_messages_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frepeated_messages_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^repeated_messages_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frepeated_messages_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^repeated_messages_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frepeated_messages_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^repeated_messages_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frepeated_nil_messages_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^repeated_nil_messages_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frepeated_nil_messages_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^repeated_nil_messages_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frepeated_nil_messages_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^repeated_nil_messages_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frepeated_nil_messages_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^repeated_nil_messages_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frepeated_nil_messages_%28%2Atesteditions.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^repeated_nil_messages_\\(\\*testeditions\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frepeated_groups_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^repeated_groups_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frepeated_groups_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^repeated_groups_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frepeated_groups_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^repeated_groups_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frepeated_groups_%28%2Atesteditions.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^repeated_groups_\\(\\*testeditions\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frepeated_groups_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^repeated_groups_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frepeated_groups_%28%2Atesteditions_opaque.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^repeated_groups_\\(\\*testeditions_opaque\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frepeated_nil_groups_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^repeated_nil_groups_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frepeated_nil_groups_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^repeated_nil_groups_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frepeated_nil_groups_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^repeated_nil_groups_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frepeated_nil_groups_%28%2Atesteditions.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^repeated_nil_groups_\\(\\*testeditions\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmaps_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^maps_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmaps_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^maps_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmaps_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^maps_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmaps_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^maps_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmaps_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^maps_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmap_with_value_before_key_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^map_with_value_before_key_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmap_with_value_before_key_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^map_with_value_before_key_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmap_with_value_before_key_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^map_with_value_before_key_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmap_with_value_before_key_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^map_with_value_before_key_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmap_with_value_before_key_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^map_with_value_before_key_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmap_with_repeated_key_and_value_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^map_with_repeated_key_and_value_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmap_with_repeated_key_and_value_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^map_with_repeated_key_and_value_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmap_with_repeated_key_and_value_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^map_with_repeated_key_and_value_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmap_with_repeated_key_and_value_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^map_with_repeated_key_and_value_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmap_with_repeated_key_and_value_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^map_with_repeated_key_and_value_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28uint32%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(uint32\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28uint32%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(uint32\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28uint32%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(uint32\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28uint32%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(uint32\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28uint32%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(uint32\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_with_required_message_and_uint32_%28%2Atest.TestOneofWithRequired%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_with_required_message_and_uint32_\\(\\*test\\.TestOneofWithRequired\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28message%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(message\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28message%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(message\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28message%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(message\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28message%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(message\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28message%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(message\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28empty_message%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(empty_message\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28empty_message%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(empty_message\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28empty_message%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(empty_message\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28empty_message%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(empty_message\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28empty_message%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(empty_message\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28merged_message%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(merged_message\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28merged_message%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(merged_message\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28merged_message%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(merged_message\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28merged_message%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(merged_message\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28merged_message%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(merged_message\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28group%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(group\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28group%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(group\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28group%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(group\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28empty_group%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(empty_group\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28empty_group%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(empty_group\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28empty_group%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(empty_group\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28merged_group%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(merged_group\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28merged_group%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(merged_group\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28merged_group%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(merged_group\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28string%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(string\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28string%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(string\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28string%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(string\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28string%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(string\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28string%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(string\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28bytes%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(bytes\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28bytes%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(bytes\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28bytes%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(bytes\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28bytes%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(bytes\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28bytes%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(bytes\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28bool%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(bool\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28bool%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(bool\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28bool%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(bool\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28bool%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(bool\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28bool%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(bool\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28uint64%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(uint64\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28uint64%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(uint64\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28uint64%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(uint64\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28uint64%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(uint64\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28uint64%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(uint64\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28float%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(float\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28float%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(float\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28float%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(float\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28float%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(float\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28float%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(float\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28double%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(double\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28double%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(double\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28double%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(double\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28double%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(double\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28double%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(double\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28enum%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(enum\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28enum%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(enum\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28enum%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(enum\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28enum%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(enum\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28enum%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(enum\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28zero%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(zero\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28zero%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(zero\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28zero%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(zero\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28zero%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(zero\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28zero%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(zero\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28overridden_value%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(overridden_value\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28overridden_value%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(overridden_value\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28overridden_value%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(overridden_value\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28overridden_value%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(overridden_value\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Foneof_%28overridden_value%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^oneof_\\(overridden_value\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Funknown_fields_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^unknown_fields_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Funknown_fields_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^unknown_fields_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Funknown_fields_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^unknown_fields_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Funknown_fields_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^unknown_fields_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Funknown_fields_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^unknown_fields_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Funknown_fields_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^unknown_fields_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fdiscarded_unknown_fields_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^discarded_unknown_fields_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fdiscarded_unknown_fields_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^discarded_unknown_fields_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fdiscarded_unknown_fields_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^discarded_unknown_fields_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fdiscarded_unknown_fields_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^discarded_unknown_fields_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fdiscarded_unknown_fields_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^discarded_unknown_fields_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fdiscarded_unknown_fields_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^discarded_unknown_fields_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Ffield_type_mismatch_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^field_type_mismatch_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Ffield_type_mismatch_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^field_type_mismatch_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Ffield_type_mismatch_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^field_type_mismatch_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Ffield_type_mismatch_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^field_type_mismatch_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Ffield_type_mismatch_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^field_type_mismatch_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Ffield_type_mismatch_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^field_type_mismatch_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmap_field_element_mismatch_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^map_field_element_mismatch_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmap_field_element_mismatch_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^map_field_element_mismatch_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmap_field_element_mismatch_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^map_field_element_mismatch_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmap_field_element_mismatch_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^map_field_element_mismatch_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fmap_field_element_mismatch_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^map_field_element_mismatch_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_nil_message_unset_%28%2Atest.TestRequired%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_nil_message_unset_\\(\\*test\\.TestRequired\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_int32_unset_%28%2Arequired.Int32%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_int32_unset_\\(\\*required\\.Int32\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_int32_unset_%28%2Arequired_opaque.Int32%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_int32_unset_\\(\\*required_opaque\\.Int32\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_int32_set_%28%2Arequired.Int32%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_int32_set_\\(\\*required\\.Int32\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_int32_set_%28%2Arequired_opaque.Int32%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_int32_set_\\(\\*required_opaque\\.Int32\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_fixed32_unset_%28%2Arequired.Fixed32%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_fixed32_unset_\\(\\*required\\.Fixed32\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_fixed32_unset_%28%2Arequired_opaque.Fixed32%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_fixed32_unset_\\(\\*required_opaque\\.Fixed32\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_fixed32_set_%28%2Arequired.Fixed32%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_fixed32_set_\\(\\*required\\.Fixed32\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_fixed32_set_%28%2Arequired_opaque.Fixed32%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_fixed32_set_\\(\\*required_opaque\\.Fixed32\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_fixed64_unset_%28%2Arequired.Fixed64%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_fixed64_unset_\\(\\*required\\.Fixed64\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_fixed64_unset_%28%2Arequired_opaque.Fixed64%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_fixed64_unset_\\(\\*required_opaque\\.Fixed64\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_fixed64_set_%28%2Arequired.Fixed64%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_fixed64_set_\\(\\*required\\.Fixed64\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_fixed64_set_%28%2Arequired_opaque.Fixed64%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_fixed64_set_\\(\\*required_opaque\\.Fixed64\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_bytes_unset_%28%2Arequired.Bytes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_bytes_unset_\\(\\*required\\.Bytes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_bytes_unset_%28%2Arequired_opaque.Bytes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_bytes_unset_\\(\\*required_opaque\\.Bytes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_bytes_set_%28%2Arequired.Bytes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_bytes_set_\\(\\*required\\.Bytes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_bytes_set_%28%2Arequired_opaque.Bytes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_bytes_set_\\(\\*required_opaque\\.Bytes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_message_unset_%28%2Arequired.Message%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_message_unset_\\(\\*required\\.Message\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_message_unset_%28%2Arequired_opaque.Message%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_message_unset_\\(\\*required_opaque\\.Message\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_message_set_%28%2Arequired.Message%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_message_set_\\(\\*required\\.Message\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_message_set_%28%2Arequired_opaque.Message%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_message_set_\\(\\*required_opaque\\.Message\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_group_unset_%28%2Arequired.Group%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_group_unset_\\(\\*required\\.Group\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_group_unset_%28%2Arequired_opaque.Group%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_group_unset_\\(\\*required_opaque\\.Group\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_group_set_%28%2Arequired.Group%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_group_set_\\(\\*required\\.Group\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_group_set_%28%2Arequired_opaque.Group%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_group_set_\\(\\*required_opaque\\.Group\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_with_incompatible_wire_type_%28%2Atest.TestRequired%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_with_incompatible_wire_type_\\(\\*test\\.TestRequired\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_with_incompatible_wire_type_%28%2Atesteditions.TestRequired%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_with_incompatible_wire_type_\\(\\*testeditions\\.TestRequired\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_optional_message_unset_%28%2Atest.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_optional_message_unset_\\(\\*test\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_optional_message_unset_%28%2Atesteditions.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_optional_message_unset_\\(\\*testeditions\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_optional_message_unset_%28%2Atesteditions_opaque.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_optional_message_unset_\\(\\*testeditions_opaque\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_optional_message_set_%28%2Atest.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_optional_message_set_\\(\\*test\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_optional_message_set_%28%2Atesteditions.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_optional_message_set_\\(\\*testeditions\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_optional_message_set_%28%2Atesteditions_opaque.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_optional_message_set_\\(\\*testeditions_opaque\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_optional_message_set_%28split_across_multiple_tags%29_%28%2Atest.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_optional_message_set_\\(split_across_multiple_tags\\)_\\(\\*test\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_optional_message_set_%28split_across_multiple_tags%29_%28%2Atesteditions.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_optional_message_set_\\(split_across_multiple_tags\\)_\\(\\*testeditions\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_optional_message_set_%28split_across_multiple_tags%29_%28%2Atesteditions_opaque.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_optional_message_set_\\(split_across_multiple_tags\\)_\\(\\*testeditions_opaque\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_repeated_message_unset_%28%2Atest.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_repeated_message_unset_\\(\\*test\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_repeated_message_unset_%28%2Atesteditions.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_repeated_message_unset_\\(\\*testeditions\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_repeated_message_unset_%28%2Atesteditions_opaque.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_repeated_message_unset_\\(\\*testeditions_opaque\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_repeated_message_set_%28%2Atest.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_repeated_message_set_\\(\\*test\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_repeated_message_set_%28%2Atesteditions.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_repeated_message_set_\\(\\*testeditions\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_repeated_message_set_%28%2Atesteditions_opaque.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_repeated_message_set_\\(\\*testeditions_opaque\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_map_message_unset_%28%2Atest.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_map_message_unset_\\(\\*test\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_map_message_unset_%28%2Atesteditions.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_map_message_unset_\\(\\*testeditions\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_map_message_unset_%28%2Atesteditions_opaque.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_map_message_unset_\\(\\*testeditions_opaque\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_absent_map_message_value_%28%2Atest.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_absent_map_message_value_\\(\\*test\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_absent_map_message_value_%28%2Atesteditions.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_absent_map_message_value_\\(\\*testeditions\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_absent_map_message_value_%28%2Atesteditions_opaque.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_absent_map_message_value_\\(\\*testeditions_opaque\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_map_message_set_%28%2Atest.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_map_message_set_\\(\\*test\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_map_message_set_%28%2Atesteditions.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_map_message_set_\\(\\*testeditions\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_map_message_set_%28%2Atesteditions_opaque.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_map_message_set_\\(\\*testeditions_opaque\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_optional_group_unset_%28%2Atest.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_optional_group_unset_\\(\\*test\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_optional_group_unset_%28%2Atesteditions.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_optional_group_unset_\\(\\*testeditions\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_optional_group_unset_%28%2Atesteditions_opaque.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_optional_group_unset_\\(\\*testeditions_opaque\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_optional_group_set_%28%2Atest.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_optional_group_set_\\(\\*test\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_optional_group_set_%28%2Atesteditions.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_optional_group_set_\\(\\*testeditions\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_optional_group_set_%28%2Atesteditions_opaque.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_optional_group_set_\\(\\*testeditions_opaque\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_repeated_group_unset_%28%2Atest.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_repeated_group_unset_\\(\\*test\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_repeated_group_unset_%28%2Atesteditions.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_repeated_group_unset_\\(\\*testeditions\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_repeated_group_unset_%28%2Atesteditions_opaque.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_repeated_group_unset_\\(\\*testeditions_opaque\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_repeated_group_set_%28%2Atest.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_repeated_group_set_\\(\\*test\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_repeated_group_set_%28%2Atesteditions.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_repeated_group_set_\\(\\*testeditions\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_repeated_group_set_%28%2Atesteditions_opaque.TestRequiredGroupFields%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_repeated_group_set_\\(\\*testeditions_opaque\\.TestRequiredGroupFields\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_oneof_message_unset_%28%2Atest.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_oneof_message_unset_\\(\\*test\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_oneof_message_unset_%28%2Atesteditions.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_oneof_message_unset_\\(\\*testeditions\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_oneof_message_unset_%28%2Atesteditions_opaque.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_oneof_message_unset_\\(\\*testeditions_opaque\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_oneof_message_set_%28%2Atest.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_oneof_message_set_\\(\\*test\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_oneof_message_set_%28%2Atesteditions.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_oneof_message_set_\\(\\*testeditions\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_oneof_message_set_%28%2Atesteditions_opaque.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_oneof_message_set_\\(\\*testeditions_opaque\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_extension_message_unset_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_extension_message_unset_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_extension_message_unset_%28%2Atesteditions.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_extension_message_unset_\\(\\*testeditions\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_extension_message_unset_%28%2Atesteditions_opaque.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_extension_message_unset_\\(\\*testeditions_opaque\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_extension_message_set_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_extension_message_set_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_extension_message_set_%28%2Atesteditions.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_extension_message_set_\\(\\*testeditions\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_extension_message_set_%28%2Atesteditions_opaque.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_extension_message_set_\\(\\*testeditions_opaque\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_repeated_extension_message_unset_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_repeated_extension_message_unset_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_repeated_extension_message_unset_%28%2Atesteditions.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_repeated_extension_message_unset_\\(\\*testeditions\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_repeated_extension_message_unset_%28%2Atesteditions_opaque.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_repeated_extension_message_unset_\\(\\*testeditions_opaque\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_repeated_extension_message_set_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_repeated_extension_message_set_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_repeated_extension_message_set_%28%2Atesteditions.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_repeated_extension_message_set_\\(\\*testeditions\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_repeated_extension_message_set_%28%2Atesteditions_opaque.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_repeated_extension_message_set_\\(\\*testeditions_opaque\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fnil_messages_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^nil_messages_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fnil_messages_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^nil_messages_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fnil_messages_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^nil_messages_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fnil_messages_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^nil_messages_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Flegacy_%28%2Alegacy.Legacy%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^legacy_\\(\\*legacy\\.Legacy\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Ffirst_reserved_field_number_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^first_reserved_field_number_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Ffirst_reserved_field_number_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^first_reserved_field_number_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Ffirst_reserved_field_number_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^first_reserved_field_number_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Ffirst_reserved_field_number_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^first_reserved_field_number_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Ffirst_reserved_field_number_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^first_reserved_field_number_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Ffirst_reserved_field_number_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^first_reserved_field_number_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Flast_reserved_field_number_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^last_reserved_field_number_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Flast_reserved_field_number_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^last_reserved_field_number_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Flast_reserved_field_number_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^last_reserved_field_number_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Flast_reserved_field_number_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^last_reserved_field_number_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Flast_reserved_field_number_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^last_reserved_field_number_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Flast_reserved_field_number_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^last_reserved_field_number_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fnested_unknown_extension_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^nested_unknown_extension_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fnested_unknown_extension_%28%2Atesteditions.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^nested_unknown_extension_\\(\\*testeditions\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fnested_unknown_extension_%28%2Atesteditions_opaque.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^nested_unknown_extension_\\(\\*testeditions_opaque\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Funder_recursion_limit%2C_but_with_many_varint_fields_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^under_recursion_limit,_but_with_many_varint_fields_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Funder_recursion_limit%2C_but_with_many_varint_fields_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^under_recursion_limit,_but_with_many_varint_fields_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Funder_recursion_limit%2C_but_with_many_varint_fields_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^under_recursion_limit,_but_with_many_varint_fields_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Funder_recursion_limit%2C_but_with_many_varint_fields_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^under_recursion_limit,_but_with_many_varint_fields_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Funder_recursion_limit%2C_but_with_many_varint_fields_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^under_recursion_limit,_but_with_many_varint_fields_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Funder_recursion_limit%2C_but_with_many_varint_fields_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^under_recursion_limit,_but_with_many_varint_fields_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fjust_at_recursion_limit_%28no_submessages%29_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^just_at_recursion_limit_\\(no_submessages\\)_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fjust_at_recursion_limit_%28no_submessages%29_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^just_at_recursion_limit_\\(no_submessages\\)_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fjust_at_recursion_limit_%28no_submessages%29_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^just_at_recursion_limit_\\(no_submessages\\)_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fjust_at_recursion_limit_%28no_submessages%29_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^just_at_recursion_limit_\\(no_submessages\\)_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fjust_at_recursion_limit_%28no_submessages%29_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^just_at_recursion_limit_\\(no_submessages\\)_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fjust_at_recursion_limit_%28no_submessages%29_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^just_at_recursion_limit_\\(no_submessages\\)_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fjust_at_recursion_limit_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^just_at_recursion_limit_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fjust_at_recursion_limit_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^just_at_recursion_limit_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fjust_at_recursion_limit_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^just_at_recursion_limit_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fjust_at_recursion_limit_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^just_at_recursion_limit_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fjust_at_recursion_limit_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^just_at_recursion_limit_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fjust_at_recursion_limit_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^just_at_recursion_limit_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fjust_at_recursion_limit%3A_maps_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^just_at_recursion_limit:_maps_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fjust_at_recursion_limit%3A_maps_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^just_at_recursion_limit:_maps_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fjust_at_recursion_limit%3A_maps_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^just_at_recursion_limit:_maps_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fjust_at_recursion_limit%3A_maps_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^just_at_recursion_limit:_maps_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fjust_at_recursion_limit%3A_maps_of_messages_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^just_at_recursion_limit:_maps_of_messages_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fjust_at_recursion_limit%3A_maps_of_messages_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^just_at_recursion_limit:_maps_of_messages_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fjust_at_recursion_limit%3A_maps_of_messages_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^just_at_recursion_limit:_maps_of_messages_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fjust_at_recursion_limit%3A_maps_of_messages_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^just_at_recursion_limit:_maps_of_messages_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Flazy_field_contains_wrong_wire_type_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^lazy_field_contains_wrong_wire_type_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Flazy_field_contains_wrong_wire_type_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^lazy_field_contains_wrong_wire_type_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Flazy_field_contains_wrong_wire_type_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^lazy_field_contains_wrong_wire_type_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Flazy_field_contains_wrong_wire_type_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^lazy_field_contains_wrong_wire_type_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Flazy_field_contains_wrong_wire_type_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^lazy_field_contains_wrong_wire_type_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Flazy_field_contains_wrong_wire_type_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^lazy_field_contains_wrong_wire_type_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Flazy_field_contains_right_and_wrong_wire_type_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^lazy_field_contains_right_and_wrong_wire_type_\\(\\*test\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Flazy_field_contains_right_and_wrong_wire_type_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^lazy_field_contains_right_and_wrong_wire_type_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Flazy_field_contains_right_and_wrong_wire_type_%28%2Atest.TestAllExtensions%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^lazy_field_contains_right_and_wrong_wire_type_\\(\\*test\\.TestAllExtensions\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Flazy_field_contains_right_and_wrong_wire_type_%28%2Atesteditions.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^lazy_field_contains_right_and_wrong_wire_type_\\(\\*testeditions\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Flazy_field_contains_right_and_wrong_wire_type_%28%2Atest3_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^lazy_field_contains_right_and_wrong_wire_type_\\(\\*test3_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Flazy_field_contains_right_and_wrong_wire_type_%28%2Atesteditions_opaque.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^lazy_field_contains_right_and_wrong_wire_type_\\(\\*testeditions_opaque\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-EqualWithSmallEmpty"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEqualWithSmallEmpty$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-EqualWithIdenticalPtrEmpty"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEqualWithIdenticalPtrEmpty$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-EqualWithLargeEmpty"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEqualWithLargeEmpty$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-EqualWithDeeplyNestedEqual"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEqualWithDeeplyNestedEqual$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-EqualWithDeeplyNestedDifferent"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEqualWithDeeplyNestedDifferent$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-EqualWithDeeplyNestedIdenticalPtr"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEqualWithDeeplyNestedIdenticalPtr$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Unmarshal%2Flazy"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkUnmarshal$/^lazy$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Unmarshal%2Fnolazy"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkUnmarshal$/^nolazy$"
+
+[[Benchmarks]]
+  Name = "gproto_protojson-Unmarshal_Duration"
+  Suite = "gproto_protojson"
+  Benchmarks = "^BenchmarkUnmarshal_Duration$"
+
+[[Benchmarks]]
+  Name = "gproto_strs-Cast%2FIdeal"
+  Suite = "gproto_strs"
+  Benchmarks = "^BenchmarkCast$/^Ideal$"
+
+[[Benchmarks]]
+  Name = "gproto_strs-Cast%2FCopy"
+  Suite = "gproto_strs"
+  Benchmarks = "^BenchmarkCast$/^Copy$"
+
+[[Benchmarks]]
+  Name = "gproto_strs-Cast%2FCast"
+  Suite = "gproto_strs"
+  Benchmarks = "^BenchmarkCast$/^Cast$"
+
+[[Benchmarks]]
+  Name = "gproto_impl-Name%2FValue"
+  Suite = "gproto_impl"
+  Benchmarks = "^BenchmarkName$/^Value$"
+
+[[Benchmarks]]
+  Name = "gproto_impl-Name%2FNil"
+  Suite = "gproto_impl"
+  Benchmarks = "^BenchmarkName$/^Nil$"
+
+[[Benchmarks]]
+  Name = "gproto_impl-Reflect%2FHas"
+  Suite = "gproto_impl"
+  Benchmarks = "^BenchmarkReflect$/^Has$"
+
+[[Benchmarks]]
+  Name = "gproto_impl-Reflect%2FGet"
+  Suite = "gproto_impl"
+  Benchmarks = "^BenchmarkReflect$/^Get$"
+
+[[Benchmarks]]
+  Name = "gproto_impl-Reflect%2FSet"
+  Suite = "gproto_impl"
+  Benchmarks = "^BenchmarkReflect$/^Set$"
+
+[[Benchmarks]]
+  Name = "gproto_impl-Reflect%2FClear"
+  Suite = "gproto_impl"
+  Benchmarks = "^BenchmarkReflect$/^Clear$"
+
+[[Benchmarks]]
+  Name = "gproto_impl-Reflect%2FRange"
+  Suite = "gproto_impl"
+  Benchmarks = "^BenchmarkReflect$/^Range$"
+
+[[Benchmarks]]
+  Name = "gproto_json-Float"
+  Suite = "gproto_json"
+  Benchmarks = "^BenchmarkFloat$"
+
+[[Benchmarks]]
+  Name = "gproto_json-Int"
+  Suite = "gproto_json"
+  Benchmarks = "^BenchmarkInt$"
+
+[[Benchmarks]]
+  Name = "gproto_json-String"
+  Suite = "gproto_json"
+  Benchmarks = "^BenchmarkString$"
+
+[[Benchmarks]]
+  Name = "gproto_json-Bool"
+  Suite = "gproto_json"
+  Benchmarks = "^BenchmarkBool$"
+
