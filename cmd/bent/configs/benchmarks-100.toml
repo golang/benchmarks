@@ -1,183 +1,500 @@
-
-# A sample of about 100 different benchmark runs, not noisy, run quickly enough,
-# that appear to be somewhat diverse.
+[[Benchmarks]]
+  Name = "benhoyt_goawk-BuiltinGsubAmpersand"
+  Suite = "benhoyt_goawk"
+  Benchmarks = "^BenchmarkBuiltinGsubAmpersand$"
 
 [[Benchmarks]]
-  Name = "wazero"
-  Benchmarks = "BenchmarkInvocation/interpreter/(string_manipulation_size_50|random_mat_mul_size_20)|BenchmarkCompilation/without"
+  Name = "gonum_community-NewUndirectedLayers%2FgraphSize%3D1000%2CnumGraphs%3D10"
+  Suite = "gonum_community"
+  Benchmarks = "^BenchmarkNewUndirectedLayers$/^graphSize=1000,numGraphs=10$"
 
 [[Benchmarks]]
-  Name = "toml"
-  Benchmarks = "BenchmarkDecode/large-doc"
+  Name = "semver-ValidateVersionRangeFail"
+  Suite = "semver"
+  Benchmarks = "^BenchmarkValidateVersionRangeFail$"
 
 [[Benchmarks]]
-  Name = "minio"
-  Tests = "none" # Don't run these tests; they hang, etc.
-  Benchmarks = "Benchmark(MarshalMsgdataUsageCacheInfo|DecodehealingTracker|DataUpdateTracker|AppendMsgResyncTargetsInfo)"
-  GcEnv = ["GO111MODULE=on"]
+  Name = "gproto_proto-EqualWithDeeplyNestedEqual"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEqualWithDeeplyNestedEqual$"
 
 [[Benchmarks]]
-  Name = "hugo_hugolib"
-  Benchmarks = "Benchmark(ResourceChainPostProcess|ReplaceShortcodeTokens|MergeByLanguage|(Cascade/langs-1-8))"
+  Name = "dustin_broadcast-DirectSend"
+  Suite = "dustin_broadcast"
+  Benchmarks = "^BenchmarkDirectSend$"
 
 [[Benchmarks]]
-  Name = "ethereum_core"
-  Benchmarks = "Benchmark(InsertChain_ring1000_memdb|BlockChain_1x1000ValueTransferToExisting)"
+  Name = "hugo_helpers-RelURL"
+  Suite = "hugo_helpers"
+  Benchmarks = "^BenchmarkRelURL$"
 
 [[Benchmarks]]
-  Name = "shopify_sarama"
-  Benchmarks = "BenchmarkBroker" # BenchmarkStick.* are noisy
+  Name = "thriftrw_gen-RoundTrip%2FPrimitiveOptionalStruct%2FStreaming_Decode"
+  Suite = "thriftrw_gen"
+  Benchmarks = "^BenchmarkRoundTrip$/^PrimitiveOptionalStruct$/^Streaming_Decode$"
 
 [[Benchmarks]]
-  Name = "aws_restjson"
-  Benchmarks = "Benchmark"
+  Name = "benhoyt_goawk-RepeatNew"
+  Suite = "benhoyt_goawk"
+  Benchmarks = "^BenchmarkRepeatNew$"
 
 [[Benchmarks]]
-  Name = "aws_restxml"
-  Benchmarks = "Benchmark"
+  Name = "dustin_humanize-Commaf"
+  Suite = "dustin_humanize"
+  Benchmarks = "^BenchmarkCommaf$"
 
 [[Benchmarks]]
-  Name = "aws_jsonrpc"
-  Benchmarks = "Benchmark"
+  Name = "gonum_mat-Pool100by100Uncleared"
+  Suite = "gonum_mat"
+  Benchmarks = "^BenchmarkPool100by100Uncleared$"
 
 [[Benchmarks]]
-  Name = "ethereum_bitutil"
-  Benchmarks = "Benchmark(BaseTest2KB|FastTest2KB|Encoding4KBVerySparse)"
+  Name = "gproto_proto-Decode%2Frequired_group_set_%28%2Arequired_opaque.Group%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_group_set_\\(\\*required_opaque\\.Group\\)$"
 
 [[Benchmarks]]
-  Name = "ethereum_ethash"
-  Benchmarks = "BenchmarkDifficultyCalculator/big-homestead"
+  Name = "workiva_avl-ImmutableInsert"
+  Suite = "workiva_avl"
+  Benchmarks = "^BenchmarkImmutableInsert$"
 
 [[Benchmarks]]
-  Name = "ethereum_sha3"
-  Benchmarks = "BenchmarkSha3_224_MTU"
+  Name = "workiva_set-Clear"
+  Suite = "workiva_set"
+  Benchmarks = "^BenchmarkClear$"
 
 [[Benchmarks]]
-  Name = "ethereum_ecies"
-  Benchmarks = "Benchmark"
+  Name = "dustin_humanize-ParseSI"
+  Suite = "dustin_humanize"
+  Benchmarks = "^BenchmarkParseSI$"
 
 [[Benchmarks]]
-  Name = "ethereum_corevm"
-  Benchmarks = "BenchmarkOpDiv128"
+  Name = "gproto_micro-Extension%2FGet%2FSet"
+  Suite = "gproto_micro"
+  Benchmarks = "^BenchmarkExtension$/^Get$/^Set$"
 
 [[Benchmarks]]
-  Name = "ethereum_trie"
-  Benchmarks = "Benchmark[HCKGU].*/10K" # Prove and VerifyProof are noisy
+  Name = "semver-CoerceNewVersionSimple"
+  Suite = "semver"
+  Benchmarks = "^BenchmarkCoerceNewVersionSimple$"
 
 [[Benchmarks]]
-  Name = "spexs2"
-  Benchmarks = "BenchmarkRun/10k/1"
+  Name = "workiva_set-Exists"
+  Suite = "workiva_set"
+  Benchmarks = "^BenchmarkExists$"
 
 [[Benchmarks]]
-  Name = "gonum_blas_native"
-  Benchmarks = "Benchmark(DasumMediumUnitaryInc|Dnrm2MediumPosInc)" # not all benchmarks
+  Name = "gonum_mat-AddScaledVec10Inc1"
+  Suite = "gonum_mat"
+  Benchmarks = "^BenchmarkAddScaledVec10Inc1$"
 
 [[Benchmarks]]
-  Name = "gonum_lapack_native"
-  Benchmarks = "BenchmarkDgeev/Circulant10"
+  Name = "workiva_queue-PriorityQueue"
+  Suite = "workiva_queue"
+  Benchmarks = "^BenchmarkPriorityQueue$"
 
 [[Benchmarks]]
-  Name = "gonum_mat"
-  Benchmarks = "Benchmark(MulWorkspaceDense1000Hundredth|ScaleVec10000Inc20)"
+  Name = "uber_tally-TimerReport"
+  Suite = "uber_tally"
+  Benchmarks = "^BenchmarkTimerReport$"
 
 [[Benchmarks]]
-  Name = "semver"
-  Benchmarks = "BenchmarkValidateVersionTildeFail"
+  Name = "hugo_hugolib-CreateShortcodePlaceholders"
+  Suite = "hugo_hugolib"
+  Benchmarks = "^BenchmarkCreateShortcodePlaceholders$"
 
 [[Benchmarks]]
-  Name = "k8s_cache"
-  Benchmarks = "Benchmark([^SELIA]|Listener|Lister_Match_1[^_]*_1[^_]*)" # SharedIndexInformer spawns an non-exiting goroutine, AddSlowListeners leaks a thread.
+  Name = "wazero-Compilation%2Fwithout_extern_cache"
+  Suite = "wazero"
+  Benchmarks = "^BenchmarkCompilation$/^without_extern_cache$"
 
 [[Benchmarks]]
-  Name = "k8s_workqueue"
-  Benchmarks = "BenchmarkParallelizeUntil/(pieces:999,workers:10,chunkSize:13|pieces:1000,workers:10,chunkSize:1)" # DelayingQueue is noisy
+  Name = "ericlagergren_decimal-Pi%2Ffoo%3Dgo-inf%2Fprec%3D100"
+  Suite = "ericlagergren_decimal"
+  Benchmarks = "^BenchmarkPi$/^foo=go-inf$/^prec=100$"
 
 [[Benchmarks]]
-  Name = "uuid"
-  Benchmarks = "Benchmark([^P]|ParseBytesCopy)"
+  Name = "benhoyt_goawk-NativeFunc"
+  Suite = "benhoyt_goawk"
+  Benchmarks = "^BenchmarkNativeFunc$"
 
 [[Benchmarks]]
-  Name = "gonum_topo"
-  Benchmarks = "Benchmark(TarjanSCCGnp_1000_half|TarjanSCCGnp_10_tenth)"
+  Name = "ethereum_whisper-DecryptionSymInvalid"
+  Suite = "ethereum_whisper"
+  Benchmarks = "^BenchmarkDecryptionSymInvalid$"
 
 [[Benchmarks]]
-  Name = "gonum_path"
-  Benchmarks = "Benchmark(AStarUndirected|AllShortest)/(NSW_Undirected_100_5_20_2_heuristic|FloydWarshall_AllBetweenFunc_1000×4[|]0.25.1137|DijkstraAllPaths_AllBetween_1000×16[|]0.1.828)"
-# BenchmarkAStarUndirected/NSW_Undirected_100_5_20_2_heuristic
-# BenchmarkBellmanFordFrom/500_tenth_incremental
-# BenchmarkAllShortest/FloydWarshall_AllBetweenFunc_1000×4|0.25(1137)
-# BenchmarkAllShortest/DijkstraAllPaths_AllBetween_1000×16|0.1(828)
+  Name = "gonum_lapack_native-Dgeev%2FCirculant5"
+  Suite = "gonum_lapack_native"
+  Benchmarks = "^BenchmarkDgeev$/^Circulant5$"
 
 [[Benchmarks]]
-  Name = "gonum_community"
-  Benchmarks = "BenchmarkLouvainDirectedMultiplex"
+  Name = "gproto_proto-Decode%2Fbasic_scalar_types_%28%2Atest.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^basic_scalar_types_\\(\\*test\\.TestAllTypes\\)$"
 
 [[Benchmarks]]
-  Name = "gonum_traverse"
-  Benchmarks = "BenchmarkWalkAllBreadthFirstGnp_(10|1000)_tenth" # more difference by size than anything else
+  Name = "workiva_rangetree-ImmutableInsertSecondDimension"
+  Suite = "workiva_rangetree"
+  Benchmarks = "^BenchmarkImmutableInsertSecondDimension$"
 
 [[Benchmarks]]
-  Name = "capnproto2"
-  Benchmarks = "Benchmark(TextMovementBetweenSegments|Growth_MultiSegment)"
+  Name = "gonum_topo-SortStabilizedPath_100000"
+  Suite = "gonum_topo"
+  Benchmarks = "^BenchmarkSortStabilizedPath_100000$"
 
 [[Benchmarks]]
-  Name = "uber_zap"
-  Benchmarks = "Benchmark([^MSBT]|Standard)"
+  Name = "uuid-UUID_UnmarshalJSON"
+  Suite = "uuid"
+  Benchmarks = "^BenchmarkUUID_UnmarshalJSON$"
 
 [[Benchmarks]]
-  Name = "uber_tally"
-  Benchmarks = "ScopeTaggedNoCachedSubscopes|HistogramAllocation"
+  Name = "capnproto2-Unmarshal_Reuse"
+  Suite = "capnproto2"
+  Benchmarks = "^BenchmarkUnmarshal_Reuse$"
 
 [[Benchmarks]]
-  Name = "bindata"
-  Benchmarks = "Benchmark"
+  Name = "dustin_humanize-BigCommas"
+  Suite = "dustin_humanize"
+  Benchmarks = "^BenchmarkBigCommas$"
 
 [[Benchmarks]]
-  Name = "cespare_mph"
-  Benchmarks = "BenchmarkBuild"
-
-# Used by InfluxDB and Prometheus
-[[Benchmarks]]
-  Name = "cespare_xxhash"
-  Benchmarks = "BenchmarkHashes/.*,direct,string,n=10MB"
+  Name = "capnproto2-Growth_MultiSegment"
+  Suite = "capnproto2"
+  Benchmarks = "^BenchmarkGrowth_MultiSegment$"
 
 [[Benchmarks]]
-  Name = "gtank_blake2s"
-  Benchmarks = "BenchmarkHash8K"
+  Name = "gonum_mat-MarshalToVecDense10"
+  Suite = "gonum_mat"
+  Benchmarks = "^BenchmarkMarshalToVecDense10$"
 
 [[Benchmarks]]
-  Name = "gtank_ed25519"
-  Benchmarks = "Benchmark(IsOnCurve|ScalarMult)"
+  Name = "minio-MarshalMsgBatchJobReplicateFlags"
+  Suite = "minio"
+  Benchmarks = "^BenchmarkMarshalMsgBatchJobReplicateFlags$"
 
 [[Benchmarks]]
-  Name = "ajstarks_deck_generate"
-  Benchmarks = "Benchmark(Polygon|Arc)"
+  Name = "ethereum_ethash-DifficultyCalculator%2Fu256-homestead"
+  Suite = "ethereum_ethash"
+  Benchmarks = "^BenchmarkDifficultyCalculator$/^u256-homestead$"
 
 [[Benchmarks]]
-  Name = "benhoyt_goawk"
-  Benchmarks = "Benchmark(Re[^p]|Repeat[^N])"
+  Name = "kanzi-Huffman"
+  Suite = "kanzi"
+  Benchmarks = "^BenchmarkHuffman$"
 
 [[Benchmarks]]
-  Name = "ericlagergren_decimal"
-  Benchmarks = "BenchmarkPi/foo=.*/prec=100"
+  Name = "semver-CheckVersionRange"
+  Suite = "semver"
+  Benchmarks = "^BenchmarkCheckVersionRange$"
 
 [[Benchmarks]]
-  Name = "dustin_broadcast"
-  Benchmarks = "Benchmark[^B]" #Brodcast is noisy
+  Name = "thriftrw_gen-RoundTrip%2FContainersOfContainers%2FEncode"
+  Suite = "thriftrw_gen"
+  Benchmarks = "^BenchmarkRoundTrip$/^ContainersOfContainers$/^Encode$"
 
 [[Benchmarks]]
-  Name = "dustin_humanize"
-  Benchmarks = "BenchmarkParseBigBytes"
+  Name = "minio-UnmarshalReplicationMRFStats"
+  Suite = "minio"
+  Benchmarks = "^BenchmarkUnmarshalReplicationMRFStats$"
 
 [[Benchmarks]]
-  Name = "bloom_bloom"
-  Benchmarks = "Benchmark[SC]" # avoid "Estimated"
+  Name = "uuid-UUID_MarshalJSON"
+  Suite = "uuid"
+  Benchmarks = "^BenchmarkUUID_MarshalJSON$"
 
 [[Benchmarks]]
-  Name = "kanzi"
-  Benchmarks = "Benchmark(FPAQ|LZ|MTFT)$"
+  Name = "shopify_sarama-ZstdMemoryConsumption%2Fno_drain"
+  Suite = "shopify_sarama"
+  Benchmarks = "^BenchmarkZstdMemoryConsumption$/^no_drain$"
 
 [[Benchmarks]]
-  Name = "commonmark_markdown"
-  Benchmarks = "Benchmark(RenderSpec|RenderSpecBlackFriday2)"
+  Name = "benhoyt_goawk-RecursiveFunc"
+  Suite = "benhoyt_goawk"
+  Benchmarks = "^BenchmarkRecursiveFunc$"
+
+[[Benchmarks]]
+  Name = "gonum_traverse-WalkAllDepthFirstGnp_100_half"
+  Suite = "gonum_traverse"
+  Benchmarks = "^BenchmarkWalkAllDepthFirstGnp_100_half$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-EqualWithDeeplyNestedIdenticalPtr"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkEqualWithDeeplyNestedIdenticalPtr$"
+
+[[Benchmarks]]
+  Name = "thriftrw_gen-RoundTrip%2FContainersOfContainers%2FDecode"
+  Suite = "thriftrw_gen"
+  Benchmarks = "^BenchmarkRoundTrip$/^ContainersOfContainers$/^Decode$"
+
+[[Benchmarks]]
+  Name = "gonum_community-NewDirectedLayers%2FgraphSize%3D10%2CnumGraphs%3D1"
+  Suite = "gonum_community"
+  Benchmarks = "^BenchmarkNewDirectedLayers$/^graphSize=10,numGraphs=1$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Ffield_type_mismatch_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^field_type_mismatch_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "gproto_reflect-Value%2FInterface"
+  Suite = "gproto_reflect"
+  Benchmarks = "^BenchmarkValue$/^Interface$"
+
+[[Benchmarks]]
+  Name = "uber_tally-ScopeTaggedCachedSubscopes"
+  Suite = "uber_tally"
+  Benchmarks = "^BenchmarkScopeTaggedCachedSubscopes$"
+
+[[Benchmarks]]
+  Name = "dustin_broadcast-ParallelBrodcast"
+  Suite = "dustin_broadcast"
+  Benchmarks = "^BenchmarkParallelBrodcast$"
+
+[[Benchmarks]]
+  Name = "ethereum_whisper-DecryptionAsymInvalid"
+  Suite = "ethereum_whisper"
+  Benchmarks = "^BenchmarkDecryptionAsymInvalid$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Fjust_at_recursion_limit_%28%2Atest3.TestAllTypes%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^just_at_recursion_limit_\\(\\*test3\\.TestAllTypes\\)$"
+
+[[Benchmarks]]
+  Name = "uber_zap-JSONLogMarshalerFunc"
+  Suite = "uber_zap"
+  Benchmarks = "^BenchmarkJSONLogMarshalerFunc$"
+
+[[Benchmarks]]
+  Name = "gonum_community-NewDirectedLayers%2FgraphSize%3D1000%2CnumGraphs%3D1"
+  Suite = "gonum_community"
+  Benchmarks = "^BenchmarkNewDirectedLayers$/^graphSize=1000,numGraphs=1$"
+
+[[Benchmarks]]
+  Name = "gproto_proto-Decode%2Frequired_field_in_oneof_message_set_%28%2Atest.TestRequiredForeign%29"
+  Suite = "gproto_proto"
+  Benchmarks = "^BenchmarkDecode$/^required_field_in_oneof_message_set_\\(\\*test\\.TestRequiredForeign\\)$"
+
+[[Benchmarks]]
+  Name = "k8s_cache-EachListItemWithAlloc%2FPodList"
+  Suite = "k8s_cache"
+  Benchmarks = "^BenchmarkEachListItemWithAlloc$/^PodList$"
+
+[[Benchmarks]]
+  Name = "k8s_workqueue-DelayingQueue_AddAfter"
+  Suite = "k8s_workqueue"
+  Benchmarks = "^BenchmarkDelayingQueue_AddAfter$"
+
+[[Benchmarks]]
+  Name = "shopify_sarama-_getMetricNameForTopic"
+  Suite = "shopify_sarama"
+  Benchmarks = "^Benchmark_getMetricNameForTopic$"
+
+[[Benchmarks]]
+  Name = "ericlagergren_decimal-Mandelbrot_decimal_GDA_9"
+  Suite = "ericlagergren_decimal"
+  Benchmarks = "^BenchmarkMandelbrot_decimal_GDA_9$"
+
+[[Benchmarks]]
+  Name = "minio-DecodeBatchJobKeyRotateV1"
+  Suite = "minio"
+  Benchmarks = "^BenchmarkDecodeBatchJobKeyRotateV1$"
+
+[[Benchmarks]]
+  Name = "gproto_micro-EmptyMessage%2FWire%2FMarshal"
+  Suite = "gproto_micro"
+  Benchmarks = "^BenchmarkEmptyMessage$/^Wire$/^Marshal$"
+
+[[Benchmarks]]
+  Name = "ericlagergren_decimal-Pi%2Ffoo%3Dapmckinlay%2Fprec%3D19"
+  Suite = "ericlagergren_decimal"
+  Benchmarks = "^BenchmarkPi$/^foo=apmckinlay$/^prec=19$"
+
+[[Benchmarks]]
+  Name = "ericlagergren_decimal-Pi%2Ffoo%3Dcockroachdb%2Fapd%2Fprec%3D100"
+  Suite = "ericlagergren_decimal"
+  Benchmarks = "^BenchmarkPi$/^foo=cockroachdb$/^apd$/^prec=100$"
+
+[[Benchmarks]]
+  Name = "cespare_xxhash-DigestBytes%2F100B"
+  Suite = "cespare_xxhash"
+  Benchmarks = "^BenchmarkDigestBytes$/^100B$"
+
+[[Benchmarks]]
+  Name = "gonum_lapack_native-Dlantb%2FFrobeniusLowerNonUnitN%3D10000K%3D2"
+  Suite = "gonum_lapack_native"
+  Benchmarks = "^BenchmarkDlantb$/^FrobeniusLowerNonUnitN=10000K=2$"
+
+[[Benchmarks]]
+  Name = "gonum_mat-CholeskyFactorize%2Fn%3D10"
+  Suite = "gonum_mat"
+  Benchmarks = "^BenchmarkCholeskyFactorize$/^n=10$"
+
+[[Benchmarks]]
+  Name = "gonum_mat-TriMulDiag%2FBenchmarkTriMulDiag100"
+  Suite = "gonum_mat"
+  Benchmarks = "^BenchmarkTriMulDiag$/^BenchmarkTriMulDiag100$"
+
+[[Benchmarks]]
+  Name = "gproto_encoding-TextDecode"
+  Suite = "gproto_encoding"
+  Benchmarks = "^BenchmarkTextDecode$"
+
+[[Benchmarks]]
+  Name = "gproto_json-Int"
+  Suite = "gproto_json"
+  Benchmarks = "^BenchmarkInt$"
+
+[[Benchmarks]]
+  Name = "kanzi-BWTSmallBlock"
+  Suite = "kanzi"
+  Benchmarks = "^BenchmarkBWTSmallBlock$"
+
+[[Benchmarks]]
+  Name = "minio-AppendMsgBucketStats"
+  Suite = "minio"
+  Benchmarks = "^BenchmarkAppendMsgBucketStats$"
+
+[[Benchmarks]]
+  Name = "minio-EncodedataUsageCacheInfo"
+  Suite = "minio"
+  Benchmarks = "^BenchmarkEncodedataUsageCacheInfo$"
+
+[[Benchmarks]]
+  Name = "minio-UnmarshalBatchJobKeyRotateV1"
+  Suite = "minio"
+  Benchmarks = "^BenchmarkUnmarshalBatchJobKeyRotateV1$"
+
+[[Benchmarks]]
+  Name = "workiva_augmentedtree-AddItems"
+  Suite = "workiva_augmentedtree"
+  Benchmarks = "^BenchmarkAddItems$"
+
+[[Benchmarks]]
+  Name = "workiva_btree_palm-BulkGet"
+  Suite = "workiva_btree_palm"
+  Benchmarks = "^BenchmarkBulkGet$"
+
+[[Benchmarks]]
+  Name = "ethereum_trie-DecodeShortNodeUnsafe"
+  Suite = "ethereum_trie"
+  Benchmarks = "^BenchmarkDecodeShortNodeUnsafe$"
+
+[[Benchmarks]]
+  Name = "gonum_mat-CholeskyInverseTo%2Fn%3D100"
+  Suite = "gonum_mat"
+  Benchmarks = "^BenchmarkCholeskyInverseTo$/^n=100$"
+
+[[Benchmarks]]
+  Name = "gonum_mat-UnmarshalVecDense10"
+  Suite = "gonum_mat"
+  Benchmarks = "^BenchmarkUnmarshalVecDense10$"
+
+[[Benchmarks]]
+  Name = "rcrowley_metrics-Timer"
+  Suite = "rcrowley_metrics"
+  Benchmarks = "^BenchmarkTimer$"
+
+[[Benchmarks]]
+  Name = "dustin_humanize-ParseBytes"
+  Suite = "dustin_humanize"
+  Benchmarks = "^BenchmarkParseBytes$"
+
+[[Benchmarks]]
+  Name = "ethereum_ecies-GenSharedKeyP256"
+  Suite = "ethereum_ecies"
+  Benchmarks = "^BenchmarkGenSharedKeyP256$"
+
+[[Benchmarks]]
+  Name = "minio-AppendMsgBatchJobExpire"
+  Suite = "minio"
+  Benchmarks = "^BenchmarkAppendMsgBatchJobExpire$"
+
+[[Benchmarks]]
+  Name = "nelsam_gxui_interval-General"
+  Suite = "nelsam_gxui_interval"
+  Benchmarks = "^BenchmarkGeneral$"
+
+[[Benchmarks]]
+  Name = "rcrowley_metrics-Histogram"
+  Suite = "rcrowley_metrics"
+  Benchmarks = "^BenchmarkHistogram$"
+
+[[Benchmarks]]
+  Name = "workiva_rangetree-Apply"
+  Suite = "workiva_rangetree"
+  Benchmarks = "^BenchmarkApply$"
+
+[[Benchmarks]]
+  Name = "workiva_rangetree_skiplist-MultiDimensionInsertAtZeroDimension"
+  Suite = "workiva_rangetree_skiplist"
+  Benchmarks = "^BenchmarkMultiDimensionInsertAtZeroDimension$"
+
+[[Benchmarks]]
+  Name = "benhoyt_goawk-SimpleBuiltins"
+  Suite = "benhoyt_goawk"
+  Benchmarks = "^BenchmarkSimpleBuiltins$"
+
+[[Benchmarks]]
+  Name = "commonmark_markdown-RenderSpecNoHTML"
+  Suite = "commonmark_markdown"
+  Benchmarks = "^BenchmarkRenderSpecNoHTML$"
+
+[[Benchmarks]]
+  Name = "gproto_json-Bool"
+  Suite = "gproto_json"
+  Benchmarks = "^BenchmarkBool$"
+
+[[Benchmarks]]
+  Name = "hugo_helpers-AbsURL%2Fabsurl"
+  Suite = "hugo_helpers"
+  Benchmarks = "^BenchmarkAbsURL$/^absurl$"
+
+[[Benchmarks]]
+  Name = "kanzi-ANS0"
+  Suite = "kanzi"
+  Benchmarks = "^BenchmarkANS0$"
+
+[[Benchmarks]]
+  Name = "kanzi-CM"
+  Suite = "kanzi"
+  Benchmarks = "^BenchmarkCM$"
+
+[[Benchmarks]]
+  Name = "minio-DecodeBucketStats"
+  Suite = "minio"
+  Benchmarks = "^BenchmarkDecodeBucketStats$"
+
+[[Benchmarks]]
+  Name = "minio-UnmarshalBucketStats"
+  Suite = "minio"
+  Benchmarks = "^BenchmarkUnmarshalBucketStats$"
+
+[[Benchmarks]]
+  Name = "uuid-New"
+  Suite = "uuid"
+  Benchmarks = "^BenchmarkNew$"
+
+[[Benchmarks]]
+  Name = "workiva_bitarray-CompressedIntersects"
+  Suite = "workiva_bitarray"
+  Benchmarks = "^BenchmarkCompressedIntersects$"
+
+[[Benchmarks]]
+  Name = "workiva_hilbert-BulkUpdatePoints"
+  Suite = "workiva_hilbert"
+  Benchmarks = "^BenchmarkBulkUpdatePoints$"
+
+[[Benchmarks]]
+  Name = "workiva_triey-Iterator"
+  Suite = "workiva_triey"
+  Benchmarks = "^BenchmarkIterator$"
+
+[[Benchmarks]]
+  Name = "bloom_bits-BitSetExtractDeposit%2Fsize%3D64%2Ffn%3DDepositTo"
+  Suite = "bloom_bits"
+  Benchmarks = "^BenchmarkBitSetExtractDeposit$/^size=64$/^fn=DepositTo$"
 
