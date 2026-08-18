@@ -125,7 +125,7 @@ var explicitAll counterFlag // Include "-a" on "go test -c" test build ; repeati
 var shuffle = 2             // Dimensionality of (build) shuffling; 0 = none, 1 = per-benchmark, configuration ordering, 2 = bench, config pairs, 3 = across repetitions.
 var reportBuildTime = true
 var experiment = false // Don't reset go.mod, for testing purposes
-var minGoVersion = "1.26"
+var minGoVersion = "1.25"
 
 //go:embed scripts/*
 var scripts embed.FS
