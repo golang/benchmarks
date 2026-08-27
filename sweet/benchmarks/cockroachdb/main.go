@@ -64,7 +64,38 @@ type cockroachdbInstance struct {
 	sqlPort  int // Used for intra-cluster communication.
 	httpPort int // Used to scrape for metrics.
 	cmd      *exec.Cmd
-	output   bytes.Buffer
+	output   syncBuffer
+}
+
+// syncBuffer is a bytes.Buffer that is safe for concurrent use.
+//
+// An instance's output is written by more than one goroutine at a time. os/exec
+// starts a goroutine per command to copy that command's output into the writer
+// it was given, and the node's long-running command shares its writer with the
+// short-lived init, sql and node status commands aimed at the same node. The
+// deferred report in run then reads the buffer back. bytes.Buffer is not safe
+// for any of that.
+type syncBuffer struct {
+	mu  sync.Mutex
+	buf bytes.Buffer
+}
+
+func (b *syncBuffer) Write(p []byte) (int, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.Write(p)
+}
+
+func (b *syncBuffer) Len() int {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.Len()
+}
+
+func (b *syncBuffer) String() string {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.String()
 }
 
 func clusterAddresses(instances []*cockroachdbInstance) string {
@@ -290,7 +321,16 @@ func (i *cockroachdbInstance) shutdown() (killed bool, err error) {
 	}
 	done := make(chan struct{})
 	go func() {
-		if _, err := i.cmd.Process.Wait(); err != nil {
+		// Wait on the Cmd rather than the Process. Only Cmd.Wait joins the
+		// goroutines os/exec started to copy this node's output into i.output
+		// and closes the pipes it created for them. Waiting on the Process
+		// alone leaves the copier running while the deferred report in run
+		// reads the buffer, and leaks the pipe for the rest of the benchmark.
+		//
+		// An ExitError is expected here: a node that drained on SIGTERM, or one
+		// we killed below, does not exit zero.
+		var exitErr *exec.ExitError
+		if err := i.cmd.Wait(); err != nil && !errors.As(err, &exitErr) {
 			fmt.Fprintf(os.Stderr, "failed to wait for instance %s: %v\n", i.name, err)
 		}
 		done <- struct{}{}
@@ -322,7 +362,10 @@ func (i *cockroachdbInstance) kill() error {
 	if err := i.cmd.Process.Signal(syscall.SIGKILL); err != nil {
 		return err
 	}
-	if _, err := i.cmd.Process.Wait(); err != nil {
+	// As in shutdown, wait on the Cmd so the output copier is joined. An
+	// ExitError is expected, we just killed it.
+	var exitErr *exec.ExitError
+	if err := i.cmd.Wait(); err != nil && !errors.As(err, &exitErr) {
 		return fmt.Errorf("failed to wait for instance %s: %v", i.name, err)
 	}
 	return nil
