@@ -132,11 +132,14 @@ func launchSingleNodeCluster(cfg *config) ([]*cockroachdbInstance, error) {
 	inst.cmd.Stdout = &inst.output
 	inst.cmd.Stderr = &inst.output
 	if err := inst.cmd.Start(); err != nil {
-		return nil, fmt.Errorf("failed to start instance %q: %v", inst.name, err)
+		return instances, fmt.Errorf("failed to start instance %q: %v", inst.name, err)
 	}
 	return instances, nil
 }
 
+// launchCockroachCluster starts the cluster. It returns the instances it
+// created even when it fails, because the caller has to stop the ones that did
+// start.
 func launchCockroachCluster(cfg *config) ([]*cockroachdbInstance, error) {
 	if cfg.bench.nodeCount == 1 {
 		// Use `cockroach start-single-node` instead for single node clusters.
@@ -172,7 +175,7 @@ func launchCockroachCluster(cfg *config) ([]*cockroachdbInstance, error) {
 		inst.cmd.Stdout = &inst.output
 		inst.cmd.Stderr = &inst.output
 		if err := inst.cmd.Start(); err != nil {
-			return nil, fmt.Errorf("failed to start instance %q: %v", inst.name, err)
+			return instances, fmt.Errorf("failed to start instance %q: %v", inst.name, err)
 		}
 	}
 
@@ -190,7 +193,7 @@ func launchCockroachCluster(cfg *config) ([]*cockroachdbInstance, error) {
 	initCmd.Stdout = &inst1.output
 	initCmd.Stderr = &inst1.output
 	if err := initCmd.Start(); err != nil {
-		return nil, fmt.Errorf("failed to init instance %q: %v", inst1.name, err)
+		return instances, fmt.Errorf("failed to init instance %q: %v", inst1.name, err)
 	}
 	return instances, nil
 }
@@ -306,19 +309,60 @@ func (i *cockroachdbInstance) httpAddr() string {
 	return fmt.Sprintf("%s:%d", cliCfg.host, i.httpPort)
 }
 
-func (i *cockroachdbInstance) shutdown() (killed bool, err error) {
-	// Only attempt to shut down the process if we got to a point
-	// that a command was constructed and started.
-	if i.cmd == nil || i.cmd.Process == nil {
-		return false, nil
+// clusterStopGrace is how long the cluster as a whole gets to exit on SIGTERM
+// before the nodes that have not exited are killed.
+const clusterStopGrace = 15 * time.Second
+
+// stopCluster stops every node in the cluster, and reports how many were
+// signalled and how many of those had to be killed.
+func stopCluster(instances []*cockroachdbInstance) (killed, total int, err error) {
+	var signalled []*cockroachdbInstance
+	for _, inst := range instances {
+		// Only attempt to shut down the process if we got to a point
+		// that a command was constructed and started.
+		if inst.cmd == nil || inst.cmd.Process == nil {
+			continue
+		}
+		// Send SIGTERM and wait instead of just killing as sending SIGKILL
+		// bypasses node shutdown logic and will leave the node in a bad state.
+		// Normally not an issue unless you want to restart the cluster i.e.
+		// to poke around and see what's wrong.
+		if serr := inst.cmd.Process.Signal(syscall.SIGTERM); serr != nil {
+			if err == nil {
+				err = fmt.Errorf("failed to signal instance %s: %v", inst.name, serr)
+			}
+			continue
+		}
+		signalled = append(signalled, inst)
 	}
-	// Send SIGTERM and wait instead of just killing as sending SIGKILL
-	// bypasses node shutdown logic and will leave the node in a bad state.
-	// Normally not an issue unless you want to restart the cluster i.e.
-	// to poke around and see what's wrong.
-	if err := i.cmd.Process.Signal(syscall.SIGTERM); err != nil {
-		return false, err
+
+	// Wait for every node concurrently, against one deadline.
+	deadline := time.Now().Add(clusterStopGrace)
+	var wg sync.WaitGroup
+	wasKilled := make([]bool, len(signalled))
+	waitErrs := make([]error, len(signalled))
+	for i, inst := range signalled {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			wasKilled[i], waitErrs[i] = inst.waitOrKill(time.Until(deadline))
+		}()
 	}
+	wg.Wait()
+	for i := range signalled {
+		if waitErrs[i] != nil && err == nil {
+			err = waitErrs[i]
+		}
+		if wasKilled[i] {
+			killed++
+		}
+	}
+	return killed, len(signalled), err
+}
+
+// waitOrKill waits for the instance to exit, killing it if that takes longer
+// than timeout. It reports whether it had to kill it.
+func (i *cockroachdbInstance) waitOrKill(timeout time.Duration) (killed bool, err error) {
 	done := make(chan struct{})
 	go func() {
 		// Wait on the Cmd rather than the Process. Only Cmd.Wait joins the
@@ -330,20 +374,33 @@ func (i *cockroachdbInstance) shutdown() (killed bool, err error) {
 		// An ExitError is expected here: a node that drained on SIGTERM, or one
 		// we killed below, does not exit zero.
 		var exitErr *exec.ExitError
-		if err := i.cmd.Wait(); err != nil && !errors.As(err, &exitErr) {
-			fmt.Fprintf(os.Stderr, "failed to wait for instance %s: %v\n", i.name, err)
+		if werr := i.cmd.Wait(); werr != nil && !errors.As(werr, &exitErr) {
+			fmt.Fprintf(os.Stderr, "failed to wait for instance %s: %v\n", i.name, werr)
 		}
-		done <- struct{}{}
+		close(done)
 	}()
 	select {
 	case <-done:
-	case <-time.After(1 * time.Minute):
-		// If it takes a full minute to shut down, just kill the instance
-		// and report that we did it. We *probably* won't need it again.
-		// We're also racing here with the process exiting, so we could see
-		// ErrProcessDone; ignore it if we do.
-		if err := i.cmd.Process.Signal(syscall.SIGKILL); err != nil && !errors.Is(err, os.ErrProcessDone) {
-			return false, fmt.Errorf("failed to send SIGKILL to instance %s: %v", i.name, err)
+	case <-time.After(max(timeout, 0)):
+		// The timer and the process exiting race, and select picks at random
+		// between two ready cases, so re-check before reporting a kill: an
+		// instance that exited just as the window closed did drain, and saying
+		// otherwise would make a clean shutdown look like a timeout.
+		select {
+		case <-done:
+			return false, nil
+		default:
+		}
+		// If it takes this long to shut down, kill the instance and report
+		// that we did it. The kill still races with the process exiting on
+		// its own: ErrProcessDone means it lost, so the node did drain. Wait
+		// for the copiers as usual and do not count it.
+		if kerr := i.cmd.Process.Signal(syscall.SIGKILL); kerr != nil {
+			if errors.Is(kerr, os.ErrProcessDone) {
+				<-done
+				return false, nil
+			}
+			return false, fmt.Errorf("failed to send SIGKILL to instance %s: %v", i.name, kerr)
 		}
 		killed = true
 
@@ -352,23 +409,6 @@ func (i *cockroachdbInstance) shutdown() (killed bool, err error) {
 		<-done
 	}
 	return killed, nil
-}
-
-func (i *cockroachdbInstance) kill() error {
-	if i.cmd == nil || i.cmd.Process == nil {
-		// Nothing to kill.
-		return nil
-	}
-	if err := i.cmd.Process.Signal(syscall.SIGKILL); err != nil {
-		return err
-	}
-	// As in shutdown, wait on the Cmd so the output copier is joined. An
-	// ExitError is expected, we just killed it.
-	var exitErr *exec.ExitError
-	if err := i.cmd.Wait(); err != nil && !errors.As(err, &exitErr) {
-		return fmt.Errorf("failed to wait for instance %s: %v", i.name, err)
-	}
-	return nil
 }
 
 type benchmark struct {
@@ -626,51 +666,48 @@ func reportMetrics(b *driver.B, metricType string, metrics benchmarkMetrics) {
 
 func run(cfg *config) (err error) {
 	log.Println("launching cluster")
-	var instances []*cockroachdbInstance
-	// Launch the server.
-	instances, err = launchCockroachCluster(cfg)
-
-	if err != nil {
-		return fmt.Errorf("starting cluster: %v\n", err)
-	}
+	// Launch the server. Take the instances even if this fails: it may have
+	// started some of them before it gave up, and nothing else stops them.
+	instances, launchErr := launchCockroachCluster(cfg)
 
 	// Clean up the cluster after we're done.
 	defer func() {
+		if len(instances) == 0 {
+			return
+		}
 		log.Println("shutting down cluster")
 
-		// We only need send a shutdown signal to one instance, attempting to
-		// send it again will cause it to hang.
-		inst := instances[0]
-		killed, r := inst.shutdown()
+		killed, total, r := stopCluster(instances)
 		if r != nil {
 			if err == nil {
 				err = r
 			} else {
-				fmt.Fprintf(os.Stderr, "failed to shutdown %s: %v", inst.name, r)
+				fmt.Fprintf(os.Stderr, "failed to shut down cluster: %v\n", r)
 			}
 		}
-		if killed {
-			log.Println("killed instance", inst.name, "and killing others")
-
-			// If we ended up killing an instance, try to kill the other instances too.
-			for _, inst := range instances[1:] {
-				if err := inst.kill(); err != nil {
-					fmt.Fprintf(os.Stderr, "failed to kill %s: %v", inst.name, err)
-				}
+		// For a multi-node cluster this is the expected path, not a failure.
+		if killed > 0 {
+			log.Printf("killed %d of %d instances that had not exited %s after SIGTERM",
+				killed, total, clusterStopGrace)
+		}
+		for _, inst := range instances {
+			if inst.output.Len() != 0 {
+				fmt.Fprintf(os.Stderr, "=== Instance %q stdout+stderr ===\n", inst.name)
+				fmt.Fprintln(os.Stderr, inst.output.String())
 			}
-		}
-		if inst.output.Len() != 0 {
-			fmt.Fprintf(os.Stderr, "=== Instance %q stdout+stderr ===\n", inst.name)
-			fmt.Fprintln(os.Stderr, inst.output.String())
-		}
-		stderrLog, logReadErr := os.ReadFile(filepath.Join(cfg.tmpDir, inst.name+"-log", "cockroach-stderr.log"))
-		if logReadErr == nil {
-			fmt.Fprintf(os.Stderr, "=== Instance %q original stderr ===\n", inst.name)
-			fmt.Fprintln(os.Stderr, string(stderrLog))
-		} else {
-			fmt.Fprintf(os.Stderr, "=== Instance %q failed to read original stderr: %v\n", inst.name, logReadErr)
+			stderrLog, logReadErr := os.ReadFile(filepath.Join(cfg.tmpDir, inst.name+"-log", "cockroach-stderr.log"))
+			if logReadErr == nil {
+				fmt.Fprintf(os.Stderr, "=== Instance %q original stderr ===\n", inst.name)
+				fmt.Fprintln(os.Stderr, string(stderrLog))
+			} else {
+				fmt.Fprintf(os.Stderr, "=== Instance %q failed to read original stderr: %v\n", inst.name, logReadErr)
+			}
 		}
 	}()
+
+	if launchErr != nil {
+		return fmt.Errorf("starting cluster: %v", launchErr)
+	}
 
 	log.Println("waiting for cluster")
 	if err = waitForCluster(instances, cfg); err != nil {
