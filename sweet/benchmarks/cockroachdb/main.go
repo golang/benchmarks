@@ -465,7 +465,7 @@ func kvBenchmark(readPercent int, nodeCount int) benchmark {
 		name:        fmt.Sprintf("kv%d/nodes=%d", readPercent, nodeCount),
 		reportName:  fmt.Sprintf("CockroachDBkv%d/nodes=%d", readPercent, nodeCount),
 		workload:    "kv",
-		nodeCount:   1,
+		nodeCount:   nodeCount,
 		metricTypes: metricTypes,
 		// Very generous timeout, we don't expect to ever hit this, but just in case.
 		timeout: 5 * time.Minute,
