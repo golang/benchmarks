@@ -178,7 +178,7 @@ func (h CockroachDB) Run(cfg *common.Config, rcfg *common.RunConfig) error {
 			}
 		} else {
 			// Wait for 30 minutes.
-			c := make(chan error)
+			c := make(chan error, 1)
 			go func() {
 				c <- cmd.Wait()
 			}()
@@ -191,6 +191,11 @@ func (h CockroachDB) Run(cfg *common.Config, rcfg *common.RunConfig) error {
 				if err := cmd.Process.Kill(); err != nil {
 					return fmt.Errorf("timeout, error killing process: %s", err.Error())
 				}
+				// Collect the Wait we started above. The buffered channel is
+				// what lets that goroutine finish at all: on the timeout path
+				// nothing used to receive from it, so it blocked on the send
+				// for the rest of the run.
+				<-c
 				return fmt.Errorf("timeout")
 			}
 		}
