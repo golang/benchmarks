@@ -179,9 +179,20 @@ func launchCockroachCluster(cfg *config) ([]*cockroachdbInstance, error) {
 		}
 	}
 
-	// Initialize the cluster with `cockroach init`.
+	// Initialize the cluster with `cockroach init`, and wait for it: an
+	// uninitialized cluster never becomes ready, so letting this run unwatched
+	// turns whatever went wrong into waitForCluster timing out a minute later
+	// with nothing to point at.
+	//
+	// init waits for the first node to answer its health check itself, retrying
+	// until it does, so it needs no retry here. It is bounded the way the
+	// workload ping is bounded, so that an init that hangs cannot stall the
+	// launch.
+	const initTimeout = 30 * time.Second
 	inst1 := instances[0]
-	initCmd := exec.Command(cfg.cockroachdbBin,
+	ctx, cancel := context.WithTimeout(context.Background(), initTimeout)
+	defer cancel()
+	initCmd := exec.CommandContext(ctx, cfg.cockroachdbBin,
 		"init",
 		"--insecure",
 		fmt.Sprintf("--host=%s", cfg.host),
@@ -192,8 +203,11 @@ func launchCockroachCluster(cfg *config) ([]*cockroachdbInstance, error) {
 	)
 	initCmd.Stdout = &inst1.output
 	initCmd.Stderr = &inst1.output
-	if err := initCmd.Start(); err != nil {
-		return instances, fmt.Errorf("failed to init instance %q: %v", inst1.name, err)
+	if err := initCmd.Run(); err != nil {
+		if ctx.Err() != nil {
+			err = fmt.Errorf("gave up after %s", initTimeout)
+		}
+		return instances, fmt.Errorf("failed to init cluster at instance %q: %v", inst1.name, err)
 	}
 	return instances, nil
 }
