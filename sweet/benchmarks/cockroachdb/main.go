@@ -195,9 +195,9 @@ func launchCockroachCluster(cfg *config) ([]*cockroachdbInstance, error) {
 	return instances, nil
 }
 
-// waitForCluster pings nodes in the cluster until one responds, or
-// we time out. We wait for all nodes to respond because even if the
-// workload can start before all nodes are ready, that's not true for
+// waitForCluster pings every node in the cluster until all of them respond, or
+// we time out. We wait for all of them rather than the first, because even if
+// the workload can start before all nodes are ready, that's not true for
 // collecting diagnostic data.
 func waitForCluster(instances []*cockroachdbInstance, cfg *config) error {
 	ctx, cancel := context.WithCancel(context.Background())
@@ -206,7 +206,7 @@ func waitForCluster(instances []*cockroachdbInstance, cfg *config) error {
 	var wg sync.WaitGroup
 	for _, inst := range instances {
 		wg.Add(1)
-		go func(context.Context) {
+		go func() {
 			defer wg.Done()
 			for {
 				select {
@@ -221,7 +221,7 @@ func waitForCluster(instances []*cockroachdbInstance, cfg *config) error {
 					}
 				}
 			}
-		}(ctx)
+		}()
 	}
 	done := make(chan struct{})
 	go func() {
@@ -568,15 +568,6 @@ type benchmarkMetrics struct {
 	p95Latency     float64
 	p99Latency     float64
 	p100Latency    float64
-}
-
-func getAndReportMetrics(b *driver.B, metricType string, output string) error {
-	metrics, err := getMetrics(metricType, output)
-	if err != nil {
-		return err
-	}
-	reportMetrics(b, metricType, metrics)
-	return nil
 }
 
 func getMetrics(metricType string, output string) (benchmarkMetrics, error) {
