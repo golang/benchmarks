@@ -34,9 +34,19 @@ import (
 const (
 	// Arbitrarily chosen to match the cockroachdb default.
 	basePort = 26257
-	// The percentage of memory to allocate to the pebble cache.
-	cacheSize = "0.25"
+	// The fraction of physical memory to allocate to the pebble cache.
+	cacheFraction = 0.25
+	// The fraction of physical memory to allow for SQL. This is cockroachdb's
+	// own default for --max-sql-memory, named here so it can be divided among
+	// the nodes; see nodeMemFraction.
+	sqlMemFraction = 0.25
 )
+
+// nodeMemFraction divides a whole-machine memory fraction among the nodes
+// sharing this machine.
+func nodeMemFraction(whole float64, nodeCount int) string {
+	return strconv.FormatFloat(whole/float64(nodeCount), 'f', -1, 64)
+}
 
 type config struct {
 	host           string
@@ -115,14 +125,15 @@ func launchSingleNodeCluster(cfg *config) ([]*cockroachdbInstance, error) {
 	})
 	inst := instances[0]
 
-	// `cockroach start-single-node` handles both creation of the node
-	// and initialization.
+	// Only used when nodeCount is 1. `cockroach start-single-node` handles
+	// both creation of the node and initialization.
 	inst.cmd = exec.Command(cfg.cockroachdbBin,
 		"start-single-node",
 		"--insecure",
 		"--listen-addr", inst.sqlAddr(),
 		"--http-addr", inst.httpAddr(),
-		"--cache", cacheSize,
+		"--cache", nodeMemFraction(cacheFraction, 1),
+		"--max-sql-memory", nodeMemFraction(sqlMemFraction, 1),
 		"--store", filepath.Join(cfg.tmpDir, inst.name),
 		"--log-dir", filepath.Join(cfg.tmpDir, inst.name+"-log"),
 	)
@@ -164,7 +175,8 @@ func launchCockroachCluster(cfg *config) ([]*cockroachdbInstance, error) {
 			"--insecure",
 			"--listen-addr", inst.sqlAddr(),
 			"--http-addr", inst.httpAddr(),
-			"--cache", cacheSize,
+			"--cache", nodeMemFraction(cacheFraction, cfg.bench.nodeCount),
+			"--max-sql-memory", nodeMemFraction(sqlMemFraction, cfg.bench.nodeCount),
 			"--store", filepath.Join(cfg.tmpDir, inst.name),
 			"--log-dir", filepath.Join(cfg.tmpDir, inst.name+"-log"),
 			join,
